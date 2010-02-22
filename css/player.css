@@ -13,6 +13,7 @@ h1 {
 }
 #player {
 	float: left;
+	position: relative;
 }
 #player-toolbar {
 	display: none;
@@ -31,12 +32,20 @@ h1 {
 	position: relative;
 }
 #player-toolbar li span.ui-icon {
-	float:left;
-	margin:0 4px;
+	float: left;
+	margin: 0 4px;
 }
 #player-infobar {
-	float: right;
-	margin-top: 1.2em;
-	color: #ccc;
-	font-size: 94%;
+	margin: 14px;
+	color: #fff;
+	font-size: 100%;
+	position: absolute;
+	float:left;
+	background: #000;
+	padding: 4px 6px;
+	top: 0px;
+	border: 1px solid #620D04;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px; 
+	opacity: 0;
 }
