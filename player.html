@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>dubstep.uk.net</title>
+	<meta name="description" content="dub, uk, dubstep, parties, skanking" />
+	<meta name="keywords" content="dub, uk, dubstep, parties, skanking" />	
+	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/reset.css" />
+	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/ui.css" />
+	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/player.css" />
+</head>
+<body>
+	<h1>dubstep.uk.net</h1>
+	<div id="player">
+		<div id="player-video">
+			<div id="player-object" class="ui-helper-reset">
+				You need Flash player 8+ and JavaScript enabled to view this video.
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/swfobject/swfobject.js"></script>
+	<script type="text/javascript" src="js/player.js"></script>
+	<script type="text/javascript" src="js/playlist.js"></script>
+	<script type="text/javascript">
+		var player =
+			$("#player")
+			.player({ playlist: playlist })
+			.data("player");
+
+		var onYouTubePlayerReady = function(){
+			player.onReady();
+		}
+	</script>
+	<script type="text/javascript">
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+		try {
+			var pageTracker = _gat._getTracker("UA-1636725-16");
+			pageTracker._trackPageview();
+		} catch(err) {}
+	</script>
+</body>
+</html>
