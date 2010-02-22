@@ -1,0 +1,42 @@
+body {
+	background: #000;
+	color: #fff;
+	font: normal 14px/1 Arial;margin:3em;
+}
+h1 {
+	font-size: 200%;
+	margin-bottom: .6em;
+	text-shadow: 2px 2px 2px #bb0000;
+	text-indent: -400px;
+	background: url(/img/logo.gif) no-repeat;
+	height: 37px;
+}
+#player {
+	float: left;
+}
+#player-toolbar {
+	display: none;
+	float: left;
+	margin: .4em 0 0 0;
+}
+#player-object {
+	border: 1px solid #333;
+}
+#player-toolbar li {
+	cursor: pointer;
+	float: left;
+	list-style: none outside none;
+	margin: 2px;
+	padding: 4px 0;
+	position: relative;
+}
+#player-toolbar li span.ui-icon {
+	float:left;
+	margin:0 4px;
+}
+#player-infobar {
+	float: right;
+	margin-top: 1.2em;
+	color: #ccc;
+	font-size: 94%;
+}
