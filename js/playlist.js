@@ -9,7 +9,7 @@ var playlist = [
 	{ id: 'IEWJ32ZF2i0', title: 'Koan Soan - Blessed' },
 	{ id: 'wML1qxCMxXg', title: 'Physical - Mario Dub' },
 	{ id: 'fVS5WrBJbv0', title: 'Freestylers, Ctrl Z - Ruffneck 09 feat. Navigator (Excision &amp; Datsik Remix)' },
-	{ id: 'jOUQzrc8oDg', title: 'Taz Muckfaster - Half Man Half Trout' },
+	{ id: 'jOUQzrc8oDg', title: 'Taz Buckfaster - Half Man Half Trout' },
 	{ id: 'QMMPO24Y7yU', title: '501 - Mind Control' },
 	{ id: 'UexCBJF_n-4', title: '16 Bit - Chainsaw Caligraphy' },
 	{ id: 'YLQaAmLfqzs', title: 'Akira Kiteshi - Boom N Pow' },
