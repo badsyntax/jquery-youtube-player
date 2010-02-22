@@ -3,8 +3,9 @@
  * Copyright (c) 2010 Richard Willis
  * MIT license  : http://www.opensource.org/licenses/mit-license.php
  * Project      : http://jquery-youtube-player.googlecode.com
- * Contact      : willis.rh@gmail.com
+ * Contact      : willis.rh@gmail.com | badsyntax.co.uk
  */
+
 (function($){
 
 	$.fn.player = function(options){
@@ -31,6 +32,7 @@
 		this.ytplayer = this.$player.find("#player-object").get(0);
 		this.trackNumber = 0;
 		this.timer = {};
+		this.states = {};
 		this.init();
 	}
 
@@ -54,6 +56,7 @@
 		
 		createPlayer : function(){
 			this.$player.css({width: this.options.width+"px"});
+			this.$playerVideo.css({height: this.options.height+"px"});
 			(this.options.swfobject) && this.options.swfobject.embedSWF(
 				"http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer&hd=1&showinfo=0", 
 				this.ytplayer.id, this.options.width, this.options.height, "8", null, null, this.options.videoParams
@@ -99,6 +102,8 @@
 				}).appendTo(this.toolbar.container);
 			}
 			this.$playerVideo.after(this.toolbar.container);
+			this.$loader = $('<span id="player-loader"></span>');
+			this.toolbar.container.after(this.$loader);
 			return this;
 		},
 
@@ -151,19 +156,19 @@
 
 		ytplayerEvents : function(state){
 			switch(state) {
-				case 1 : this.actions.videoPlay(this); break;
+				case 1 : this.actions.videoPlay(this); this.toolbar.states(); break;
 			}
 		},
-
-		states : { },
 
 		actions : {
 			videoPlay : function(player){
 				player.updateInfo();
 				player.states.videoPlay = 1;
+				player.states.play = 1;
 			},
 			play : function(player, button){
 				player.ytplayer.playVideo();
+				player.$loader.show();
 				player.states.play = 1;
 			},
 			pause : function(player, button){
@@ -171,18 +176,17 @@
 				player.states.pause = 1;
 			},
 			prev : function(player, button){
+				player.$loader.show();
 				if (player.trackNumber > 0) {
 					player.trackNumber--;
 					player.loadVideo();
 				}
 			},
 			next : function(player, button){
+				player.$loader.show();
 				if (player.trackNumber < player.options.playlist.length-1) {
-					if (player.options.shuffle) {
-						player.randomTrack();
-					} else {
-						player.trackNumber++;
-					}
+					if (player.options.shuffle) player.randomTrack();
+					else player.trackNumber++;
 					player.loadVideo();
 				}
 				player.states.play = 1;
@@ -199,11 +203,16 @@
 		updateInfo : function(){
 			var self = this;
 			clearTimeout(this.timer.hideInfo);
-			this.infobar.stop().css({opacity: 0}).html(this.options.playlist[this.trackNumber].title).animate({opacity: 1}, 400, function(){
-				self.timer.hideInfo = setTimeout(function(){
-					self.hideInfo();
-				}, 6000);
-			});
+			this.$loader.hide();
+			(!this.infobar.data('show')) && 
+				this.infobar.stop().data('show', 1).css({opacity: 0})
+				.html(this.options.playlist[this.trackNumber].title)
+				.animate({opacity: 1}, 400, function(){
+					self.infobar.data('show', 0);
+					self.timer.hideInfo = setTimeout(function(){
+						self.hideInfo();
+					}, 6000);
+				});
 		},
 
 		hideInfo : function(){

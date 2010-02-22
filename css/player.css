@@ -11,6 +11,10 @@ h1 {
 	background: url(/img/logo.gif) no-repeat;
 	height: 37px;
 }
+#logo {
+	float: right;
+	margin-top: 8px;
+}
 #player {
 	float: left;
 	position: relative;
@@ -72,4 +76,13 @@ h1 {
 }
 #player-playlist li .ui-icon {
 	float: left;
+}
+#player-loader {
+	background: url(../img/player_spinner.gif) no-repeat;
+	width: 16px;
+	height: 16px;
+	display: block;
+	float: right;
+	margin-top: 4px;
+	display: none;
 }
