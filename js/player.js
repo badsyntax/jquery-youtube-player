@@ -20,6 +20,7 @@
 			height: 356,
 			swfobject: window.swfobject,
 			playlist: [],
+			repeat: 1,
 			showPlaylist: 0,
 			randomStart: 1,
 			shuffle: 0,
@@ -30,33 +31,21 @@
 		this.$player = $(obj);
 		this.$playerVideo = this.$player.find("#player-video");
 		this.ytplayer = this.$player.find("#player-object").get(0);
-		this.trackNumber = 0;
-		this.timer = {};
-		this.states = {};
 		this.init();
 	}
 
 	player.prototype = {
+		
+		track:  0, timer: {}, router: {}, states: {}, trackIds: [],
 
 		init : function(){
-			this.trackNumber = this.options.randomStart ? Math.floor(Math.random() * this.options.playlist.length) : 0;
-			this
-			.createElements()
-			.bindEvents();
+			this.track = this.options.randomStart ? Math.floor(Math.random() * this.options.playlist.length) : 0;
+			this.createPlayer().createToolbar().createInfobar().createPlaylist().bindEvents().initRouter();
 		},
 
-		createElements : function(){
-			this
-			.createPlayer()
-			.createToolbar()
-			.createInfobar()
-			.createPlaylist();
-			return this;
-		},
-		
 		createPlayer : function(){
-			this.$player.css({width: this.options.width+"px"});
-			this.$playerVideo.css({height: this.options.height+"px"});
+			this.$player.width(this.options.width);
+			this.$playerVideo.height(this.options.height);
 			(this.options.swfobject) && this.options.swfobject.embedSWF(
 				"http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer&hd=1&showinfo=0", 
 				this.ytplayer.id, this.options.width, this.options.height, "8", null, null, this.options.videoParams
@@ -73,16 +62,17 @@
 					for(var state in self.states) {
 						(self.states[state]) &&
 						(self.toolbar.buttons[state]) && 
+						(self.toolbar.buttons[state].toggle || (self.toolbar.buttons[state].toggleButton && !self.states[self.toolbar.buttons[state].toggleButton])) &&
 						self.toolbar.buttons[state].obj.addClass("ui-state-active");
 					}
 				},
 				buttons : {
-					play: { text: 'Play', classname: 'ui-icon-play' },
-					pause: { text: 'Pause', classname: 'ui-icon-pause' },
+					play: { text: 'Play', classname: 'ui-icon-play', toggleButton: 'pause' },
+					pause: { text: 'Pause', classname: 'ui-icon-pause', toggleButton: 'play' },
 					prev: { text: 'Prev', classname: 'ui-icon-seek-prev' },
 					next: { text: 'Next', classname: 'ui-icon-seek-next' },
-					shuffle: { text: 'Shuffle/Random', classname: 'ui-icon-shuffle' },
-					repeat: { text: 'Repeat playlist', classname: 'ui-icon-refresh', disabled: 1 },
+					shuffle: { text: 'Shuffle/Random', classname: 'ui-icon-shuffle', toggle: 1 },
+					repeat: { text: 'Repeat playlist', classname: 'ui-icon-refresh', toggle: 1 },
 					volume: { text: 'Volume', classname: 'ui-icon-volume-on', disabled: 1 },
 					playlist: { text: 'Toggle playlist', classname: 'ui-icon-script' }
 				}
@@ -91,13 +81,16 @@
 				if (this.toolbar.buttons[button].disabled) continue;
 				this.toolbar.buttons[button].obj = $('<li class="ui-state-default ui-corner-all"></li>')
 				.append('<span class="ui-icon '+this.toolbar.buttons[button].classname+'"></span></li>')
-				.attr('title', this.toolbar.buttons[button].text).data('actionName', button)
+				.attr('title', this.toolbar.buttons[button].text)
+				.data('button', button)
 				.hover(
 					function(){ $(this).addClass("ui-state-hover"); },
 					function(){ $(this).removeClass("ui-state-hover"); }
 				)
 				.click(function(){
-					self.actions[$(this).addClass("ui-state-active").data("actionName")](self, this);
+					var button = $(this).data("button");
+					if (self.toolbar.buttons[button].toggleButton) self.states[self.toolbar.buttons[button].toggleButton] = 0;
+					self.actions[$(this).addClass("ui-state-active").data("button")](self, self.toolbar.buttons[button]);
 					self.toolbar.states();
 				}).appendTo(this.toolbar.container);
 			}
@@ -115,16 +108,17 @@
 
 		createPlaylist : function(){
 			var self = this;
-			this._trackIds = [];
+			this.trackIds = [];
 			this.playlist = $('<ul id="player-playlist"></ul>');
 			for(var track in this.options.playlist) {
-				this._trackIds.push(this.options.playlist[track].id);
+				this.trackIds.push(this.options.playlist[track].id);
 				$('<li></li>')
 				.data("track", this.options.playlist[track])
 				.append('<span class="ui-icon ui-icon-triangle-1-e">')
 				.append(this.options.playlist[track].title)
 				.click(function(){
-					self.trackNumber = $.inArray($(this).data("track").id, self._trackIds);
+					self.$loader.show();
+					self.track = $.inArray($(this).data("track").id, self.trackIds);
 					self.loadVideo($(this).data("track").id);
 					self.states.play = 1;
 					self.toolbar.states();
@@ -145,27 +139,31 @@
 			this.cueVideo();
 		},
 
+		initRouter :  function(){
+			this.router.hash = window.location.hash.replace(/.*?#\//, '');
+			this.router.actions = this.router.hash.split('/');
+			if (this.router.actions.length && this.router.actions[0] === 'v') 
+				this.track = $.inArray(this.router.actions[1], this.trackIds);
+		},
+
 		bindEvents : function(){
 			var self = this;
 			this.$playerVideo.hover(
 				function(){ (self.states.videoPlay) && self.updateInfo(); },
-				function(){ (self.states.videoPlay) && self.hideInfo(); }
+				function(){ (self.states.videoPlay) && (function(){self.infobar.data('show', 0);self.hideInfo();})(); }
 			);
 			return this;
 		},
 
 		ytplayerEvents : function(state){
 			switch(state) {
+				case 0 : this.actions.videoEnded(this); break;
 				case 1 : this.actions.videoPlay(this); this.toolbar.states(); break;
+				case 3 : this.actions.videoBuffer(this); break;
 			}
 		},
 
 		actions : {
-			videoPlay : function(player){
-				player.updateInfo();
-				player.states.videoPlay = 1;
-				player.states.play = 1;
-			},
 			play : function(player, button){
 				player.ytplayer.playVideo();
 				player.$loader.show();
@@ -177,27 +175,42 @@
 			},
 			prev : function(player, button){
 				player.$loader.show();
-				if (player.trackNumber > 0) {
-					player.trackNumber--;
+				if (player.track > 0) {
+					player.track--;
 					player.loadVideo();
 				}
 			},
 			next : function(player, button){
 				player.$loader.show();
-				if (player.trackNumber < player.options.playlist.length-1) {
+				if (player.track < player.options.playlist.length-1) {
 					if (player.options.shuffle) player.randomTrack();
-					else player.trackNumber++;
+					else player.track++;
 					player.loadVideo();
 				}
 				player.states.play = 1;
 			},
 			shuffle : function(player, button){ 
+				player.options.shuffle = 1;
+				player.states.shuffle = player.states.shuffle && button.toggle ? 0 : 1;
+				player.states.play = 1;
 				player.actions.next(player, button);
-				player.options.shuffle = 2;
+			},
+			repeat : function(player, button){
+				player.options.repeat = 1;
+				player.states.repeat = player.states.repeat && button.toggle ? 0 : 1;
 			},
 			playlist : function(player, button){
 				player.playlist.animate({height: "toggle", opacity: "toggle"}, 550);
-			}
+			},
+			videoPlay : function(player){
+				player.updateInfo();
+				player.states.videoPlay = 1;
+				player.states.play = 1;
+			},
+			videoEnded : function(player){
+				(this.options.repeat) && this.next(player);
+			},
+			videoBuffer : function(player){}
 		},
 
 		updateInfo : function(){
@@ -206,7 +219,7 @@
 			this.$loader.hide();
 			(!this.infobar.data('show')) && 
 				this.infobar.stop().data('show', 1).css({opacity: 0})
-				.html(this.options.playlist[this.trackNumber].title)
+				.html(this.options.playlist[this.track].title)
 				.animate({opacity: 1}, 400, function(){
 					self.infobar.data('show', 0);
 					self.timer.hideInfo = setTimeout(function(){
@@ -220,17 +233,17 @@
 		},
 
 		cueVideo : function(videoID){
-			this.ytplayer.cueVideoById(videoID || this.options.playlist[this.trackNumber].id, 0);
+			this.ytplayer.cueVideoById(videoID || this.options.playlist[this.track].id, 0);
 		},
 
 		loadVideo : function(videoID){
 			var self = this;
 			this.infobar.stop().css({opacity: 0});
-			this.ytplayer.loadVideoById(videoID || this.options.playlist[this.trackNumber].id, 0);
+			this.ytplayer.loadVideoById(videoID || this.options.playlist[this.track].id, 0);
 		},
 
 		randomTrack : function(){
-			this.trackNumber = Math.floor(Math.random() * this.options.playlist.length);
+			this.track = Math.floor(Math.random() * this.options.playlist.length);
 		}
 	};
 

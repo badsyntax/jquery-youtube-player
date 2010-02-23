@@ -20,7 +20,7 @@ var playlist = [
 	{ id: 'Vg9wQ0WBBSo', title: 'Reso - Beasts In The Basement' },
 	{ id: '8qAZm7I8chs', title: 'Emalkay - When I Look At You' },
 	{ id: 'gM-q01-Bfck', title: 'Chase &amp; Status - Eastern Jam' },
-	{ id: 'JzX5FlXVbx4i', title: 'Chasing Shadows - Ill' },
+	{ id: 'JzX5FlXVbx4', title: 'Chasing Shadows - Ill' },
 	{ id: '6p5_cQIhCuk', title: 'Excision &amp; Datsik - Swagga' },
 	{ id: 'w4MZXNhWuks', title: '501 - Dangerous' },
 	{ id: 'wq1T4R6BzYs', title: 'Bar 9 - Shaolin Style' },
