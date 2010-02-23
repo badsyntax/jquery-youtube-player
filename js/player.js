@@ -36,10 +36,10 @@
 
 	player.prototype = {
 		
-		track:  0, timer: {}, router: {}, states: {}, trackIds: [],
+		video:  0, state: -1, timer: {}, router: {}, states: {}, videoIds: [],
 
 		init : function(){
-			this.track = this.options.randomStart ? Math.floor(Math.random() * this.options.playlist.length) : 0;
+			this.video = this.options.randomStart ? this.randomVideo() : 0;
 			this.createPlayer().createToolbar().createInfobar().createPlaylist().bindEvents().initRouter();
 		},
 
@@ -74,7 +74,7 @@
 					shuffle: { text: 'Shuffle/Random', classname: 'ui-icon-shuffle', toggle: 1 },
 					repeat: { text: 'Repeat playlist', classname: 'ui-icon-refresh', toggle: 1 },
 					volume: { text: 'Volume', classname: 'ui-icon-volume-on', disabled: 1 },
-					playlist: { text: 'Toggle playlist', classname: 'ui-icon-script' }
+					playlist: { text: 'Toggle playlist', classname: 'ui-icon-script', toggle: 1 }
 				}
 			}
 			for(var button in this.toolbar.buttons) {
@@ -108,18 +108,18 @@
 
 		createPlaylist : function(){
 			var self = this;
-			this.trackIds = [];
+			this.videoIds = [];
 			this.playlist = $('<ul id="player-playlist"></ul>');
-			for(var track in this.options.playlist) {
-				this.trackIds.push(this.options.playlist[track].id);
+			for(var video in this.options.playlist) {
+				this.videoIds.push(this.options.playlist[video].id);
 				$('<li></li>')
-				.data("track", this.options.playlist[track])
+				.data("video", this.options.playlist[video])
 				.append('<span class="ui-icon ui-icon-triangle-1-e">')
-				.append(this.options.playlist[track].title)
+				.append(this.options.playlist[video].title)
 				.click(function(){
 					self.$loader.show();
-					self.track = $.inArray($(this).data("track").id, self.trackIds);
-					self.loadVideo($(this).data("track").id);
+					self.video = $.inArray($(this).data("video").id, self.videoIds);
+					self.loadVideo($(this).data("video").id);
 					self.states.play = 1;
 					self.toolbar.states();
 				})
@@ -145,11 +145,11 @@
 				hash: hash,
 				actions: hash.split('/'),
 				updateHash: function(){
-					window.location.hash = '/v/'+self.options.playlist[self.track].id;
+					window.location.hash = '/v/'+self.options.playlist[self.video].id;
 				}
 			};
 			if (this.router.actions.length && this.router.actions[0] === 'v') 
-				this.track = $.inArray(this.router.actions[1], this.trackIds);
+				this.video = $.inArray(this.router.actions[1], this.videoIds);
 		},
 
 		bindEvents : function(){
@@ -182,17 +182,17 @@
 			},
 			prev : function(player, button){
 				player.$loader.show();
-				if (player.track > 0) {
-					player.track--;
+				if (player.video > 0) {
+					player.video--;
 					player.loadVideo();
 				}
 			},
 			next : function(player, button){
 				player.states.play = 1;
 				player.$loader.show();
-				if (player.track < player.options.playlist.length-1) {
-					if (player.options.shuffle) player.randomTrack();
-					else player.track++;
+				if (player.video < player.options.playlist.length-1) {
+					if (player.options.shuffle) player.randomVideo();
+					else player.video++;
 					player.loadVideo();
 				}
 			},
@@ -200,13 +200,15 @@
 				player.options.shuffle = 1;
 				player.states.shuffle = player.states.shuffle && button.toggle ? 0 : 1;
 				player.states.play = 1;
-				player.actions.next(player, button);
+				player.randomVideo();
+				player.loadVideo();
 			},
 			repeat : function(player, button){
 				player.options.repeat = 1;
 				player.states.repeat = player.states.repeat && button.toggle ? 0 : 1;
 			},
 			playlist : function(player, button){
+				player.states.playlist = player.states.playlist && button.toggle ? 0 : 1;
 				player.playlist.animate({height: "toggle", opacity: "toggle"}, 550);
 			},
 			videoPlay : function(player){
@@ -227,7 +229,7 @@
 			this.$loader.hide();
 			(!this.infobar.data('show')) && 
 				this.infobar.stop().data('show', 1).css({opacity: 0})
-				.html(this.options.playlist[this.track].title)
+				.html(this.options.playlist[this.video].title)
 				.animate({opacity: 1}, 400, function(){
 					self.infobar.data('show', 0);
 					self.timer.hideInfo = setTimeout(function(){
@@ -241,18 +243,19 @@
 		},
 
 		cueVideo : function(videoID){
-			this.ytplayer.cueVideoById(videoID || this.options.playlist[this.track].id, 0);
+			this.ytplayer.cueVideoById(videoID || this.options.playlist[this.video].id, 0);
 		},
 
 		loadVideo : function(videoID){
 			var self = this;
 			this.infobar.stop().css({opacity: 0});
-			this.ytplayer.loadVideoById(videoID || this.options.playlist[this.track].id, 0);
+			this.ytplayer.loadVideoById(videoID || this.options.playlist[this.video].id, 0);
 			this.router.updateHash();
 		},
 
-		randomTrack : function(){
-			this.track = Math.floor(Math.random() * this.options.playlist.length);
+		randomVideo : function(){
+			this.video = Math.floor(Math.random() * this.options.playlist.length);
+			return this.video;
 		}
 	};
 
