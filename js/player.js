@@ -140,8 +140,14 @@
 		},
 
 		initRouter :  function(){
-			this.router.hash = window.location.hash.replace(/.*?#\//, '');
-			this.router.actions = this.router.hash.split('/');
+			var self = this, hash = window.location.hash.replace(/.*?#\//, '');
+			this.router = {
+				hash: hash,
+				actions: hash.split('/'),
+				updateHash: function(){
+					window.location.hash = '/v/'+self.options.playlist[self.track].id;
+				}
+			};
 			if (this.router.actions.length && this.router.actions[0] === 'v') 
 				this.track = $.inArray(this.router.actions[1], this.trackIds);
 		},
@@ -156,7 +162,8 @@
 		},
 
 		ytplayerEvents : function(state){
-			switch(state) {
+			this.state = state;
+			switch(this.state) {
 				case 0 : this.actions.videoEnded(this); break;
 				case 1 : this.actions.videoPlay(this); this.toolbar.states(); break;
 				case 3 : this.actions.videoBuffer(this); break;
@@ -165,13 +172,13 @@
 
 		actions : {
 			play : function(player, button){
-				player.ytplayer.playVideo();
-				player.$loader.show();
 				player.states.play = 1;
+				player.ytplayer.playVideo();
+				(player.state == -1) && player.$loader.show();
 			},
 			pause : function(player, button){
-				player.ytplayer.pauseVideo();
 				player.states.pause = 1;
+				player.ytplayer.pauseVideo();
 			},
 			prev : function(player, button){
 				player.$loader.show();
@@ -181,13 +188,13 @@
 				}
 			},
 			next : function(player, button){
+				player.states.play = 1;
 				player.$loader.show();
 				if (player.track < player.options.playlist.length-1) {
 					if (player.options.shuffle) player.randomTrack();
 					else player.track++;
 					player.loadVideo();
 				}
-				player.states.play = 1;
 			},
 			shuffle : function(player, button){ 
 				player.options.shuffle = 1;
@@ -203,9 +210,10 @@
 				player.playlist.animate({height: "toggle", opacity: "toggle"}, 550);
 			},
 			videoPlay : function(player){
-				player.updateInfo();
 				player.states.videoPlay = 1;
 				player.states.play = 1;
+				player.updateInfo();
+				player.router.updateHash();
 			},
 			videoEnded : function(player){
 				(this.options.repeat) && this.next(player);
@@ -240,6 +248,7 @@
 			var self = this;
 			this.infobar.stop().css({opacity: 0});
 			this.ytplayer.loadVideoById(videoID || this.options.playlist[this.track].id, 0);
+			this.router.updateHash();
 		},
 
 		randomTrack : function(){
