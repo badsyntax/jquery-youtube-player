@@ -14,7 +14,7 @@ var playlist = [
 	{ id: 'UexCBJF_n-4', title: '16 Bit - Chainsaw Caligraphy' },
 	{ id: 'YLQaAmLfqzs', title: 'Akira Kiteshi - Boom N Pow' },
 	{ id: 'x4MfQ0U0MQI', title: 'Datsik - Gizmo' },
-	{ id: '9WBghXzY__', title: 'Cookie Monsta - Me Want Cookie' },
+	{ id: '9WBghXzY__k', title: 'Cookie Monsta - Me Want Cookie' },
 	{ id: '8FDyEZqDzGY', title: 'Richie August - Imperial Mac' },
 	{ id: '2OQIpfWxUis', title: 'Taz Buckfaster - Murda Skank' },
 	{ id: 'Vg9wQ0WBBSo', title: 'Reso - Beasts In The Basement' },

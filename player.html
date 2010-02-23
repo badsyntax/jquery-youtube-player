@@ -29,14 +29,7 @@
 	<script type="text/javascript" src="js/player.js"></script>
 	<script type="text/javascript" src="js/playlist.js"></script>
 	<script type="text/javascript">
-		var player =
-			$("#player")
-			.player({ playlist: playlist })
-			.data("player");
-
-		var onYouTubePlayerReady = function(){
-			player.onReady();
-		}
+		$("#player").player({ playlist: playlist })
 	</script>
 	<script type="text/javascript">
 		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
