@@ -20,6 +20,7 @@
 			height: 356,
 			swfobject: window.swfobject,
 			playlist: [],
+			playlistProxy: 'playlist_proxy.php',
 			repeat: 0,
 			showPlaylist: 1,
 			randomStart: 1,
@@ -30,8 +31,9 @@
 			}
 		}, options || {});
 		this.$player = $(obj);
-		this.$playerVideo = this.$player.find("#player-video");
-		this.ytplayer = this.$player.find("#player-object").get(0);
+		this.$playerVideo = $("#player-video");
+		this.$playerObject = $("#player-object");
+		this.ytplayer = this.$playerObject.get(0);
 		this.init();
 	}
 
@@ -40,8 +42,41 @@
 		video:  0, state: -1, timer: {}, router: {}, states: {}, videoIds: [],
 
 		init : function(){
-			this.video = this.options.randomStart ? this.randomVideo() : 0;
-			this.bindYtEvents().createPlayer().createToolbar().createInfobar().createPlaylist().bindPlayerEvents().initRouter();
+			this.getPlaylistData(
+				function(){ //success
+					this.video = this.options.randomStart ? this.randomVideo() : 0;
+					this.bindYtEvents().createPlayer().createToolbar().createInfobar().createPlaylist().bindPlayerEvents().initRouter();
+				}, 
+				function(){ //error
+					this.$playerObject.html('There was an error loading the playlist');
+				}
+			);
+		},
+
+		getPlaylistData : function(callback, error){
+			var self = this;
+			if (String === this.options.playlist.constructor) {
+				this.$playerObject.html('<span style="padding:1em;">loading playlist..</span>');
+				$.ajax({
+					type: 'GET',
+					url: this.options.playlistProxy+'?url='+this.options.playlist,
+					dataType: 'json',
+					error: function(){ error.call(self); },
+					success: function(json){
+						if (!json) { error.call(self); return; }
+						self.options.playlist = [];
+						$.each(json.feed.entry, function(key, vid){
+							self.options.playlist.push({
+								id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/,"$1"),
+								title: vid.title.$t
+							});
+						});
+						self.$playerObject.fadeOut(180, function(){
+							callback.call(self);
+						});
+					}
+				});
+			} else callback.call(self);
 		},
 
 		initRouter :  function(){
@@ -87,7 +122,7 @@
 		},
 
 		events : {
-			play : function(player, button, playlistItem){
+			play : function(button, playlistItem){
 				player.events.updatePlaylist(player);
 				player.states.play = 1;
 				player.$loader.show();
@@ -169,7 +204,7 @@
 				up : function(player, button){
 					player.scrollbar.pos = 
 						player.scrollbar.pos > player.playlist.find("li:first").height() ? 
-						player.scrollbar.pos - 50 : 
+						player.scrollbar.pos - player.playlist.find("li:first").height() : 
 						0;
 					player.playlistScroller.scrollTop(player.scrollbar.pos);
 				},
@@ -190,6 +225,8 @@
 			(!this.infobar.data('show')) && 
 				this.infobar.stop().data('show', 1).css({opacity: 0})
 				.html(this.options.playlist[this.video].title)
+				.unbind()
+				.click(function(){ window.open(self.ytplayer.getVideoUrl()); })
 				.animate({opacity: 1}, 400, function(){
 					self.infobar.data('show', 0);
 					self.timer.hideInfo = setTimeout(function(){

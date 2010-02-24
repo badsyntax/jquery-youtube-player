@@ -30,7 +30,11 @@
 	<script type="text/javascript" src="js/player.js"></script>
 	<script type="text/javascript" src="js/playlist.js"></script>
 	<script type="text/javascript">
-		$("#player").player({ playlist: playlist })
+		var config =  {
+			playlist: 'http://gdata.youtube.com/feeds/base/users/Projectlightstyle2/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile'
+			//playlist: playlist
+		};
+		$("#player").player(config)
 	</script>
 	<script type="text/javascript">
 		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

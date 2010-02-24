@@ -43,14 +43,15 @@ h1 {
 }
 #player-infobar {
 	margin: 12px 12px 0px 12px;
-	color: #fff;
-	font-size: 100%;
+	color: #eee;
+	font-size: 102%;
 	position: absolute;
 	float:left;
 	background: #000;
 	padding: 4px 6px;
 	top: 0px;
-	border: 1px solid #620D04;
+	border: 2px solid #620D04;
+	cursor: pointer;
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px; 
 	opacity: 0;
