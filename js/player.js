@@ -122,7 +122,7 @@
 		},
 
 		events : {
-			play : function(button, playlistItem){
+			play : function(player, button, playlistItem){
 				player.events.updatePlaylist(player);
 				player.states.play = 1;
 				player.$loader.show();
