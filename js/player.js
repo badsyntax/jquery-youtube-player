@@ -104,8 +104,7 @@
 				player.$loader.show();
 				if (player.video > 0) {
 					player.video--;
-					player.events.updatePlaylist(player);
-					player.loadVideo();
+					player.events.play(player);
 				}
 			},
 			next : function(player, button){
@@ -114,16 +113,14 @@
 				if (player.video < player.options.playlist.length-1) {
 					if (player.options.shuffle) player.randomVideo();
 					else player.video++;
-					player.events.updatePlaylist(player);
-					player.loadVideo();
+					player.events.play(player);
 				}
 			},
 			shuffle : function(player, button){ 
 				player.options.shuffle = 1;
 				player.states.shuffle = player.states.shuffle && button.toggle ? 0 : 1;
-				player.states.play = 1;
 				player.randomVideo();
-				player.loadVideo();
+				player.events.play(player);
 			},
 			repeat : function(player, button){
 				player.options.repeat = 1;
@@ -139,9 +136,13 @@
 				player.playlistContainer.animate({height: "toggle", opacity: "toggle"}, 550);
 			},
 			updatePlaylist : function(player){
-				player.playlist.find("li").removeClass("ui-state-active").each(function(){
-					(player.options.playlist[player.video].id == $(this).data("video").id) &&
-						$(this).addClass("ui-state-active");
+				player.playlist.find("li").removeClass("ui-state-active").each(function(key){
+					if (player.options.playlist[player.video].id == $(this).data("video").id) {
+						var height = $(this).addClass("ui-state-active").outerHeight();
+						player.scrollbar.pos = (key * height) - (3 * height);
+						player.playlistScroller.scrollTop(player.scrollbar.pos);
+						return false;
+					}
 				});
 			},
 			yt : {
@@ -229,6 +230,7 @@
 
 		createToolbar : function(){
 			var self = this;
+
 			this.toolbar = {
 				container: $('<ul id="player-toolbar" class="ui-widget ui-helper-clearfix ui-widget-header ui-corner-all"></ul>'),
 				updateStates : function(){
@@ -251,6 +253,7 @@
 					playlist: { text: 'Toggle playlist', cssclass: 'ui-icon-script', toggle: 1 }
 				}
 			}
+
 			for(var button in this.toolbar.buttons) {
 				if (this.toolbar.buttons[button].disabled) continue;
 
@@ -267,11 +270,14 @@
 					if (self.toolbar.buttons[button].toggleButton) self.states[self.toolbar.buttons[button].toggleButton] = 0;
 					self.events[$(this).addClass("ui-state-active").data("button")](self, self.toolbar.buttons[button]);
 					self.toolbar.updateStates();
-				}).appendTo(this.toolbar.container);
+				})
+				.appendTo(this.toolbar.container);
 			}
+
 			this.$playerVideo.after(this.toolbar.container);
 			this.$loader = $('<span id="player-loader"></span>');
 			this.toolbar.container.after(this.$loader);
+
 			return this;
 		},
 
@@ -283,15 +289,14 @@
 
 		createPlaylist : function(){
 			var self = this;
-			this.videoIds = [];
-			this.playlistContainer = $('<div id="player-playlist-container"></div>');
-			this.playlistScroller = 
-				$('<div id="player-playlist-scroller"></div>')
-				.scrollTop(0)
-				.bind('mousewheel', function(event, delta) {
+
+			this.playlistScroller = $('<div id="player-playlist-scroller"></div>');
+			($.fn.mousewheel) &&
+				this.playlistScroller.bind('mousewheel', function(event, delta) {
 					delta > 0 ? self.events.scrollbar.up(self) : self.events.scrollbar.down(self);
 				});
 
+			this.playlistContainer = $('<div id="player-playlist-container"></div>');
 			this.playlist = $('<ol id="player-playlist"></ol>');
 			this.scrollbar = {
 				bar : 
@@ -307,6 +312,7 @@
 					.appendTo(this.playlistContainer),
 				pos : 0
 			}
+
 			for(var video in this.options.playlist) {
 				this.videoIds.push(this.options.playlist[video].id);
 				$('<li></li>')
@@ -318,7 +324,13 @@
 				})
 				.appendTo(this.playlist);
 			}
-			this.$playerVideo.after(this.playlistContainer.append(this.playlistScroller.append(this.playlist)));
+
+			this.$playerVideo.after(
+				this.playlistContainer.append(
+					this.playlistScroller.append(this.playlist)
+				)
+			);
+
 			return this;
 		}
 	};
