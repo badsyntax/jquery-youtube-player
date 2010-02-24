@@ -87,8 +87,12 @@
 		},
 
 		events : {
-			play : function(player, button){
+			play : function(player, button, playlistItem){
+				player.events.updatePlaylist(player);
 				player.states.play = 1;
+				player.$loader.show();
+				player.loadVideo();
+				player.toolbar.updateStates();
 				player.ytplayer.playVideo();
 				(player.state == -1) && player.$loader.show();
 			},
@@ -100,6 +104,7 @@
 				player.$loader.show();
 				if (player.video > 0) {
 					player.video--;
+					player.events.updatePlaylist(player);
 					player.loadVideo();
 				}
 			},
@@ -109,6 +114,7 @@
 				if (player.video < player.options.playlist.length-1) {
 					if (player.options.shuffle) player.randomVideo();
 					else player.video++;
+					player.events.updatePlaylist(player);
 					player.loadVideo();
 				}
 			},
@@ -132,6 +138,12 @@
 				player.states.playlist = player.states.playlist && button.toggle ? 0 : 1;
 				player.playlistContainer.animate({height: "toggle", opacity: "toggle"}, 550);
 			},
+			updatePlaylist : function(player){
+				player.playlist.find("li").removeClass("ui-state-active").each(function(){
+					(player.options.playlist[player.video].id == $(this).data("video").id) &&
+						$(this).addClass("ui-state-active");
+				});
+			},
 			yt : {
 				ready : function(player){
 					player.ytplayer = player.$player.find("object:first").get(0);
@@ -143,6 +155,7 @@
 				},
 				videoPlay : function(player){
 					player.states.videoPlay = player.states.play = 1;
+					player.events.updatePlaylist(player);
 					player.updateInfo();
 					player.router.updateHash();
 				},
@@ -272,7 +285,13 @@
 			var self = this;
 			this.videoIds = [];
 			this.playlistContainer = $('<div id="player-playlist-container"></div>');
-			this.playlistScroller = $('<div id="player-playlist-scroller"></div>').scrollTop(0);
+			this.playlistScroller = 
+				$('<div id="player-playlist-scroller"></div>')
+				.scrollTop(0)
+				.bind('mousewheel', function(event, delta) {
+					delta > 0 ? self.events.scrollbar.up(self) : self.events.scrollbar.down(self);
+				});
+
 			this.playlist = $('<ol id="player-playlist"></ol>');
 			this.scrollbar = {
 				bar : 
@@ -294,11 +313,8 @@
 				.data("video", this.options.playlist[video])
 				.append(this.options.playlist[video].title)
 				.click(function(){
-					self.$loader.show();
 					self.video = $.inArray($(this).data("video").id, self.videoIds);
-					self.loadVideo($(this).data("video").id);
-					self.states.play = 1;
-					self.toolbar.updateStates();
+					self.events.play(self, null, this);
 				})
 				.appendTo(this.playlist);
 			}
