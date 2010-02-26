@@ -113,7 +113,7 @@ h1 {
 #player-playlist li .ui-icon {
 	float: left;
 }
-#player-loader {
+.player-loader {
 	background: url(../img/player_spinner.gif) no-repeat;
 	width: 16px;
 	height: 16px;
@@ -121,4 +121,11 @@ h1 {
 	float: right;
 	margin-top: 6px;
 	display: none;
+}
+.playlist-loading {
+	background: url(../img/player_spinner.gif) no-repeat 6px 5px;
+	padding-left: 22px;
+	padding: 0 4px 0 28px;
+	height: 22px;
+	line-height: 22px;
 }
