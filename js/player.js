@@ -14,16 +14,18 @@
 		});
 	}
 
-	var player = function(obj, options){
+	function player(obj, options){
 		this.options = $.extend({
 			width: 425,
 			height: 356,
 			swfobject: window.swfobject,
-			playlist: [],
+			playlists: [],
+			defaultPlaylist: 0,
 			playlistProxy: 'playlist_proxy.php',
-			repeat: 0,
 			showPlaylist: 1,
+			repeat: 0,
 			randomStart: 1,
+			autoStart: 0,
 			shuffle: 0,
 			updateHash: 1,
 			videoParams: { 
@@ -33,18 +35,19 @@
 		this.$player = $(obj);
 		this.$playerVideo = $("#player-video");
 		this.$playerObject = $("#player-object");
-		this.ytplayer = this.$playerObject.get(0);
 		this.init();
 	}
 
 	player.prototype = {
 		
-		video:  0, state: -1, timer: {}, router: {}, states: {}, videoIds: [],
+		state: -1, timer: {}, router: {}, states: {}, videoIds: [],
 
 		init : function(){
+			this.keys = {video: 0, playlist: this.options.defaultPlaylist};
+			this.ytplayer = this.$playerObject.get(0);
 			this.getPlaylistData(
 				function(){ // success
-					this.video = this.options.randomStart ? this.randomVideo() : 0;
+					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
 					this
 					.bindYtEvents()
 					.createPlayer()
@@ -55,26 +58,27 @@
 					.initRouter();
 				}, 
 				function(){ // error
-					this.$playerObject.html('There was an error loading the playlist.');
+					this.$playerObject.html('There was an error loading the playlist.').removeClass('playlist-loading');
 				}
 			);
 		},
 
 		getPlaylistData : function(callback, error){
-			var self = this;
-			if (String === this.options.playlist.constructor) {
-				this.$playerObject.html('loading playlist..').addClass("playlist-loading");
-				$.ajax({
+			var self = this, playlist = this.options.playlists[this.keys.playlist];
+			if (String === playlist.constructor) {
+				self.$playerObject.html('loading playlist..').addClass("playlist-loading");
+				var xhr = $.ajax({
 					type: 'GET',
-					url: this.options.playlistProxy+'?url='+this.options.playlist,
+					url: self.options.playlistProxy+'?url='+playlist,
 					dataType: 'json',
 					error: function(){ error.call(self); },
 					success: function(json){
 						if (!json) { error.call(self); return; }
-						self.options.playlist = [];
+						// replace playlist url with json array
+						self.options.playlists[self.keys.playlist] = [];
 						$.each(json.feed.entry, function(key, vid){
-							self.options.playlist.push({
-								id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/,"$1"),
+							self.options.playlists[self.keys.playlist].push({
+								id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/,"$1"), // munge video id from href
 								title: vid.title.$t
 							});
 						});
@@ -93,12 +97,12 @@
 				actions: /\//.test(hash) ? hash.split('/') : ['v'],
 				updateHash: function(){
 					if (self.options.updateHash) 
-					window.location.hash = '/'+self.router.actions[0]+'/'+self.options.playlist[self.video].id;
+					window.location.hash = '/'+self.router.actions[0]+'/'+self.options.playlists[self.keys.playlist][self.keys.video].id;
 				}
 			};
 			switch(this.router.actions[0]){
-				case 'v' : this.video = this.router.actions[1] ? $.inArray(this.router.actions[1], this.videoIds) : this.video; break;
-				case 'p' : this.video = $.inArray(this.router.actions[1], this.videoIds); this.states.play = 1; break;
+				case 'v' : this.keys.video = this.router.actions[1] ? $.inArray(this.router.actions[1], this.videoIds) : this.keys.video; break;
+				case 'p' : this.keys.video = $.inArray(this.router.actions[1], this.videoIds); this.states.play = 1; break;
 				default : break;
 			} 
 		},
@@ -143,17 +147,17 @@
 			},
 			prev : function(player, button){
 				player.$loader.show();
-				if (player.video > 0) {
-					player.video--;
+				if (player.keys.video > 0) {
+					player.keys.video--;
 					player.events.play(player);
 				}
 			},
 			next : function(player, button){
 				player.states.play = 1;
 				player.$loader.show();
-				if (player.video < player.options.playlist.length-1) {
+				if (player.keys.video < player.options.playlists[player.keys.playlist].length-1) {
 					if (player.options.shuffle) player.randomVideo();
-					else player.video++;
+					else player.keys.video++;
 					player.events.play(player);
 				}
 			},
@@ -178,7 +182,7 @@
 			},
 			updatePlaylist : function(player){
 				player.playlist.find("li").removeClass("ui-state-active").each(function(key){
-					if (player.options.playlist[player.video].id == $(this).data("video").id) {
+					if (player.options.playlists[player.keys.playlist][player.keys.video].id == $(this).data("video").id) {
 						var height = $(this).addClass("ui-state-active").outerHeight();
 						player.scrollbar.pos = (key * height) - (3 * height);
 						player.playlistScroller.scrollTop(player.scrollbar.pos);
@@ -233,7 +237,7 @@
 			this.$loader.hide();
 			this.timer.showInfo = setTimeout(function(){
 				self.infobar.stop().data('show', '1').css({opacity: 0})
-				.html(self.options.playlist[self.video].title)
+				.html(self.options.playlists[self.keys.playlist][self.keys.video].title)
 				.unbind('click')
 				.click(function(){ window.open(self.ytplayer.getVideoUrl()); })
 				.animate({opacity: 1}, 400, function(){
@@ -252,19 +256,19 @@
 		},
 
 		cueVideo : function(videoID){
-			this.ytplayer.cueVideoById(videoID || this.options.playlist[this.video].id, 0);
+			this.ytplayer.cueVideoById(videoID || this.options.playlists[this.keys.playlist][this.keys.video].id, 0);
 		},
 
 		loadVideo : function(videoID){
 			var self = this;
 			this.infobar.stop().css({opacity: 0});
-			this.ytplayer.loadVideoById(videoID || this.options.playlist[this.video].id, 0);
+			this.ytplayer.loadVideoById(videoID || this.options.playlists[this.keys.playlist][this.keys.video].id, 0);
 			this.router.updateHash();
 		},
 
 		randomVideo : function(){
-			this.video = Math.floor(Math.random() * this.options.playlist.length);
-			return this.video;
+			this.keys.video = Math.floor(Math.random() * this.options.playlists[this.keys.playlist].length);
+			return this.keys.video;
 		},
 
 		createPlayer : function(){
@@ -362,13 +366,13 @@
 				pos : 0
 			}
 
-			for(var video in this.options.playlist) {
-				this.videoIds.push(this.options.playlist[video].id);
+			for(var video in this.options.playlists[this.keys.playlist]) {
+				this.videoIds.push(this.options.playlists[this.keys.playlist][video].id);
 				$('<li></li>')
-				.data('video', this.options.playlist[video])
-				.append(this.options.playlist[video].title)
+				.data('video', this.options.playlists[this.keys.playlist][video])
+				.append(this.options.playlists[this.keys.playlist][video].title)
 				.click(function(){
-					self.video = $.inArray($(this).data('video').id, self.videoIds);
+					self.keys.video = $.inArray($(this).data('video').id, self.videoIds);
 					self.events.play(self, null, this);
 				})
 				.appendTo(this.playlist);
