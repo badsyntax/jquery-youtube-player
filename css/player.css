@@ -46,12 +46,13 @@ h1 {
 	color: #eee;
 	font-size: 102%;
 	position: absolute;
-	float:left;
+	float: left;
 	background: #000;
 	padding: 4px 6px;
 	top: 0px;
 	border: 2px solid #620D04;
 	cursor: pointer;
+	z-index: 99;
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px; 
 	opacity: 0;
@@ -60,15 +61,21 @@ h1 {
 	max-height: 8.9em;
 	overflow: hidden;
 }
-#player-playlist {
+#player-playlists {
+	margin-left: 6px; 
+	border: 1px solid #282828; 
+	height: 356px; 
+	float: left;
+}
+#player-playlist, #player-playlists ol {
 	line-height: 1.4em;
 	color: #eee;
-	margin: 4px 0 0 0;
+	margin: 8px 0 0 0;
 	padding: 0px 16px 0px 32px;
 	overflow-x: hidden;
 	list-style-type: decimal;
 }
-#player-playlist li.ui-state-active {
+#player-playlist li.ui-state-active, #player-playlists li.ui-state-active {
 	color: #fff;
 	border: 0 !important;
 }
@@ -102,16 +109,14 @@ h1 {
 	cursor: pointer;
 	z-index: 2;
 }
-#player-playlist li {
+#player-playlist li, #player-playlists li {
 	cursor: pointer;
 	white-space: nowrap;
 	color: #999;
+	text-decoration: none;
 }
-#player-playlist li:hover {
+#player-playlist li:hover, #player-playlists li:hover {
 	color:  #fff;
-}
-#player-playlist li .ui-icon {
-	float: left;
 }
 .player-loader {
 	background: url(../img/player_spinner.gif) no-repeat;
@@ -128,4 +133,10 @@ h1 {
 	padding: 0 4px 0 28px;
 	height: 22px;
 	line-height: 22px;
+}
+.player-playlists-heading {
+	display: block;
+	height: 18px;
+	margin: 10px 0 4px 16px;
+	background: url(../img/playlists.gif) no-repeat 0 0;
 }
