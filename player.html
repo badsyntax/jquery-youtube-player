@@ -20,7 +20,7 @@
 	</h1>
 	<div id="player">
 		<div id="player-video">
-			<div id="player-object" class="ui-helper-reset">
+			<div id="player-object">
 				You need Flash player 8+ and JavaScript enabled.
 			</div>
 		</div>
@@ -31,21 +31,12 @@
 	<script type="text/javascript" src="js/player.js"></script>
 	<script type="text/javascript" src="js/playlist.js"></script>
 	<script type="text/javascript">
-	/* <![CDATA[ */
+	/*<![CDATA[*/
 		var config =  {
-			playlists: ['http://gdata.youtube.com/feeds/base/users/Projectlightstyle2/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile']
-			//playlists: playlists
+			playlists: playlists
 		};
 		$("#player").player(config)
-	/* ]]> */
-	</script>
-	<script type="text/javascript">
-		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-	</script>
-	<script type="text/javascript">
-		try { _gat._getTracker("UA-1636725-16")._trackPageview(); } 
-		catch(e) {}
+	/*]]>*/
 	</script>
 </body>
 </html>

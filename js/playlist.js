@@ -41,5 +41,6 @@ var playlists =
 		{ id: 'HKt0DUlE4_k', title: 'The Widdler - Sensi Samurai' },
 		{ id: 'vNEPb0tM0ro', title: 'Akira Kiteshi - Noglitch Part 1 &amp; 2' },
 		{ id: 'ie5y3M5mgmA', title: 'Darkstar - Aidy\'s Girl\'s A Computer' }
-	]
+	],
+	'http://gdata.youtube.com/feeds/base/users/Projectlightstyle2/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile'
 ];
