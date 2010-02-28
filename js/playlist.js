@@ -1,7 +1,7 @@
 var playlists = 
 [
 	{
-		title: 'BadSyntax\'s sick selection',
+		title: 'BadSyntax sick pick',
 		videos: [
 			{ id: 'TI7ajCiDcpU', title: 'Starky - Gutter Music' },
 			{ id: '9bbH1vTTEUY', title: 'Skism - The Blank (16 Bit Remix)' },
@@ -48,7 +48,15 @@ var playlists =
 		]
 	},
 	{
-		title: 'Projectlightstyle',
-		videos: 'http://gdata.youtube.com/feeds/base/users/Projectlightstyle2/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile'
+		title: 'KCmuSick',
+		videos: 'http://gdata.youtube.com/feeds/base/users/KCmuSick/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
+	},
+	{
+		title: 'TheSenseless',
+		videos: 'http://gdata.youtube.com/feeds/base/users/TheSensless/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
+	},
+	{
+		title: 'Projectlightstyle2',
+		videos: 'http://gdata.youtube.com/feeds/base/users/Projectlightstyle2/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
 	}
 ];

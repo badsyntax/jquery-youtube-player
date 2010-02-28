@@ -204,6 +204,7 @@
 					player.ytplayer.addEventListener('onError', '_ytplayerevents');
 					player.cueVideo();
 					player.elements.toolbar.$container.fadeIn(800);
+					player.elements.$playlistsContainer.fadeIn(800);
 					(player.readyCallback) && player.readyCallback();
 					(player.options.showPlaylist) && player.playlist.fadeIn(400);
 				},
@@ -365,8 +366,9 @@
 			this.elements.$playlists = $('<ol>');
 			
 			$.each(this.options.playlists, function(key){
-				$('<li></li>').data('playlist', key).append(this.title)
+				$('<li></li>').data('playlist', key).append(this.title).addClass(key === self.keys.playlist ? 'ui-state-active' : '')
 				.click(function(){
+					var li = this;
 					self.keys.playlist = $(this).data('playlist');
 					self.elements.$loader.show();
 					self.getPlaylistData(
@@ -375,6 +377,8 @@
 							this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
 							this.elements.toolbar.buttons.play.obj.data('state', 0);
 							this.createPlaylist();
+							this.elements.$playlists.find('.ui-state-active').removeClass('ui-state-active');
+							$(li).addClass("ui-state-active");
 							this.cueVideo();
 						},
 						function(){ // error
