@@ -29,47 +29,48 @@
 			shuffle: 0,
 			updateHash: 1,
 			videoParams: { 
-				allowScriptAccess: "always" 
+				allowScriptAccess: 'always'
 			}
 		}, options || {});
-		this.$player = $(obj);
-		this.$playerVideo = $("#player-video");
-		this.$playerObject = $("#player-object");
-		this.init();
+		this.init(obj);
 	}
 
 	player.prototype = {
 		
-		state: -1, timer: {}, router: {}, states: {}, videoIds: [],
+		state: -1, timer: {}, router: {}, videoIds: [], elements: {},
 
-		init : function(){
-			this.keys = {video: 0, playlist: this.options.defaultPlaylist};
-			this.ytplayer = this.$playerObject.get(0);
+		init : function(obj){
+			this.elements.$player = $(obj);
+			this.elements.$playerVideo = $('#player-video');
+			this.elements.$playerObject = $('#player-object');
+			this.keys = {
+				video: 0, 
+				playlist: this.options.defaultPlaylist
+			};
+			this.ytplayer = this.elements.$playerObject.get(0);
 			this.getPlaylistData(
 				function(){ // success
 					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
 					this
-					.bindYtEvents()
-					.createPlayer()
-					.createToolbar()
-					.createInfobar()
-					.createPlaylist()
+					.createElements()
 					.bindPlayerEvents()
+					.bindYtEvents()
 					.initRouter();
 				}, 
 				function(){ // error
-					this.$playerObject.html('There was an error loading the playlist.').removeClass('playlist-loading');
+					this.elements.$playerObject.html('There was an error loading the playlist.').removeClass('playlist-loading');
 				}
 			);
+			console.debug(this);
 		},
 
 		getPlaylistData : function(callback, error){
 			var self = this, playlist = this.options.playlists[this.keys.playlist];
 			if (String === playlist.constructor) {
-				self.$playerObject.html('loading playlist..').addClass("playlist-loading");
+				self.elements.$playerObject.html('loading playlist..').addClass('playlist-loading');
 				var xhr = $.ajax({
 					type: 'GET',
-					url: self.options.playlistProxy+'?url='+playlist,
+					url: self.options.playlistProxy + '?url=' + playlist,
 					dataType: 'json',
 					error: function(){ error.call(self); },
 					success: function(json){
@@ -78,11 +79,11 @@
 						self.options.playlists[self.keys.playlist] = [];
 						$.each(json.feed.entry, function(key, vid){
 							self.options.playlists[self.keys.playlist].push({
-								id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/,"$1"), // munge video id from href
+								id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/, '$1'), // munge video id from href
 								title: vid.title.$t
 							});
 						});
-						self.$playerObject.fadeOut(180, function(){
+						self.elements.$playerObject.fadeOut(180, function(){
 							callback.call(self);
 						});
 					}
@@ -102,7 +103,7 @@
 			};
 			switch(this.router.actions[0]){
 				case 'v' : this.keys.video = this.router.actions[1] ? $.inArray(this.router.actions[1], this.videoIds) : this.keys.video; break;
-				case 'p' : this.keys.video = $.inArray(this.router.actions[1], this.videoIds); this.states.play = 1; break;
+				case 'p' : this.keys.video = $.inArray(this.router.actions[1], this.videoIds); break;
 				default : break;
 			} 
 		},
@@ -116,9 +117,9 @@
 
 		bindPlayerEvents : function(){
 			var self = this;
-			this.$playerVideo
-			.bind('mouseenter', function(){ (self.states.videoPlay) && self.updateInfo(); })
-			.bind('mouseleave', function(){ (self.states.videoPlay) && self.hideInfo(); });
+			this.elements.$playerVideo
+			.bind('mouseenter', function(){ self.updateInfo(); })
+			.bind('mouseleave', function(){ self.hideInfo(); });
 			return this;
 		},
 
@@ -134,27 +135,23 @@
 		events : {
 			play : function(player, button, playlistItem){
 				player.events.updatePlaylist(player);
-				player.states.play = 1;
-				player.$loader.show();
+				player.elements.$loader.show();
 				player.loadVideo();
-				player.toolbar.updateStates();
 				player.ytplayer.playVideo();
-				(player.state == -1) && player.$loader.show();
+				(player.state === -1) && player.elements.$loader.show();
 			},
 			pause : function(player, button){
-				player.states.pause = 1;
 				player.ytplayer.pauseVideo();
 			},
 			prev : function(player, button){
-				player.$loader.show();
+				player.elements.$loader.show();
 				if (player.keys.video > 0) {
 					player.keys.video--;
 					player.events.play(player);
 				}
 			},
 			next : function(player, button){
-				player.states.play = 1;
-				player.$loader.show();
+				player.elements.$loader.show();
 				if (player.keys.video < player.options.playlists[player.keys.playlist].length-1) {
 					if (player.options.shuffle) player.randomVideo();
 					else player.keys.video++;
@@ -162,50 +159,46 @@
 				}
 			},
 			shuffle : function(player, button){ 
-				player.options.shuffle = 1;
-				player.states.shuffle = player.states.shuffle && button.toggle ? 0 : 1;
 				player.randomVideo();
 				player.events.play(player);
 			},
 			repeat : function(player, button){
 				player.options.repeat = 1;
-				player.states.repeat = player.states.repeat && button.toggle ? 0 : 1;
 			},
 			mute : function(player, button){
-				player.states.mute = player.states.mute && button.toggle ? 0 : 1;
-				if (player.states.mute) player.ytplayer.mute();
+				if (button.obj.data('state')) player.ytplayer.mute();
 				else player.ytplayer.unMute();
 			},
 			playlist : function(player, button){
-				player.states.playlist = player.states.playlist && button.toggle ? 0 : 1;
-				player.playlistContainer.animate({height: "toggle", opacity: "toggle"}, 550);
+				player.elements.$playlistContainer.animate({height: 'toggle', opacity: 'toggle'}, 550);
 			},
 			updatePlaylist : function(player){
-				player.playlist.find("li").removeClass("ui-state-active").each(function(key){
-					if (player.options.playlists[player.keys.playlist][player.keys.video].id == $(this).data("video").id) {
-						var height = $(this).addClass("ui-state-active").outerHeight();
-						player.scrollbar.pos = (key * height) - (3 * height);
-						player.playlistScroller.scrollTop(player.scrollbar.pos);
+				player.elements
+				.$playlist.find('li').removeClass('ui-state-active')
+				.each(function(key){
+					if (player.options.playlists[player.keys.playlist][player.keys.video].id == $(this).data('video').id) {
+						var height = $(this).addClass('ui-state-active').outerHeight();
+						player.elements.scrollbar.pos = (key * height) - (3 * height);
+						player.elements.$playlistScroller.scrollTop(player.elements.scrollbar.pos);
 						return false;
 					}
 				});
 			},
 			yt : {
 				ready : function(player){
-					player.ytplayer = player.$player.find("object:first").get(0);
-					player.ytplayer.addEventListener("onStateChange", "_ytplayerevents");
-					player.ytplayer.addEventListener("onError", "_ytplayerevents");
-					player.toolbar.container.fadeIn(400);
+					player.ytplayer = player.elements.$player.find('object:first').get(0);
+					player.ytplayer.addEventListener('onStateChange', '_ytplayerevents');
+					player.ytplayer.addEventListener('onError', '_ytplayerevents');
+					player.elements.toolbar.$container.fadeIn(400);
 					player.cueVideo();
 					(player.options.showPlaylist) && player.playlist.fadeIn(400);
-					(player.states.play) && player.events.play(player);
+					//(player.states.play) && player.events.play(player);
 				},
 				videoPlay : function(player){
-					player.states.videoPlay = player.states.play = 1;
 					player.events.updatePlaylist(player);
 					player.updateInfo(320);
 					player.router.updateHash();
-					player.toolbar.updateStates();
+					player.elements.toolbar.updateStates();
 				},
 				videoEnded : function(player){
 					(player.options.repeat) && player.events.next(player);
@@ -214,18 +207,18 @@
 			},
 			scrollbar : {
 				up : function(player, button){
-					player.scrollbar.pos = 
-						player.scrollbar.pos > player.playlist.find('li:first').height() ? 
-						player.scrollbar.pos - player.playlist.find('li:first').height() : 
+					player.elements.scrollbar.pos = 
+						player.elements.scrollbar.pos > player.elements.$playlist.find('li:first').height() ? 
+						player.elements.scrollbar.pos - player.elements.$playlist.find('li:first').height() : 
 						0;
-					player.playlistScroller.scrollTop(player.scrollbar.pos);
+					player.elements.$playlistScroller.scrollTop(player.elements.scrollbar.pos);
 				},
 				down : function(player, button){
-					player.scrollbar.pos = 
-						player.scrollbar.pos < player.playlist.outerHeight() - player.playlistScroller.outerHeight() ? 
-						player.scrollbar.pos + player.playlist.find('li:first').height() : 
-						player.scrollbar.pos;
-					player.playlistScroller.scrollTop(player.scrollbar.pos);
+					player.elements.scrollbar.pos = 
+						player.elements.scrollbar.pos < player.elements.$playlist.outerHeight() - player.elements.$playlistScroller.outerHeight() ? 
+						player.elements.scrollbar.pos + player.elements.$playlist.find('li:first').height() : 
+						player.elements.scrollbar.pos;
+					player.elements.$playlistScroller.scrollTop(player.elements.scrollbar.pos);
 				}
 			}
 		},
@@ -233,26 +226,27 @@
 		updateInfo : function(timeout){
 			var self = this;
 			timeout = timeout || 0;
-			clearTimeout(this.timer.hideInfo);
-			this.$loader.hide();
-			this.timer.showInfo = setTimeout(function(){
-				self.infobar.stop().data('show', '1').css({opacity: 0})
-				.html(self.options.playlists[self.keys.playlist][self.keys.video].title)
-				.unbind('click')
-				.click(function(){ window.open(self.ytplayer.getVideoUrl()); })
-				.animate({opacity: 1}, 400, function(){
-					self.infobar.data('show', '0');
-					self.timer.hideInfo = setTimeout(function(){
-						self.hideInfo();
-					}, 6000);
-				});
-			}, timeout);
+			this.elements.$loader.hide();
+			if (this.elements.$infobar.css('opacity') < 1) {
+				clearTimeout(this.timer.hideInfo);
+				this.timer.showInfo = setTimeout(function(){
+					self.elements.$infobar
+					.stop().css({opacity: 0}).unbind('click')
+					.html(self.options.playlists[self.keys.playlist][self.keys.video].title)
+					.click(function(){ window.open(self.ytplayer.getVideoUrl()); })
+					.animate({opacity: 1}, 340, function(){
+						self.timer.hideInfo = setTimeout(function(){
+							self.hideInfo();
+						}, 6000);
+					});
+				}, timeout);
+			}
 		},
 
 		hideInfo : function(){
 			clearTimeout(this.timer.hideInfo);
 			clearTimeout(this.timer.showInfo);
-			this.infobar.stop().animate({opacity: 0});
+			this.elements.$infobar.stop().animate({opacity: 0});
 		},
 
 		cueVideo : function(videoID){
@@ -261,7 +255,7 @@
 
 		loadVideo : function(videoID){
 			var self = this;
-			this.infobar.stop().css({opacity: 0});
+			this.elements.$infobar.stop().css({opacity: 0});
 			this.ytplayer.loadVideoById(videoID || this.options.playlists[this.keys.playlist][this.keys.video].id, 0);
 			this.router.updateHash();
 		},
@@ -271,9 +265,17 @@
 			return this.keys.video;
 		},
 
+		createElements : function(){
+			return this
+			.createPlayer()
+			.createToolbar()
+			.createInfobar()
+			.createPlaylist();
+		},
+
 		createPlayer : function(){
-			this.$player.width(this.options.width);
-			this.$playerVideo.height(this.options.height);
+			this.elements.$player.width(this.options.width);
+			this.elements.$playerVideo.height(this.options.height);
 			(this.options.swfobject) && this.options.swfobject.embedSWF(
 				'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=ytplayer&hd=1&showinfo=0', 
 				this.ytplayer.id, this.options.width, this.options.height, '8', null, null, this.options.videoParams
@@ -284,16 +286,17 @@
 		createToolbar : function(){
 			var self = this;
 
-			this.toolbar = {
-				container: $('<ul id="player-toolbar" class="ui-widget ui-helper-clearfix ui-widget-header ui-corner-all"></ul>'),
+			this.elements.toolbar = {
+				$container: $('<ul id="player-toolbar" class="ui-widget ui-helper-clearfix ui-widget-header ui-corner-all"></ul>'),
 				updateStates : function(){
-					self.toolbar.container.find('.ui-state-active').removeClass('ui-state-active');
-					for(var state in self.states) {
-						(self.states[state]) &&
-						(self.toolbar.buttons[state]) && 
-						(self.toolbar.buttons[state].toggle || (self.toolbar.buttons[state].toggleButton && !self.states[self.toolbar.buttons[state].toggleButton])) &&
-						self.toolbar.buttons[state].obj.addClass('ui-state-active');
-					}
+					$.each(self.elements.toolbar.buttons, function(key){
+						this.obj.removeClass('ui-state-active');
+						(this.obj.data('state')) &&
+						(this.toggle || 
+							(this.toggleButton && 
+							self.elements.toolbar.buttons[this.toggleButton])) &&
+							this.obj.addClass('ui-state-active');
+					});
 				},
 				buttons : {
 					play: { text: 'Play', cssclass: 'ui-icon-play', toggleButton: 'pause' },
@@ -303,66 +306,71 @@
 					shuffle: { text: 'Shuffle/Random', cssclass: 'ui-icon-shuffle', toggle: 1 },
 					repeat: { text: 'Repeat playlist', cssclass: 'ui-icon-refresh', toggle: 1 },
 					volume: { text: 'Mute', cssclass: 'ui-icon-volume-on', toggle: 1 },
-					playlist: { text: 'Toggle track list', cssclass: 'ui-icon-script', toggle: 1 },
+					playlist: { text: 'Toggle playlist', cssclass: 'ui-icon-script', toggle: 1 },
 					playlists: { text: 'Toggle playlists', cssclass: 'ui-icon-video', toggle: 1 }
 				}
 			}
 
-			for(var button in this.toolbar.buttons) {
-				if (this.toolbar.buttons[button].disabled) continue;
-
-				this.toolbar.buttons[button].obj = $('<li class="ui-state-default ui-corner-all"></li>')
-				.append('<span class="ui-icon '+this.toolbar.buttons[button].cssclass+'"></span></li>')
-				.attr('title', this.toolbar.buttons[button].text)
-				.data('button', button)
-				.bind('mouseenter', function(){ $(this).addClass('ui-state-hover'); })
-				.bind('mouseleave', function(){ $(this).removeClass('ui-state-hover'); })
+			$.each(this.elements.toolbar.buttons, function(key) {
+				if (this.disabled) return true;
+				var buttonObj = this;
+				this.obj = 
+				$('<li class="ui-state-default ui-corner-all"></li>')
+				.append('<span class="ui-icon '+this.cssclass+'"></span></li>')
+				.attr('title', this.text)
+				.data('button', key)
+				.bind('mouseenter', function(){ $(this).toggleClass('ui-state-hover'); })
+				.bind('mouseleave', function(){ $(this).toggleClass('ui-state-hover'); })
 				.click(function(){
-					var button = $(this).data('button');
-					if (self.toolbar.buttons[button].toggleButton) self.states[self.toolbar.buttons[button].toggleButton] = 0;
-					self.events[$(this).addClass('ui-state-active').data('button')](self, self.toolbar.buttons[button]);
-					self.toolbar.updateStates();
+					var button = 
+					$(this)
+					.data('state', $(this).data('state') && buttonObj.toggle ? 0 : 1)
+					.data('button');
+
+					(buttonObj.toggleButton) &&
+					self.elements.toolbar.buttons[buttonObj.toggleButton].obj.data('state', 0);
+
+					self.events[button](self, buttonObj);
+					self.elements.toolbar.updateStates();
 				})
-				.appendTo(this.toolbar.container);
-			}
+				.appendTo(self.elements.toolbar.$container);
+			});
 
-			this.$playerVideo.after(this.toolbar.container);
-			this.$loader = $('<span></span>').addClass('player-loader');
-			this.toolbar.container.after(this.$loader);
-
+			this.elements.$playerVideo.after(this.elements.toolbar.$container);
+			this.elements.$loader = $('<span></span>').addClass('player-loader');
+			this.elements.toolbar.$container.after(this.elements.$loader);
 			return this;
 		},
 
 		createInfobar : function(){
-			this.infobar = $('<div id="player-infobar"></div>');
-			this.$playerVideo.prepend(this.infobar);
-
+			this.elements.$infobar = $('<div id="player-infobar"></div>');
+			this.elements.$playerVideo.prepend(this.elements.$infobar);
 			return this;
 		},
 
 		createPlaylist : function(){
 			var self = this;
 
-			this.playlistScroller = $('<div id="player-playlist-scroller"></div>');
+			this.elements.$playlistScroller = $('<div id="player-playlist-scroller"></div>');
 			($.fn.mousewheel) &&
-				this.playlistScroller.bind('mousewheel', function(event, delta) {
+				this.elements.$playlistScroller.bind('mousewheel', function(event, delta) {
 					delta > 0 ? self.events.scrollbar.up(self) : self.events.scrollbar.down(self);
 				});
 
-			this.playlistContainer = $('<div id="player-playlist-container"></div>');
-			this.playlist = $('<ol id="player-playlist"></ol>');
-			this.scrollbar = {
+			this.elements.$playlistContainer = $('<div id="player-playlist-container"></div>');
+			this.elements.$playlist = $('<ol id="player-playlist"></ol>');
+			this.elements.scrollbar = {
 				bar : 
 					$('<div id="player-playlist-scrollbar"></div>')
-					.appendTo(this.playlistContainer),
+					.appendTo(this.elements.$playlistContainer),
 				up : 
 					$('<span id="player-playlist-scrollbar-up" class="ui-icon ui-icon-circle-triangle-n"></span>')
 					.click(function(){ self.events.scrollbar.up(self); })
-					.appendTo(this.playlistContainer),
+					.appendTo(this.elements.$playlistContainer),
 				down : 
 					$('<span id="player-playlist-scrollbar-down" class="ui-icon ui-icon-circle-triangle-s"></span>')
 					.click(function(){ self.events.scrollbar.down(self); })
-					.appendTo(this.playlistContainer),
+					.appendTo(this.elements.$playlistContainer),
 				pos : 0
 			}
 
@@ -375,12 +383,12 @@
 					self.keys.video = $.inArray($(this).data('video').id, self.videoIds);
 					self.events.play(self, null, this);
 				})
-				.appendTo(this.playlist);
+				.appendTo(this.elements.$playlist);
 			}
 
-			this.$playerVideo.after(
-				this.playlistContainer.append(
-					this.playlistScroller.append(this.playlist)
+			this.elements.$playerVideo.after(
+				this.elements.$playlistContainer.append(
+					this.elements.$playlistScroller.append(this.elements.$playlist)
 				)
 			);
 

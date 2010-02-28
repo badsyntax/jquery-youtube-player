@@ -33,8 +33,8 @@
 	<script type="text/javascript">
 	/* <![CDATA[ */
 		var config =  {
-			//playlists: ['http://gdata.youtube.com/feeds/base/users/Projectlightstyle2/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile']
-			playlists: playlists
+			playlists: ['http://gdata.youtube.com/feeds/base/users/Projectlightstyle2/uploads?alt=json&v=2&orderby=published&client=ytapi-youtube-profile']
+			//playlists: playlists
 		};
 		$("#player").player(config)
 	/* ]]> */
@@ -44,10 +44,8 @@
 		document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
 	</script>
 	<script type="text/javascript">
-		try {
-			var pageTracker = _gat._getTracker("UA-1636725-16");
-			pageTracker._trackPageview();
-		} catch(err) {}
+		try { _gat._getTracker("UA-1636725-16")._trackPageview(); } 
+		catch(e) {}
 	</script>
 </body>
 </html>
