@@ -206,7 +206,7 @@
 					player.elements.toolbar.$container.fadeIn(800);
 					player.elements.$playlistsContainer.fadeIn(800);
 					(player.readyCallback) && player.readyCallback();
-					(player.options.showPlaylist) && player.playlist.fadeIn(400);
+					(player.options.showPlaylist) && player.elements.$playlistContainer.animate({height: 'toggle', opacity: 'toggle'}, 550);
 				},
 				videoPlay : function(player){
 					player.elements.$loader.hide();
@@ -245,14 +245,17 @@
 		updateInfo : function(timeout, text){
 			var self = this;
 			this.elements.$loader.hide();
-			if (this.elements.$infobar.css('opacity') < 1) {
+			if (
+				( this.elements.toolbar.buttons.play.obj.data('state') || this.elements.toolbar.buttons.pause.obj.data('state') ) 
+				&& this.elements.$infobar.css('opacity') < 1
+			) {
 				clearTimeout(this.timer.hideInfo);
 				this.timer.showInfo = setTimeout(function(){
 					self.elements.$infobar
-					.stop().css({opacity: 0}).unbind('click')
+					.stop().css({ opacity: 0 }).unbind('click')
 					.html(text || self.options.playlists[self.keys.playlist].videos[self.keys.video].title)
 					.click(function(){ window.open(self.ytplayer.getVideoUrl()); })
-					.animate({opacity: 1}, 180, function(){
+					.animate({ opacity: 1 }, 180, function(){
 						self.timer.hideInfo = setTimeout(function(){
 							self.hideInfo();
 						}, 6000);
@@ -289,7 +292,7 @@
 			.createToolbar()
 			.createInfobar()
 			.createPlaylists()
-			.createPlaylist();
+			.createTracklist();
 		},
 
 		createPlayer : function(){
@@ -376,7 +379,7 @@
 							this.elements.$loader.hide();
 							this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
 							this.elements.toolbar.buttons.play.obj.data('state', 0);
-							this.createPlaylist();
+							this.createTracklist();
 							this.elements.$playlists.find('.ui-state-active').removeClass('ui-state-active');
 							$(li).addClass("ui-state-active");
 							this.cueVideo();
@@ -399,7 +402,7 @@
 			return this;
 		},
 
-		createPlaylist : function(){
+		createTracklist : function(){
 			var self = this;
 
 			this.elements.$playlistScroller = this.elements.$playlistScroller || $('<div id="player-playlist-scroller">');
@@ -426,12 +429,14 @@
 			}
 
 			this.elements.$playlist.empty();
+			this.videoIds = [];
 			$.each(this.options.playlists[this.keys.playlist].videos, function(){
 				self.videoIds.push(this.id);
 				$('<li></li>').data('video', this).append(this.title).unbind()
 				.click(function(){
 					self.keys.video = $.inArray($(this).data('video').id, self.videoIds);
 					self.elements.toolbar.buttons.play.obj.data('state', 0);
+					self.events.updatePlaylist(self);
 					self.events.play(self, null, this);
 				})
 				.appendTo(self.elements.$playlist);

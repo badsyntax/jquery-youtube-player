@@ -1,7 +1,9 @@
 body {
 	background: #000;
+	/*background: #000 url(/img/bg4.jpg) no-repeat bottom right;*/
 	color: #fff;
-	font: normal 14px/1 Arial;margin:3em;
+	font: normal 14px/1 Arial;
+	padding: 3em;
 }
 h1 {
 	font-size: 200%;
@@ -48,7 +50,7 @@ h1 {
 	position: absolute;
 	float: left;
 	background: #000;
-	padding: 4px 6px;
+	padding: 3px 6px;
 	top: 0px;
 	border: 2px solid #620D04;
 	cursor: pointer;

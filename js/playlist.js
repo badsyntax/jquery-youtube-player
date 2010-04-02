@@ -1,7 +1,7 @@
 var playlists = 
 [
 	{
-		title: 'BadSyntax sick pick',
+		title: 'BadSyntax\'s sickest picks',
 		videos: [
 			{ id: 'TI7ajCiDcpU', title: 'Starky - Gutter Music' },
 			{ id: '9bbH1vTTEUY', title: 'Skism - The Blank (16 Bit Remix)' },
@@ -22,9 +22,11 @@ var playlists =
 			{ id: '8FDyEZqDzGY', title: 'Richie August - Imperial Mac' },
 			{ id: '2OQIpfWxUis', title: 'Taz Buckfaster - Murda Skank' },
 			{ id: 'Vg9wQ0WBBSo', title: 'Reso - Beasts In The Basement' },
+			{ id: 'U6pRpAaZSfg', title: 'Excision &amp; Datsik - Boom' },
 			{ id: '8qAZm7I8chs', title: 'Emalkay - When I Look At You' },
 			{ id: 'gM-q01-Bfck', title: 'Chase &amp; Status - Eastern Jam' },
 			{ id: 'JzX5FlXVbx4', title: 'Chasing Shadows - Ill' },
+			{ id: 'EAHkEXK16K8', title: 'Downlink - Gamma Ray' },
 			{ id: '6p5_cQIhCuk', title: 'Excision &amp; Datsik - Swagga' },
 			{ id: 'w4MZXNhWuks', title: '501 - Dangerous' },
 			{ id: 'hBW4Y7fFmKw', title: 'AC Slater - Hello' },
@@ -32,10 +34,12 @@ var playlists =
 			{ id: 'wq1T4R6BzYs', title: 'Bar 9 - Shaolin Style' },
 			{ id: 'aY7UQZPWLXk', title: 'Joker - Stuck In A System' },
 			{ id: 'DHGLdJEO4ik', title: 'Sukh Knight - Diesel Not Petrol' },
+			{ id: '_cHgV5gkwoE', title: 'Excision - No Escape (Datsik Remix)' },
 			{ id: 'EdR8xWze8rM', title: 'Koan Sound - Mafia' },
 			{ id: 'XIPg0cbRBBQ', title: 'Caspa - Floor Dem' },
 			{ id: 'IsQMpJ5lURQ', title: 'Rusko - Jahova' },
 			{ id: 'coVmHYjfv-E', title: 'Chase &amp; Status - Saxon' },
+			{ id: 'sXtoDrVjzzI', title: 'Datsik - Mechano' },
 			{ id: '8smLJen2bHY', title: '501 - Special Request' },
 			{ id: 'BHy46C6inNY', title: 'Woogie - End Dub (DZ Remix)' },
 			{ id: 'GptbRrTVEVk', title: 'Level 67 - $100 Block of Hash' },
