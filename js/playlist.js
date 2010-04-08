@@ -1,3 +1,8 @@
+/*
+@playlists.js
+@example playlists object
+*/
+
 var playlists = 
 [
 	{
