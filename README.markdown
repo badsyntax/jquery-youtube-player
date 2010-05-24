@@ -3,10 +3,11 @@ This jQuery plugin builds a interactive youtube media player, allowing the user 
 The player is built using jQuery and uses the Youtube Javascript API to send and capture player events.
 
 *Development approach:*
-  * Clean UI
-  * Small footprint
-  * Customizable
-  * Cross browser compatible
+
+ * Clean UI
+ * Small footprint
+ * Customizable
+ * Cross browser compatible
 
 *Player consists of:*
   * The chromeless Youtube player (Flash 8)
