@@ -3,12 +3,14 @@ This jQuery plugin builds a interactive youtube media player, allowing the user 
 The player is built using jQuery and uses the Youtube Javascript API to send and capture player events.
 
 *Development approach:*
+
  * Clean UI
  * Small footprint
  * Customizable
  * Cross browser compatible
 
 *Player consists of:*
+
  * The chromeless Youtube player (Flash 8)
  * Customizable toolbar 
  * Multiple playlists
@@ -16,6 +18,7 @@ The player is built using jQuery and uses the Youtube Javascript API to send and
  * Hash actions (allowing you to link to videos in the playlist)
 
 *Dependancies:*
+
  * flash plugin installed on browser
  * swfobject
  * jquery ui framework
@@ -26,6 +29,7 @@ The player is built using jQuery and uses the Youtube Javascript API to send and
  * The player currently requires a small PHP proxy script to retrieve the JSON playlist from youtube. If you can't use the PHP script, you can build the playlist manually in the playlist.js file.
 
 *Demo:*
+
  * View http://dubstep.uk.net for a demo
 
 This plugin is very ALPHA and is still being actively developed. It is not quite ready for a release, but please feel free to use the latest revision, I'd really appreciate some testing.
