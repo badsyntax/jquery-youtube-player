@@ -2,19 +2,22 @@
  * jquery.ytplayer.js - a jquery youtube player
  * Copyright (c) 2010 Richard Willis
  * MIT license	: http://www.opensource.org/licenses/mit-license.php
- * Project	: http://jquery-youtube-player.googlecode.com
+ * Project	: http://github.com/badsyntax/jquery-youtube-player
  * Contact	: willis.rh@gmail.com | badsyntax.co.uk
  */
 
 (function($){
 
 	$.fn.player = function(options){
+
 		return this.each(function(){
+
 			$(this).data('player', new player(this, options));
 		});
 	}
 
 	function player(obj, options){
+
 		this.options = $.extend({
 			width: 425,
 			height: 356,
@@ -46,7 +49,8 @@
 			},
 			onready: function(){}
 		}, options);
-		this.init(obj);
+
+		this.init( obj );
 	}
 
 	player.prototype = {
@@ -54,27 +58,36 @@
 		state: -1, timer: {}, router: {}, videoIds: [], elements: {},
 
 		init : function(obj){
+
 			this.elements.$player = $(obj);
+
 			this.elements.$playerVideo = $('#player-video');
+
 			this.elements.$playerObject = $('#player-object');
+
 			this.keys = {
 				video: 0, 
 				playlist: this.options.defaultPlaylist
 			};
+
 			this.ytplayer = this.elements.$playerObject.get(0);
+
 			this.getPlaylistData(
 				function(){ // success
+
 					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
+
 					this
-					.createElements()
-					.bindPlayerEvents()
-					.bindYtEvents()
-					.initRouter();
+						.createElements()
+						.bindPlayerEvents()
+						.bindYtEvents()
+						.initRouter();
 				}, 
 				function(){ // error
+
 					this.elements.$playerObject
-					.html('There was an error loading the playlist.')
-					.removeClass('playlist-loading');
+						.html('There was an error loading the playlist.')
+						.removeClass('playlist-loading');
 				}
 			);
 		},
@@ -230,7 +243,9 @@
 				if (player.keys.video > 0) {
 
 					player.keys.video--;
+
 					player.elements.toolbar.buttons.play.obj.data('state', 0);
+
 					player.events.play(player);
 				}
 			},
@@ -283,7 +298,7 @@
 				player.elements
 					.$playlist
 					.find('li')
-						.removeClass('ui-state-active')
+					.removeClass('ui-state-active')
 					.each(function(key){
 
 						if (player.options.playlists[player.keys.playlist].videos[player.keys.video].id == $(this).data('video').id) {
