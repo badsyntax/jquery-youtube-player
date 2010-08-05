@@ -30,7 +30,7 @@ The player is built using jQuery and uses the Youtube Javascript API to send and
 
 *Demo:*
 
- * View http://dubstep.uk.net for a demo
+ * View [http://dubstep.uk.net](http://dubstep.uk.net) for a demo
 
 This plugin is very ALPHA and is still being actively developed. It is not quite ready for a release, but please feel free to use the latest revision, I'd really appreciate some testing.
 Suggestions, feedback, bugs, anything is appreciated. Please use the Issue Tracker to post project related feedback, or send an email to willis.rh@gmail.comt
