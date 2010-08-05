@@ -8,13 +8,13 @@
 
 (function($){
 
-	$.fn.player = function(options, callback){
+	$.fn.player = function(options){
 		return this.each(function(){
-			$(this).data('player', new player(this, options, callback));
+			$(this).data('player', new player(this, options));
 		});
 	}
 
-	function player(obj, options, callback){
+	function player(obj, options){
 		this.options = $.extend({
 			width: 425,
 			height: 356,
@@ -43,17 +43,17 @@
 					playlist: { text: 'Toggle playlist', cssclass: 'ui-icon-script', toggle: 1 },
 					playlists: { text: 'Toggle playlists', cssclass: 'ui-icon-video', toggle: 1, disabled: 1 }
 				}
-			}
-		}, options || {});
-		this.init(obj, callback);
+			},
+			onready: function(){}
+		}, options);
+		this.init(obj);
 	}
 
 	player.prototype = {
 		
 		state: -1, timer: {}, router: {}, videoIds: [], elements: {},
 
-		init : function(obj, callback){
-			this.readyCallback = callback;
+		init : function(obj){
 			this.elements.$player = $(obj);
 			this.elements.$playerVideo = $('#player-video');
 			this.elements.$playerObject = $('#player-object');
@@ -72,7 +72,9 @@
 					.initRouter();
 				}, 
 				function(){ // error
-					this.elements.$playerObject.html('There was an error loading the playlist.').removeClass('playlist-loading');
+					this.elements.$playerObject
+					.html('There was an error loading the playlist.')
+					.removeClass('playlist-loading');
 				}
 			);
 		},
@@ -85,7 +87,9 @@
 					type: 'GET',
 					url: self.options.playlistProxy + '?url=' + playlist,
 					dataType: 'json',
-					error: function(){ error.call(self); },
+					error: function(){ 
+						error.call(self); 
+					},
 					success: function(json){
 						if (!json) { error.call(self); return; }
 						// replace playlist url with json array
@@ -111,38 +115,66 @@
 				actions: /\//.test(hash) ? hash.split('/') : ['v'],
 				updateHash: function(){
 					if (self.options.updateHash) 
-					window.location.hash = '/'+self.router.actions[0]+'/'+self.options.playlists[self.keys.playlist].videos[self.keys.video].id;
+					window.location.hash = '/' + self.router.actions[0] + '/' + self.options.playlists[self.keys.playlist].videos[self.keys.video].id;
 				}
 			};
 			switch(this.router.actions[0]){
 				case 'v' : this.keys.video = this.router.actions[1] ? $.inArray(this.router.actions[1], this.videoIds) : this.keys.video; break;
-				case 'p' : this.keys.video = $.inArray(this.router.actions[1], this.videoIds); break;
+				case 'p' : this.keys.video = $.inArray(this.router.actions[1], this.videoIds); this.keys.play = 1; break;
 				default : break;
 			} 
 		},
 		
 		bindYtEvents : function(){
+
 			var self = this;
-			window.onYouTubePlayerReady = function(){ self.ytplayerEventRouter(9); };
-			window._ytplayerevents = function(state){ self.ytplayerEventRouter(state); };
+
+			window.onYouTubePlayerReady = function(){ 
+
+				self.ytplayerEventRouter(9); 
+			};
+
+			window._ytplayerevents = function(state){ 
+
+				self.ytplayerEventRouter(state); 
+			};
+
 			return this;
 		},
 
 		bindPlayerEvents : function(){
+
 			var self = this;
+
 			this.elements.$playerVideo
-			.bind('mouseenter', function(){ self.updateInfo(); })
-			.bind('mouseleave', function(){ self.hideInfo(); });
+				.bind('mouseenter', function(){ self.updateInfo(); })
+				.bind('mouseleave', function(){ self.hideInfo(); });
+
 			return this;
 		},
 
 		ytplayerEventRouter : function(state){
+
 			if (state != this.state) {
+
 				switch(this.state = state) {
-					case 0 : this.events.yt.videoEnded(this); break;
-					case 1 : this.events.yt.videoPlay(this); break;
-					case 3 : this.events.yt.videoBuffer(this); break;
-					case 9 : this.events.yt.ready(this); break;
+					case 0	: 
+						this.events.yt.videoEnded( this ); 
+						break;
+					case 1 : 
+						this.events.yt.videoPlay( this );
+						break;
+					case 3 : 
+						this.events.yt.videoBuffer( this ); 
+						break;
+					case 100: 
+					case 101:
+					case 150:
+						this.events.yt.error( this, state );
+						break;
+					case 9 : 
+						this.events.yt.ready( this );
+						break;
 				}
 			}
 		},
@@ -203,10 +235,12 @@
 					player.ytplayer.addEventListener('onStateChange', '_ytplayerevents');
 					player.ytplayer.addEventListener('onError', '_ytplayerevents');
 					player.cueVideo();
-					player.elements.toolbar.$container.fadeIn(800);
+					player.elements.toolbar.$container.fadeIn(800, function(){
+						($.isFunction(player.options.onready)) && player.options.onready();
+					});
 					player.elements.$playlistsContainer.fadeIn(800);
-					(player.readyCallback) && player.readyCallback();
 					(player.options.showPlaylist) && player.elements.$playlistContainer.animate({height: 'toggle', opacity: 'toggle'}, 550);
+					(player.keys.play) && player.events.play(player)
 				},
 				videoPlay : function(player){
 					player.elements.$loader.hide();
@@ -221,6 +255,24 @@
 				},
 				videoEnded : function(player){
 					(player.options.repeat) && player.events.next(player);
+				},
+				error: function(player, state){
+
+					player.elements.$loader.hide();
+
+					switch(state){
+						case 100:
+							msg = 'This video has been removed from Youtube.';
+							break;
+						case 101:
+						case 150:
+							msg = 'This video does not allow playback outside of Youtube.';
+							break;
+						default:
+							msg = '';
+					}
+
+					alert( 'Sorry, there was an error loading this video. ' + msg );
 				},
 				videoBuffer : function(player){}
 			},
@@ -386,7 +438,9 @@
 						},
 						function(){ // error
 							this.elements.$loader.hide();
-							this.elements.$playerObject.html('There was an error loading the playlist.').removeClass('playlist-loading');
+							this.elements.$playerObject
+							.html('There was an error loading the playlist.')
+							.removeClass('playlist-loading');
 						}
 					);
 				})
