@@ -42,7 +42,7 @@
 					next: { text: 'Next', cssclass: 'ui-icon-seek-next' },
 					shuffle: { text: 'Shuffle/Random', cssclass: 'ui-icon-shuffle', toggle: 1 },
 					repeat: { text: 'Repeat playlist', cssclass: 'ui-icon-refresh', toggle: 1 },
-					volume: { text: 'Mute', cssclass: 'ui-icon-volume-on', toggle: 1 },
+					mute: { text: 'Mute', cssclass: 'ui-icon-volume-on', toggle: 1 },
 					playlist: { text: 'Toggle playlist', cssclass: 'ui-icon-script', toggle: 1 },
 					playlists: { text: 'Toggle playlists', cssclass: 'ui-icon-video', toggle: 1, disabled: 1 }
 				}
