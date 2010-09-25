@@ -3,11 +3,14 @@
 <head>
 	<title>dubstep.uk.net</title>
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-	<meta name="description" content="dub, uk, dubstep, parties, skanking" />
-	<meta name="keywords" content="dub, uk, dubstep, parties, skanking" />	
-	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/reset.css" />
-	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/ui.css" />
+	<link type="text/css" rel="stylesheet" media="screen, projection" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
 	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/player.css" />
+	<style type="text/css">
+		body {
+			font: normal 90% Arial;
+			margin: 2em;
+		}
+	</style>
 </head>
 <body>
 	<div id="player">
@@ -24,7 +27,7 @@
 	<script type="text/javascript" src="js/playlist.js"></script>
 	<script type="text/javascript">
 		var config =  {
-			playlists: playlists
+			playlist: playlist
 		};
 		$("#player").player(config)
 	</script>

@@ -502,7 +502,7 @@
 			var self = this;
 
 			this.elements.toolbar = $.extend({
-				$container: $('<ul id="player-toolbar" class="ui-widget ui-helper-clearfix ui-widget-header ui-corner-all">'),
+				$container: $('<ul id="player-toolbar" class="ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">'),
 				updateStates : function(){
 
 					$.each(self.elements.toolbar.buttons, function(key){
@@ -585,13 +585,14 @@
 					delta > 0 ? self.events.scrollbar.up(self) : self.events.scrollbar.down(self);
 				});
 
-			this.elements.$playlistContainer = this.elements.$playlistContainer || $('<div id="player-playlist-container">');
+			this.elements.$playlistContainer = this.elements.$playlistContainer || $('<div id="player-playlist-container">').addClass('ui-widget-content ui-corner-all');
 
-			this.elements.$playlist = this.elements.$playlist || $('<ol id="player-playlist">');
+			this.elements.$playlist = this.elements.$playlist || $('<ol id="player-playlist">').addClass('ui-helper-reset');
 
 			this.elements.scrollbar = this.elements.scrollbar || {
 				bar : 
 					$('<div id="player-playlist-scrollbar">')
+						.addClass('ui-widget ui-widget-content ui-corner-all')
 						.appendTo(this.elements.$playlistContainer),
 				up : 
 					$('<span id="player-playlist-scrollbar-up" class="ui-icon ui-icon-circle-triangle-n">')
@@ -616,6 +617,13 @@
 					.data('video', this)
 					.append(this.title)
 					.unbind()
+					.addClass('ui-state-default')
+					.mouseenter(function(){
+						$(this).addClass('ui-state-hover');
+					})
+					.mouseleave(function(){
+						$(this).removeClass('ui-state-hover');
+					})
 					.click(function(){
 						self.keys.video = $.inArray($(this).data('video').id, self.videoIds);
 						self.elements.toolbar.buttons.play.obj.data('state', 0);
