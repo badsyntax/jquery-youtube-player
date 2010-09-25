@@ -8,8 +8,15 @@
 	<style type="text/css">
 		body {
 			font: normal 90% Arial;
+			background: #ddd;
 			margin: 2em;
 		}
+		#theme-switcher {
+			position: absolute;
+				right: 1em;
+					top: 1em;
+					}
+
 	</style>
 </head>
 <body>
@@ -20,11 +27,13 @@
 			</div>
 		</div>
 	</div>
+	<div id="theme-switcher"></div>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
 	<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
 	<script type="text/javascript" src="js/player.js"></script>
 	<script type="text/javascript" src="js/playlist.js"></script>
+	<script type="text/javascript" src="http://jqueryui.com/themeroller/themeswitchertool/"></script>
 	<script type="text/javascript">
 
 		var config =  {
@@ -46,6 +55,8 @@
 		};
 
 		$("#player").player(config)
+
+		$('#theme-switcher').themeswitcher();
 	</script>
 </body>
 </html>
