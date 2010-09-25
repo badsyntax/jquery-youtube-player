@@ -22,8 +22,7 @@
 			width: 425,
 			height: 356,
 			swfobject: window.swfobject,
-			playlists: [],
-			defaultPlaylist: 0,
+			playlist: [],
 			playlistProxy: 'playlist_proxy.php',
 			showPlaylist: 1,
 			repeat: 0,
@@ -66,8 +65,7 @@
 			this.elements.$playerObject = $('#player-object');
 
 			this.keys = {
-				video: 0, 
-				playlist: this.options.defaultPlaylist
+				video: 0
 			};
 
 			this.ytplayer = this.elements.$playerObject.get(0);
@@ -94,7 +92,7 @@
 
 		getPlaylistData : function(callback, error){
 
-			var self = this, playlist = this.options.playlists[this.keys.playlist].videos;
+			var self = this, playlist = this.options.playlist;
 
 			if (String === playlist.constructor) {
 
@@ -112,16 +110,18 @@
 					success: function(json){
 
 						if (!json) { 
+
 							error.call( self ); 
+
 							return; 
 						}
 
 						// replace playlist url with json array
-						self.options.playlists[self.keys.playlist].videos = [];
+						self.options.playlist.videos = [];
 
 						$.each(json.feed.entry, function(key, vid){
 
-							self.options.playlists[self.keys.playlist].videos.push({
+							self.options.playlist.videos.push({
 								id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/, '$1'), // munge video id from href
 								title: vid.title.$t
 							});
@@ -153,7 +153,7 @@
 
 						window.location.hash = 
 							'/' + self.router.actions[0] + 
-							'/' + self.options.playlists[self.keys.playlist].videos[self.keys.video].id;
+							'/' + self.options.playlist.videos[self.keys.video].id;
 					}
 				}
 			};
@@ -251,7 +251,7 @@
 			},
 			next : function(player, button){
 
-				if (player.keys.video < player.options.playlists[player.keys.playlist].videos.length-1) {
+				if (player.keys.video < player.options.playlist.videos.length-1) {
 
 					if (player.options.shuffle) {
 
@@ -301,7 +301,7 @@
 					.removeClass('ui-state-active')
 					.each(function(key){
 
-						if (player.options.playlists[player.keys.playlist].videos[player.keys.video].id == $(this).data('video').id) {
+						if (player.options.playlist.videos[player.keys.video].id == $(this).data('video').id) {
 
 							var height = $(this).addClass('ui-state-active').outerHeight();
 
@@ -328,8 +328,6 @@
 
 						($.isFunction(player.options.onready)) && player.options.onready();
 					});
-
-					player.elements.$playlistsContainer.fadeIn(800);
 
 					if (player.options.showPlaylist) {
 
@@ -426,7 +424,7 @@
 					self.elements.$infobar
 						.stop()
 						.css({ opacity: 0 })
-						.html(text || self.options.playlists[self.keys.playlist].videos[self.keys.video].title)
+						.html(text || self.options.playlist.videos[self.keys.video].title)
 						.unbind('click')
 						.click(function(){ 
 
@@ -456,7 +454,7 @@
 
 		cueVideo : function(videoID){
 
-			this.ytplayer.cueVideoById(videoID || this.options.playlists[this.keys.playlist].videos[this.keys.video].id, 0);
+			this.ytplayer.cueVideoById(videoID || this.options.playlist.videos[this.keys.video].id, 0);
 		},
 
 		loadVideo : function(videoID){
@@ -465,14 +463,14 @@
 
 			this.elements.$infobar.stop().css({opacity: 0});
 
-			this.ytplayer.loadVideoById(videoID || this.options.playlists[this.keys.playlist].videos[this.keys.video].id, 0);
+			this.ytplayer.loadVideoById(videoID || this.options.playlist.videos[this.keys.video].id, 0);
 
 			this.router.updateHash();
 		},
 
 		randomVideo : function(){
 
-			this.keys.video = Math.floor(Math.random() * this.options.playlists[this.keys.playlist].videos.length);
+			this.keys.video = Math.floor(Math.random() * this.options.playlist.videos.length);
 
 			return this.keys.video;
 		},
@@ -483,7 +481,6 @@
 				.createPlayer()
 				.createToolbar()
 				.createInfobar()
-				.createPlaylists()
 				.createTracklist();
 		},
 
@@ -577,71 +574,6 @@
 			return this;
 		},
 
-		createPlaylists : function(){
-
-			var self = this;
-			
-			this.elements.$playlistsContainer = 
-				$('<div id="player-playlists">')
-				.height(this.options.height)
-				.append('<div class="player-playlists-heading">');
-
-			this.elements.$playlists = $('<ol>');
-			
-			$.each(this.options.playlists, function(key){
-
-				$('<li></li>')
-					.data('playlist', key)
-					.append(this.title).addClass(key === self.keys.playlist ? 'ui-state-active' : '')
-					.click(function(){
-
-						var li = this;
-
-						self.keys.playlist = $(this).data('playlist');
-
-						self.elements.$loader.show();
-
-						self.getPlaylistData(
-							function(){ // success
-
-								this.elements.$loader.hide();
-
-								this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
-
-								this.elements.toolbar.buttons.play.obj.data('state', 0);
-
-								this.createTracklist();
-
-								this.elements.$playlists
-									.find('.ui-state-active')
-									.removeClass('ui-state-active');
-
-								$(li).addClass("ui-state-active");
-
-								this.cueVideo();
-							},
-							function(){ // error
-
-								this.elements.$loader.hide();
-
-								this.elements.$playerObject
-									.html('There was an error loading the playlist.')
-									.removeClass('playlist-loading');
-							}
-						);
-					})
-					.appendTo(self.elements.$playlists);
-			});
-
-			this.elements.$player.after(
-				this.elements.$playlistsContainer.append(
-					this.elements.$playlists
-				)
-			);
-
-			return this;
-		},
-
 		createTracklist : function(){
 
 			var self = this;
@@ -676,7 +608,7 @@
 
 			this.videoIds = [];
 
-			$.each(this.options.playlists[this.keys.playlist].videos, function(){
+			$.each(this.options.playlist.videos, function(){
 
 				self.videoIds.push(this.id);
 
