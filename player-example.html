@@ -26,9 +26,25 @@
 	<script type="text/javascript" src="js/player.js"></script>
 	<script type="text/javascript" src="js/playlist.js"></script>
 	<script type="text/javascript">
+
 		var config =  {
-			playlist: playlist
+			playlist: {
+				title: 'Random videos',
+				videos: [
+					{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
+					{ id: '1gD8nV8RlPU', title: 'Dai Mahou Touge - Vegetable Suicide' },
+					{ id: 'hPzNl6NKAG0', title: 'Maru the cat' },
+					{ id: 'JKQ83Bo9g3s', title: 'Lilou vs. Hong 10 - Red Bull BC One 2005' },
+					{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' },
+					{ id: 'Kv6Ewqx3PMs', title: 'Mr. Oizo Flat Beat' },
+					{ id: '4M0dhmVADg0', title: 'Fast Supra' },
+					{ id: 'dRUS5VfkJls', title: 'FRED THE RAVER' },
+					{ id: 'IAxj2ob_JoU', title: 'Most incredible volcano footage ever' },
+					{ id: '3ycBGkLkEkg', title: 'Wingsuit BASE jumping in Baffin Island' }
+				]
+			}
 		};
+
 		$("#player").player(config)
 	</script>
 </body>
