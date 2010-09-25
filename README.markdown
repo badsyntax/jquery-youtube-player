@@ -30,7 +30,7 @@ The player is built using jQuery and uses the Youtube Javascript API to send and
 
 *Demos:*
 
- * [http://badsyntax.github.com/demos/youtube-player/player-example.html](Basic setup)
+ * (Basic setup)[http://badsyntax.github.com/demos/youtube-player/player-example.html]
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
 
 This plugin is very ALPHA and is still being actively developed. It is not quite ready for a release, but please feel free to use the latest revision, I'd really appreciate some testing.
