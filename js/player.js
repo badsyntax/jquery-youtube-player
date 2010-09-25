@@ -197,8 +197,14 @@
 			var self = this;
 
 			this.elements.$playerVideo
-				.bind('mouseenter', function(){ self.updateInfo(); })
-				.bind('mouseleave', function(){ self.hideInfo(); });
+				.bind('mouseenter', function(){ 
+
+					self.updateInfo(); 
+				})
+				.bind('mouseleave', function(){
+
+					self.hideInfo();
+				});
 
 			return this;
 		},
@@ -248,7 +254,7 @@
 
 					player.keys.video--;
 
-					player.elements.toolbar.buttons.play.obj.data('state', 0);
+					player.elements.toolbar.buttons.play.element.data('state', 0);
 
 					player.events.play(player);
 				}
@@ -265,7 +271,7 @@
 						player.keys.video++;
 					}
 
-					player.elements.toolbar.buttons.play.obj.data('state', 0);
+					player.elements.toolbar.buttons.play.element.data('state', 0);
 
 					player.events.play(player);
 				}
@@ -282,7 +288,7 @@
 			},
 			mute : function(player, button){
 
-				if (button.obj.data('state')) {
+				if (button.element.data('state')) {
 
 					player.ytplayer.mute();
 
@@ -358,13 +364,13 @@
 
 					player.elements.$loader.hide();
 
-					if (!player.elements.toolbar.buttons.play.obj.data('state')) {
+					if (!player.elements.toolbar.buttons.play.element.data('state')) {
 
 						player.events.updatePlaylist(player);
 
 						player.router.updateHash();
 
-						player.elements.toolbar.buttons.play.obj.data('state', 1);
+						player.elements.toolbar.buttons.play.element.data('state', 1);
 
 						player.elements.toolbar.updateStates();
 
@@ -429,9 +435,10 @@
 			this.elements.$loader.hide();
 
 			if (
-				( this.elements.toolbar.buttons.play.obj.data('state') || this.elements.toolbar.buttons.pause.obj.data('state') ) 
+				( this.elements.toolbar.buttons.play.element.data('state') || this.elements.toolbar.buttons.pause.element.data('state') ) 
 				&& this.elements.$infobar.css('opacity') < 1
 			) {
+
 				clearTimeout(this.timer.hideInfo);
 
 				this.timer.showInfo = setTimeout(function(){
@@ -582,7 +589,7 @@
 
 		createInfobar : function(){
 
-			this.elements.$infobar = $('<div id="player-infobar">');
+			this.elements.$infobar = $('<div id="player-infobar">').addClass('ui-widget-content ui-corner-all').css('opacity', 0);
 
 			this.elements.$playerVideo.prepend(this.elements.$infobar);
 

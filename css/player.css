@@ -24,20 +24,12 @@
 }
 #player-infobar {
 	margin: 12px 12px 0px 12px;
-	color: #eee;
-	font-size: 102%;
 	position: absolute;
 	float: left;
-	background: #000;
 	padding: 3px 6px;
 	top: 0px;
-	border: 2px solid #620D04;
 	cursor: pointer;
 	z-index: 99;
-	-moz-border-radius: 6px;
-	-webkit-border-radius: 6px; 
-	border-radius: 6px; 
-	opacity: 0;
 }
 #player-playlist-scroller {
 	overflow: hidden;
@@ -50,6 +42,12 @@
 	list-style: decimal;
 }
 #player-playlist li {
+	border: 0;
+	cursor: pointer;
+	white-space: nowrap;
+	text-decoration: none;
+	padding: 2px 4px 2px;
+	list-style-type: decimal;
 }
 #player-playlist-container {
 	position: relative;
@@ -80,14 +78,6 @@
 	cursor: pointer;
 	z-index: 2;
 }
-#player-playlist li, #player-playlists li {
-	border: 0;
-	cursor: pointer;
-	white-space: nowrap;
-	text-decoration: none;
-	padding: 2px 4px 2px;
-	list-style-type: decimal;
-}
 .player-loader {
 	background: url(../img/player_spinner.gif) no-repeat;
 	width: 16px;
@@ -96,17 +86,4 @@
 	float: right;
 	margin-top: 6px;
 	display: none;
-}
-.playlist-loading {
-	background: url(../img/player_spinner.gif) no-repeat 6px 5px;
-	padding-left: 22px;
-	padding: 0 4px 0 28px;
-	height: 22px;
-	line-height: 22px;
-}
-.player-playlists-heading {
-	display: block;
-	height: 18px;
-	margin: 10px 0 4px 16px;
-	background: url(../img/playlists.gif) no-repeat 0 0;
 }
