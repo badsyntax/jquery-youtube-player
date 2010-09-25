@@ -1,14 +1,11 @@
 #player {
-	float: left;
 	position: relative;
-}
-#player-video {
-
+	font-size: 90%;
 }
 #player-toolbar {
 	display: none;
 	float: left;
-	margin: .4em 0 0 0;
+	margin: .3em 0 0 0;
 }
 #player-object {
 	border: 1px solid #282828;
@@ -43,7 +40,6 @@
 	opacity: 0;
 }
 #player-playlist-scroller {
-	max-height: 9.5em;
 	overflow: hidden;
 	margin: 2px;
 	border: 0;

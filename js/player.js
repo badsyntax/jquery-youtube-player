@@ -6,7 +6,7 @@
  * Contact	: willis.rh@gmail.com | badsyntax.co.uk
  */
 
-(function($){
+(function($, window, document, undefined){
 
 	$.fn.player = function(options){
 
@@ -16,7 +16,7 @@
 		});
 	}
 
-	function player(obj, options){
+	function player(element, options){
 
 		this.options = $.extend({
 			width: 425,
@@ -49,7 +49,9 @@
 			onready: function(){}
 		}, options);
 
-		this.init( obj );
+		this.element = $( element );
+
+		this.init();
 	}
 
 	player.prototype = {
@@ -58,7 +60,9 @@
 
 		init : function(obj){
 
-			this.elements.$player = $(obj);
+			this.element.addClass('ui-widget');
+
+			this.elements.$player = this.element;
 
 			this.elements.$playerVideo = $('#player-video');
 
@@ -329,9 +333,20 @@
 						($.isFunction(player.options.onready)) && player.options.onready();
 					});
 
+					player.elements.$playlistContainer.show();
+
+					var trackHeight = player.elements.$playlist.find('li:first').outerHeight();
+					
+					player.elements.$playlistContainer.hide();
+
+					player.elements.$playlistScroller.height( trackHeight * 6 );
+
 					if (player.options.showPlaylist) {
 
-						player.elements.$playlistContainer.animate({height: 'toggle', opacity: 'toggle'}, 550);
+						player.elements.$playlistContainer.animate({
+							height: 'toggle', 
+							opacity: 'toggle'
+						}, 550);
 					}
 
 					if (player.keys.play) {
@@ -507,13 +522,13 @@
 
 					$.each(self.elements.toolbar.buttons, function(key){
 
-						this.obj.removeClass('ui-state-active');
+						this.element.removeClass('ui-state-active');
 
-						(this.obj.data('state')) &&
+						(this.element.data('state')) &&
 						(this.toggle || 
 							(this.toggleButton && 
 							self.elements.toolbar.buttons[this.toggleButton])) &&
-							this.obj.addClass('ui-state-active');
+							this.element.addClass('ui-state-active');
 					});
 				}
 			}, this.options.toolbar || {});
@@ -529,7 +544,7 @@
 
 				var buttonObj = this;
 
-				this.obj = 
+				this.element = 
 					$('<li class="ui-state-default ui-corner-all">')
 					.append('<span class="ui-icon '+this.cssclass+'">')
 					.attr('title', this.text)
@@ -545,7 +560,7 @@
 	
 						if (buttonObj.toggleButton) {
 
-							self.elements.toolbar.buttons[buttonObj.toggleButton].obj.data('state', 0);
+							self.elements.toolbar.buttons[buttonObj.toggleButton].element.data('state', 0);
 						}
 
 						self.elements.toolbar.updateStates();
@@ -626,7 +641,7 @@
 					})
 					.click(function(){
 						self.keys.video = $.inArray($(this).data('video').id, self.videoIds);
-						self.elements.toolbar.buttons.play.obj.data('state', 0);
+						self.elements.toolbar.buttons.play.element.data('state', 0);
 						self.events.updatePlaylist(self);
 						self.events.play(self, null, this);
 					})
@@ -643,4 +658,4 @@
 		}
 	};
 
-})(jQuery);
+})(window.jQuery, window, document);
