@@ -2,29 +2,29 @@ This jQuery plugin builds a youtube video player with a custom toolbar and video
 
 The player is built using jQuery and uses the Youtube Javascript API.
 
-*Player consists of:*
+**Player consists of:**
 
  * The chromeless Youtube player (Flash 8)
  * Customizable toolbar 
  * Playlist area with custom scrollbar
 
- *Player features:*
+**Player features:**
 
  * Hash actions (allowing you to link to videos in the playlist)
  * Play, pause, next, prev, shuffle, repeat, mute
 
-*Dependancies:*
+**Dependancies:**
 
  * flash plugin installed on browser
  * swfobject
  * jquery ui CSS framework
  * mousewheel plugin (optional)
 
-*Installation and usage*
+**Installation and usage**
 
- * View the [installationg and usage wiki page](http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage) for instructions on how to use the plugin.
+ * View the [installation and usage](http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage) wiki page for instructions on how to use the plugin.
 
-*Demos:*
+**Demos:**
 
  * [Basic setup](http://badsyntax.github.com/demos/youtube-player/player-example.html)
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
