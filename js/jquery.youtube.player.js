@@ -25,7 +25,6 @@
 			height: 356,
 			swfobject: window.swfobject,
 			playlist: [],
-			playlistProxy: 'playlist_proxy.php',
 			showPlaylist: 1,
 			repeat: 0,
 			randomStart: 1,
