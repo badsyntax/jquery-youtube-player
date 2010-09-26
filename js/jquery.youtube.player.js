@@ -187,7 +187,7 @@
 
 				self.cueVideo();
 
-				self.elements.toolbar.$container.fadeIn(800, function(){
+				self.elements.toolbar.$container.fadeIn(400, function(){
 
 					($.isFunction(self.options.onready)) && self.options.onready();
 				});
@@ -325,59 +325,68 @@
 			);
 		},
 
-		getPlaylistData : function(callback, error){
+		getPlaylistData : function(success, error){
 
 			var self = this, playlist = this.options.playlist;
 
-			if (String === playlist.constructor || Number === playlist.constructor) {
+			if (playlist.user || playlist.playlist) {
 
 				self.elements.playerObject
 					.html('loading playlist..')
 					.addClass('playlist-loading');
 
-				var xhr = $.ajax({
+				function ajaxSuccess(json){
+
+					if (!json) { 
+
+						error.call( self ); 
+
+						return; 
+					}
+
+					// replace playlist ID with json array
+					self.options.playlist = {
+						title: json.feed.title.$t,
+						id: playlist,
+						videos: []
+					}
+
+					$.each(json.feed.entry, function(key, vid){
+
+						self.options.playlist.videos.push({
+							id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/, '$1'), // munge video id from href
+							title: vid.title.$t
+						});
+					});
+
+					self.elements.playerObject.fadeOut(180, function(){
+
+						success.call( self );
+					});
+				}
+				
+				var url = playlist.user 
+					? 'http://gdata.youtube.com/feeds/base/users/' + playlist.user + '/uploads?v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
+					: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist.playlist;
+
+				$.ajax({
 					type: 'GET',
-					url: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist,
+					url: url,
 					data: { alt: 'json' },
 					dataType: 'json',
 					error: function(){ 
 
 						error.call( self ); 
 					},
-					success: function(json){
+					success: function(){
 
-						if (!json) { 
-
-							error.call( self ); 
-
-							return; 
-						}
-
-						// replace playlist ID with json array
-						self.options.playlist = {
-							title: json.feed.title.$t,
-							id: playlist,
-							videos: []
-						}
-
-						$.each(json.feed.entry, function(key, vid){
-
-							self.options.playlist.videos.push({
-								id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/, '$1'), // munge video id from href
-								title: vid.title.$t
-							});
-						});
-
-						self.elements.playerObject.fadeOut(180, function(){
-
-							callback.call( self );
-						});
+						ajaxSuccess.apply( self, arguments );
 					}
 				});
 
 			} else {
 
-				callback.call( self );
+				success.call( self );
 			}
 		},
 
@@ -398,6 +407,7 @@
 					}
 				}
 			};
+
 			switch(this.router.actions[0]){
 				case 'v' : 
 					this.keys.video = 

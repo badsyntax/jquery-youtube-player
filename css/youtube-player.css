@@ -1,10 +1,11 @@
 #player {
-	position: relative;
 	font-size: 86%;
+	position: relative;
 }
 #player-toolbar {
+	background: #111;
 	display: none;
-	margin: .2em 0 0 0;
+	margin: .1em 0 0 0;
 }
 #player-object {
 	border: 1px solid #282828;
@@ -22,50 +23,56 @@
 	margin: 0 4px;
 }
 #player-infobar {
+	cursor: pointer;
+	float: left;
 	margin: 12px 12px 0px 12px;
 	position: absolute;
-	float: left;
 	padding: 3px 6px;
 	top: 0px;
-	cursor: pointer;
 	z-index: 99;
 }
 #player-playlist-scroller {
-	overflow: hidden;
-	margin: 2px;
 	border: 0;
+	margin: 2px;
+	overflow: hidden;
 }
 #player-playlist {
-	padding: 0px 16px 0 0;
-	overflow-x: hidden;
 	list-style: decimal;
+	overflow-x: hidden;
+	padding: 0px 16px 0 0;
+}
+.ui-state-default, .ui-widget-content .ui-state-default {
+	background-position: -9999px -9999px;
+}
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
+	background-position: 50% 50%;
 }
 #player-playlist li {
 	border: 0;
 	cursor: pointer;
-	white-space: nowrap;
 	text-decoration: none;
-	padding: 2px 4px 2px;
 	list-style-type: decimal;
+	padding: 2px 4px 2px;
+	white-space: nowrap;
 }
 #player-playlist-container {
-	position: relative;
-	display: none;
 	border: 1px solid #282828;
+	display: none;
 	margin-top: .2em;
+	position: relative;
 }
 #player-playlist-scrollbar {
-	width: 20px;
+	border: 0;
 	height: 100%;
 	right: 0;
-	top: 0;
 	position: absolute;
+	top: 0;
+	width: 20px;
 	z-index: 2;
-	border: 0;
 }
 #player-playlist-scrollbar-up {
-	position: absolute;
 	cursor: pointer;
+	position: absolute;
 	right: 2px;
 	top: 5px;
 	z-index: 2;
@@ -79,10 +86,9 @@
 }
 .player-loader {
 	background: url(../img/player_spinner.gif) no-repeat;
-	width: 16px;
-	height: 16px;
-	display: block;
-	float: right;
-	margin-top: 6px;
 	display: none;
+	float: right;
+	height: 16px;
+	margin-top: 6px;
+	width: 16px;
 }

@@ -11,31 +11,57 @@
 			background: #ddd;
 			margin: 2em;
 		}
+		#github-ribbon {
+			position: absolute; 
+			top: 0; 
+			right: 0; 
+			border: 0;
+		}
 		#theme-switcher {
 			position: absolute;
 			right: 1em;
 			top: 1em;
 		}
+		h1 {
+			font-size: 1em;
+		}
+		img {
+			border: 0;	
+		}
 	</style>
 </head>
 <body>
-	<div id="player">
-		<div id="player-video">
-			<div id="player-object">
-				You need Flash player 8+ and JavaScript enabled.
-			</div>
-		</div>
-	</div>
-	<div id="theme-switcher"></div>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
 	<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
 	<script type="text/javascript" src="js/jquery.youtube.player.js"></script>
-	<script type="text/javascript" src="http://jqueryui.com/themeroller/themeswitchertool/"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered" style="width:424px;margin:4em auto 0 auto">
+		
+		<h1>jQuery Youtube Player</h1>
+
+		<div id="player">
+			<div id="player-video">
+				<div id="player-object">
+					You need Flash player 8+ and JavaScript enabled.
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<script type="text/javascript">
 
 		var config =  {
-			/*
+
+			showPlaylist: 0,
+			randomStart: 0,
+
 			// Custom playlist
 			playlist: {
 				title: 'Random videos',
@@ -52,14 +78,22 @@
 					{ id: '3ycBGkLkEkg', title: 'Wingsuit BASE jumping in Baffin Island' }
 				]
 			}
-			*/
+
+			/*
 			// Youtube playlist
-			playlist: '71B8152559FA2805'
+			playlist: {
+				playlist: '71B8152559FA2805'
+			}
+
+			// Latest user videos
+			playlist: {
+				user: 'TheSensless'
+			}
+			*/
 		};
 
 		$("#player").player(config)
 
-		$('#theme-switcher').themeswitcher();
 	</script>
 </body>
 </html>
