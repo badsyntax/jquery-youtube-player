@@ -8,11 +8,26 @@
 
 (function($, window, document, undefined){
 
-	$.fn.player = function(options){
+	$.fn.player = function(method){
+
+		var pluginName = 'jquery-youtube-player', args = arguments;
 
 		return this.each(function(){
 
-			$(this).data('player', new player(this, options));
+			// try get the plugin reference from the base element
+			var obj = $.data( this, pluginName );
+
+			// the object needs to be initiated before executing public methods
+			if ( obj && obj.events && obj.events[method] ) {
+
+				// execute a public method
+				obj.events[method].apply( obj, Array.prototype.slice.call( args, 1 ) );
+			} 
+			// initiate the plugin, attach a reference
+			else if ( !obj && ( typeof method === 'object' || ! method ) ) {
+
+				$.data( this, pluginName, new player(this, method) );
+			}
 		});
 	}
 
@@ -21,18 +36,19 @@
 		var self = this;
 
 		this.options = $.extend({
-			width: 425,
-			height: 356,
-			swfobject: window.swfobject,
-			playlist: [],
-			showPlaylist: 1,
-			repeat: 0,
-			randomStart: 1,
-			autoStart: 0,
-			shuffle: 0,
-			updateHash: 0,
-			tracklistHeight: 5,
-			videoParams: { 
+			width: 425,			// player width
+			height: 356,			// player height
+			swfobject: window.swfobject,	// swfobject object
+			playlist: {},			// playlist object
+			showPlaylist: 1,		// show playlist on plugin init
+			randomStart: 1,			// show random video on plugin init
+			autoStart: 0,			// auto start the video on init
+			repeat: 0,			// repeat videos
+			shuffle: 0,			// shuffle the play list
+			updateHash: 0,			// update the location hash on video play
+			playlistHeight: 5,		// height of the playlist
+			videoParams: { 			// video <object> params
+				allowfullscreen: 'true',
 				allowScriptAccess: 'always'
 			},
 			toolbar: {
@@ -70,6 +86,11 @@
 						icon: 'ui-icon-volume-on', 
 						toggle: 1 
 					},
+					fullscreen: {
+						text:' Full screen',
+						icon: 'ui-icon-arrow-4-diag',
+						toggle: 1
+					},
 					playlist: { 
 						text: 'Toggle playlist', 
 						icon: 'ui-icon-script'
@@ -81,19 +102,37 @@
 						disabled: 1 
 					}
 				}
-			},
-			onready: function(){}
+			}
 		}, options);
 
 		this.element = $( element );
 
+		// public event API
 		this.events = {
 
 			play : function(button, playlistItem){
 
-				self.loadVideo();
+				self.events.loadVideo();
 
 				self.youtube.playVideo();
+			},
+			loadVideo : function(videoID){
+
+				self.elements.$infobar.stop().css({opacity: 0});
+
+				self.youtube.loadVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
+
+				self.router.updateHash();
+			},
+			cueVideo : function(videoID){
+
+				self.youtube.cueVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
+			},
+			randomVideo : function(){
+
+				self.keys.video = Math.floor(Math.random() * self.options.playlist.videos.length);
+
+				return self.keys.video;
 			},
 			pause : function(button){
 
@@ -116,7 +155,7 @@
 
 					if (self.options.shuffle) {
 
-						self.randomVideo();
+						self.events.randomVideo();
 					} else {
 
 						self.keys.video++;
@@ -129,7 +168,7 @@
 			},
 			shuffle : function(button){ 
 
-				self.randomVideo();
+				self.events.randomVideo();
 
 				self.events.play();
 			},
@@ -150,29 +189,13 @@
 						opacity: 'toggle'
 					}, 550);
 			},
-			updatePlaylist : function(){
+			fullscreen: function(button){
 
-				self.elements
-					.playlist
-					.find('li')
-					.removeClass('ui-state-active')
-					.each(function(key){
-
-						if (self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
-
-							var height = $(this).addClass('ui-state-active').outerHeight();
-
-							self.elements.scrollbar.pos = (key * height) - ( Math.floor(self.options.tracklistHeight / 2) * height);
-
-							self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
-
-							return false;
-						}
-					});
+				self.youtube.setSize(900, 900);	
 			}
 		};
 			
-		this.events.youtube = {
+		this.youtubeEvents = {
 
 			ready : function(){
 
@@ -182,20 +205,20 @@
 
 				self.youtube.addEventListener('onError', '_youtubeevents');
 
-				self.cueVideo();
+				self.events.cueVideo();
 
 				self.elements.toolbar.$container.fadeIn(400, function(){
 
-					($.isFunction(self.options.onready)) && self.options.onready();
+					($.isFunction(self.options.onready)) && self.trigger(self.events, 'onready');
 				});
 
 				self.elements.playlistContainer.show();
 
-				var trackHeight = self.elements.playlist.find('li:first').outerHeight();
+				var videoHeight = self.elements.playlist.find('li:first').outerHeight();
 				
 				self.elements.playlistContainer.hide();
 
-				self.elements.playlistScroller.height( trackHeight * self.options.tracklistHeight );
+				self.elements.playlistScroller.height( videoHeight * self.options.playlistHeight );
 
 				if (self.options.showPlaylist) {
 
@@ -214,7 +237,7 @@
 
 				if (!self.elements.toolbar.buttons.play.element.data('state')) {
 
-					self.events.updatePlaylist();
+					self.updatePlaylist();
 
 					self.router.updateHash();
 
@@ -248,9 +271,14 @@
 						msg = '';
 				}
 
+				self.trigger(this, 'onerror', [msg]);
+
 				alert( 'Sorry, there was an error loading this video. ' + msg );
 			},
-			videoBuffer : function(){}
+			videoBuffer : function(){
+
+				self.trigger(this, 'onbuffer', arguments); 
+			}
 		};
 
 		this.events.scrollbar = {
@@ -301,12 +329,12 @@
 			this.getPlaylistData(
 				function(){ // success
 
-					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
+					this.keys.video = this.options.randomStart ? this.events.randomVideo() : 0;
 
 					this
 						.createElements()
 						.bindPlayerEvents()
-						.bindYtEvents()
+						.bindYoutubeEvents()
 						.initRouter();
 				}, 
 				function(){ // error
@@ -316,6 +344,20 @@
 						.removeClass('playlist-loading');
 				}
 			);
+		},
+
+		trigger: function(scope, callback, arg){
+
+			var type = typeof callback;
+
+			if ( type === 'string' && this.options[ callback ] ) {
+
+				this.options[ callback ].apply( scope, arg );
+
+			} else if ( type === 'function' ) {
+
+				callback.apply( scope, arg );
+			}
 		},
 
 		getPlaylistData : function(success, error){
@@ -383,6 +425,29 @@
 			}
 		},
 
+		updatePlaylist : function(){
+
+			var self = this;
+
+			this.elements
+				.playlist
+				.find('li')
+				.removeClass('ui-state-active')
+				.each(function(key){
+
+					if (self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
+
+						var height = $(this).addClass('ui-state-active').outerHeight();
+
+						self.elements.scrollbar.pos = (key * height) - ( Math.floor(self.options.playlistHeight / 2) * height);
+
+						self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
+
+						return false;
+					}
+				});
+		},
+
 		initRouter :  function(){
 
 			var self = this, hash = window.location.hash.replace(/.*?#\//, '');
@@ -415,7 +480,7 @@
 			} 
 		},
 		
-		bindYtEvents : function(){
+		bindYoutubeEvents : function(){
 
 			var self = this;
 
@@ -455,21 +520,21 @@
 
 				switch(this.state = state) {
 					case 0	: 
-						this.events.youtube.videoEnded(); 
+						this.youtubeEvents.videoEnded(); 
 						break;
 					case 1 : 
-						this.events.youtube.videoPlay();
+						this.youtubeEvents.videoPlay();
 						break;
 					case 3 : 
-						this.events.youtube.videoBuffer(); 
+						this.youtubeEvents.videoBuffer(); 
 						break;
 					case 100: 
 					case 101:
 					case 150:
-						this.events.youtube.error( state );
+						this.youtubeEvents.error( state );
 						break;
 					case 9 : 
-						this.events.youtube.ready();
+						this.youtubeEvents.ready();
 						break;
 				}
 			}
@@ -523,29 +588,6 @@
 				}, 120);
 		},
 
-		cueVideo : function(videoID){
-
-			this.youtube.cueVideoById(videoID || this.options.playlist.videos[this.keys.video].id, 0);
-		},
-
-		loadVideo : function(videoID){
-
-			var self = this;
-
-			this.elements.$infobar.stop().css({opacity: 0});
-
-			this.youtube.loadVideoById(videoID || this.options.playlist.videos[this.keys.video].id, 0);
-
-			this.router.updateHash();
-		},
-
-		randomVideo : function(){
-
-			this.keys.video = Math.floor(Math.random() * this.options.playlist.videos.length);
-
-			return this.keys.video;
-		},
-
 		createElements : function(){
 
 			return this
@@ -563,7 +605,7 @@
 
 			(this.options.swfobject) && this.options.swfobject.embedSWF(
 				'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=1&showinfo=0', 
-				this.youtube.id, this.options.width, this.options.height, '8', null, null, this.options.videoParams
+				this.youtube.id, '100%', '100%', '8', null, null, this.options.videoParams
 			);
 
 			return this;
@@ -625,8 +667,11 @@
 						}
 
 						self.elements.toolbar.updateStates();
+	
+						if ( self.events[button] ) {
 
-						self.events[button](buttonObj);
+							self.events[button](buttonObj);
+						}
 
 					})
 					.appendTo(self.elements.toolbar.$container);
@@ -709,7 +754,7 @@
 
 						self.keys.video = $.inArray($(this).data('video').id, self.videoIds);
 						self.elements.toolbar.buttons.play.element.data('state', 0);
-						self.events.updatePlaylist();
+						self.updatePlaylist();
 						self.events.play(null, this);
 					})
 					.appendTo(self.elements.playlist);
