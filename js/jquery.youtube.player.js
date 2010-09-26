@@ -91,8 +91,6 @@
 
 			play : function(button, playlistItem){
 
-				self.elements.loader.show();
-
 				self.loadVideo();
 
 				self.youtube.playVideo();
@@ -214,8 +212,6 @@
 			},
 			videoPlay : function(){
 
-				self.elements.loader.hide();
-
 				if (!self.elements.toolbar.buttons.play.element.data('state')) {
 
 					self.events.updatePlaylist();
@@ -239,8 +235,6 @@
 				}
 			},
 			error: function(state){
-
-				self.elements.loader.hide();
 
 				switch(state){
 					case 100:
@@ -485,8 +479,6 @@
 
 			var self = this;
 
-			this.elements.loader.hide();
-
 			if (
 				( this.elements.toolbar.buttons.play.element.data('state') || this.elements.toolbar.buttons.pause.element.data('state') ) 
 				&& this.elements.$infobar.css('opacity') < 1
@@ -641,10 +633,6 @@
 			});
 
 			this.elements.playerVideo.after(this.elements.toolbar.$container);
-
-			this.elements.loader = $('<span>').addClass('player-loader');
-
-			this.elements.toolbar.$container.after(this.elements.loader);
 
 			return this;
 		},

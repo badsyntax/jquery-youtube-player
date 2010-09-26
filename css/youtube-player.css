@@ -84,11 +84,3 @@
 	cursor: pointer;
 	z-index: 2;
 }
-.player-loader {
-	background: url(../img/player_spinner.gif) no-repeat;
-	display: none;
-	float: right;
-	height: 16px;
-	margin-top: 6px;
-	width: 16px;
-}
