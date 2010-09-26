@@ -1,37 +1,35 @@
-This jQuery plugin builds a interactive youtube media player, allowing the user to view multiple videos within multiple playlists. 
+This jQuery plugin builds a youtube video player with a custom toolbar and video list area.
 
-The player is built using jQuery and uses the Youtube Javascript API to send and capture player events.
+The player is built using jQuery and uses the Youtube Javascript API.
 
-*Development approach:*
+To set the track list, you need to provide a playlist. The plugin accepts 3 types of playlists:
 
- * Clean UI
- * Small footprint
- * Customizable
- * Cross browser compatible
+ * Custom playlist (you define the tracks by youtube video id's)
+ * Youtube playlist (uses youtube playlist id)
+ * Youtube latest videos by user (uses a youtube username)
 
 *Player consists of:*
 
  * The chromeless Youtube player (Flash 8)
  * Customizable toolbar 
- * Multiple playlists
- * jQuery UI Framework compatible
+ * Playlist area with custom scrollbar
+
+ *Player features:*
+
  * Hash actions (allowing you to link to videos in the playlist)
+ * Play, pause, next, prev, shuffle, repeat, mute
 
 *Dependancies:*
 
  * flash plugin installed on browser
  * swfobject
- * jquery ui framework
+ * jquery ui CSS framework
  * mousewheel plugin (optional)
-
-*Other info:*
-
- * The player currently requires a small PHP proxy script to retrieve the JSON playlist from youtube. If you can't use the PHP script, you can build the playlist manually in the playlist.js file.
 
 *Demos:*
 
  * [Basic setup](http://badsyntax.github.com/demos/youtube-player/player-example.html)
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
 
-This plugin is very ALPHA and is still being actively developed. It is not quite ready for a release, but please feel free to use the latest revision, I'd really appreciate some testing.
-Suggestions, feedback, bugs, anything is appreciated. Please use the Issue Tracker to post project related feedback, or send an email to willis.rh@gmail.comt
+This plugin is being (semi) actively developed. Feel free to use the latest revision.
+Suggestions, feedback, bugs, anything is appreciated. Please use the Issue Tracker to post project related feedback, or send an email to willis.rh@gmail.com
