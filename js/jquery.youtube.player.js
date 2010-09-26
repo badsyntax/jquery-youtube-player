@@ -329,7 +329,7 @@
 
 			var self = this, playlist = this.options.playlist;
 
-			if (String === playlist.constructor) {
+			if (String === playlist.constructor || Number === playlist.constructor) {
 
 				self.elements.playerObject
 					.html('loading playlist..')
@@ -337,9 +337,11 @@
 
 				var xhr = $.ajax({
 					type: 'GET',
-					url: self.options.playlistProxy + '?url=' + playlist,
+					url: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist,
+					data: { alt: 'json' },
 					dataType: 'json',
 					error: function(){ 
+
 						error.call( self ); 
 					},
 					success: function(json){
@@ -351,8 +353,12 @@
 							return; 
 						}
 
-						// replace playlist url with json array
-						self.options.playlist.videos = [];
+						// replace playlist ID with json array
+						self.options.playlist = {
+							title: json.feed.title.$t,
+							id: playlist,
+							videos: []
+						}
 
 						$.each(json.feed.entry, function(key, vid){
 
@@ -719,7 +725,7 @@
 			);
 
 			return this;
-		},
+		}
 	};
 
 

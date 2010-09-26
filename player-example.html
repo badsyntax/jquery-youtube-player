@@ -4,7 +4,7 @@
 	<title>jQuery Youtube Player Example</title>
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 	<link type="text/css" rel="stylesheet" media="screen, projection" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
-	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/player.css" />
+	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/youtube-player.css" />
 	<style type="text/css">
 		body {
 			font: normal 90% Arial;
@@ -13,10 +13,9 @@
 		}
 		#theme-switcher {
 			position: absolute;
-				right: 1em;
-					top: 1em;
-					}
-
+			right: 1em;
+			top: 1em;
+		}
 	</style>
 </head>
 <body>
@@ -31,12 +30,13 @@
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
 	<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
-	<script type="text/javascript" src="js/player.js"></script>
-	<script type="text/javascript" src="js/playlist.js"></script>
+	<script type="text/javascript" src="js/jquery.youtube.player.js"></script>
 	<script type="text/javascript" src="http://jqueryui.com/themeroller/themeswitchertool/"></script>
 	<script type="text/javascript">
 
 		var config =  {
+			/*
+			// Custom playlist
 			playlist: {
 				title: 'Random videos',
 				videos: [
@@ -52,6 +52,9 @@
 					{ id: '3ycBGkLkEkg', title: 'Wingsuit BASE jumping in Baffin Island' }
 				]
 			}
+			*/
+			// Youtube playlist
+			playlist: '71B8152559FA2805'
 		};
 
 		$("#player").player(config)
