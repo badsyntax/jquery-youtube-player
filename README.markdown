@@ -2,12 +2,6 @@ This jQuery plugin builds a youtube video player with a custom toolbar and video
 
 The player is built using jQuery and uses the Youtube Javascript API.
 
-To set the track list, you need to provide a playlist. The plugin accepts 3 types of playlists:
-
- * Custom playlist (you define the tracks by youtube video id's)
- * Youtube playlist (uses youtube playlist id)
- * Youtube latest videos by user (uses a youtube username)
-
 *Player consists of:*
 
  * The chromeless Youtube player (Flash 8)
@@ -25,6 +19,10 @@ To set the track list, you need to provide a playlist. The plugin accepts 3 type
  * swfobject
  * jquery ui CSS framework
  * mousewheel plugin (optional)
+
+*Installation and usage*
+
+ * View the [installationg and usage wiki page](http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage) for instructions on how to use the plugin.
 
 *Demos:*
 
