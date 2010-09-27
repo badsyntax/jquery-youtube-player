@@ -327,8 +327,6 @@
 
 			this.uniqueId( this.elements.playerObject[0], 'youtube-player-' );
 
-			this.youtubePlayer = this.elements.playerObject[0];
-
 			this.getPlaylistData(
 				function(){ // success
 
@@ -350,6 +348,8 @@
 		},
 
 		uniqueId : function(node, prefix){
+
+			prefix = prefix || 'random-';
 
 			var id;
 			do {
@@ -623,7 +623,7 @@
 
 			(this.options.swfobject) && this.options.swfobject.embedSWF(
 				'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=1&showinfo=0', 
-				this.youtubePlayer.id, '100%', '100%', '8', null, null, this.options.videoParams
+				this.elements.playerObject[0].id, '100%', '100%', '8', null, null, this.options.videoParams
 			);
 
 			return this;
