@@ -1,6 +1,4 @@
-This jQuery plugin builds a youtube video player with a custom toolbar and video list area.
-
-The player is built using jQuery and uses the Youtube Javascript API.
+This jQuery plugin builds a youtube video player with a custom toolbar and playlist area.
 
 **Player consists of:**
 
@@ -12,6 +10,7 @@ The player is built using jQuery and uses the Youtube Javascript API.
 
  * Hash actions (allowing you to link to videos in the playlist)
  * Play, pause, next, prev, shuffle, repeat, mute
+ * Customizable via CSS
 
 **Dependancies:**
 
@@ -19,6 +18,14 @@ The player is built using jQuery and uses the Youtube Javascript API.
  * swfobject
  * jquery ui CSS framework
  * mousewheel plugin (optional)
+
+**Playlists**
+
+The plugin accepts 3 types of playlists:
+
+ * Custom playlist (define the vidoes by youtube video id's)
+ * Youtube playlist (Youtube playlist id)
+ * Youtube latest videos by user (Youtube username)
 
 **Installation and usage**
 
