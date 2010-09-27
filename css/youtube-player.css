@@ -1,16 +1,16 @@
-#player {
+.youtube-player {
 	font-size: 86%;
 	position: relative;
 }
-#player-toolbar {
+.youtube-player-toolbar {
 	background: #111;
 	display: none;
 	margin: .1em 0 0 0;
 }
-#player-object {
+.youtube-player-object {
 	border: 1px solid #282828;
 }
-#player-toolbar li {
+.youtube-player-toolbar li {
 	cursor: pointer;
 	float: left;
 	list-style: none outside none;
@@ -18,11 +18,11 @@
 	padding: 4px 0;
 	position: relative;
 }
-#player-toolbar li span.ui-icon {
+.youtube-player-toolbar li span.ui-icon {
 	float: left;
 	margin: 0 4px;
 }
-#player-infobar {
+.youtube-player-infobar {
 	cursor: pointer;
 	float: left;
 	margin: 12px 12px 0px 12px;
@@ -31,23 +31,17 @@
 	top: 0px;
 	z-index: 99;
 }
-#player-playlist-scroller {
+.youtube-player-playlist-scroller {
 	border: 0;
 	margin: 2px;
 	overflow: hidden;
 }
-#player-playlist {
+.youtube-player-playlist {
 	list-style: decimal;
 	overflow-x: hidden;
 	padding: 0px 16px 0 0;
 }
-.ui-state-default, .ui-widget-content .ui-state-default {
-	background-position: -9999px -9999px;
-}
-.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
-	background-position: 50% 50%;
-}
-#player-playlist li {
+.youtube-player-playlist li {
 	border: 0;
 	cursor: pointer;
 	text-decoration: none;
@@ -55,13 +49,13 @@
 	padding: 2px 4px 2px;
 	white-space: nowrap;
 }
-#player-playlist-container {
+.youtube-player-playlist-container {
 	border: 1px solid #282828;
 	display: none;
 	margin-top: .2em;
 	position: relative;
 }
-#player-playlist-scrollbar {
+.youtube-player-playlist-scrollbar {
 	border: 0;
 	height: 100%;
 	right: 0;
@@ -70,17 +64,23 @@
 	width: 20px;
 	z-index: 2;
 }
-#player-playlist-scrollbar-up {
+.youtube-player-playlist-scrollbar-up {
 	cursor: pointer;
 	position: absolute;
 	right: 2px;
 	top: 5px;
 	z-index: 2;
 }
-#player-playlist-scrollbar-down {
+.youtube-player-playlist-scrollbar-down {
 	position: absolute;
 	right: 2px;
 	bottom: 5px;
 	cursor: pointer;
 	z-index: 2;
+}
+.ui-state-default, .ui-widget-content .ui-state-default {
+	background-position: -9999px -9999px;
+}
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
+	background-position: 50% 50%;
 }

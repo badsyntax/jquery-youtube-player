@@ -46,13 +46,13 @@
 		
 		<h1>jQuery Youtube Player</h1>
 
-<div id="player">
-	<div id="player-video">
-		<div id="player-object">
-			You need Flash player 8+ and JavaScript enabled.
+		<div class="youtube-player">
+			<div class="youtube-player-video">
+				<div class="youtube-player-object">
+					You need Flash player 8+ and JavaScript enabled.
+				</div>
+			</div>
 		</div>
-	</div>
-</div>
 	</div>
 
 	<script type="text/javascript">
@@ -68,11 +68,8 @@
 					{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
 					{ id: '1gD8nV8RlPU', title: 'Dai Mahou Touge - Vegetable Suicide' },
 					{ id: 'hPzNl6NKAG0', title: 'Maru the cat' },
-					{ id: 'JKQ83Bo9g3s', title: 'Lilou vs. Hong 10 - Red Bull BC One 2005' },
 					{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' },
 					{ id: 'Kv6Ewqx3PMs', title: 'Mr. Oizo Flat Beat' },
-					{ id: '4M0dhmVADg0', title: 'Fast Supra' },
-					{ id: 'dRUS5VfkJls', title: 'FRED THE RAVER' },
 					{ id: 'IAxj2ob_JoU', title: 'Most incredible volcano footage ever' },
 					{ id: '3ycBGkLkEkg', title: 'Wingsuit BASE jumping in Baffin Island' }
 				]
@@ -91,8 +88,7 @@
 			*/
 		};
 
-		$("#player").player(config)
-
+		$('.youtube-player').player(config)
 
 	</script>
 </body>

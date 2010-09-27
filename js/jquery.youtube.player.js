@@ -14,16 +14,16 @@
 
 		return this.each(function(){
 
-			// try get the plugin reference from the base element
+			// get plugin reference
 			var obj = $.data( this, pluginName );
 
-			// the object needs to be initiated before executing public methods
+			// the plugin needs to be initiated before executing public methods
 			if ( obj && obj.events && obj.events[method] ) {
 
 				// execute a public method
 				obj.events[method].apply( obj, Array.prototype.slice.call( args, 1 ) );
 			} 
-			// initiate the plugin, attach a reference
+			// initiate the plugin
 			else if ( !obj && ( typeof method === 'object' || ! method ) ) {
 
 				$.data( this, pluginName, new player(this, method) );
@@ -89,7 +89,8 @@
 					fullscreen: {
 						text:' Full screen',
 						icon: 'ui-icon-arrow-4-diag',
-						toggle: 1
+						toggle: 1,
+						disabled: 1
 					},
 					playlist: { 
 						text: 'Toggle playlist', 
@@ -114,19 +115,19 @@
 
 				self.events.loadVideo();
 
-				self.youtube.playVideo();
+				self.youtubePlayer.playVideo();
 			},
 			loadVideo : function(videoID){
 
 				self.elements.$infobar.stop().css({opacity: 0});
 
-				self.youtube.loadVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
+				self.youtubePlayer.loadVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
 
 				self.router.updateHash();
 			},
 			cueVideo : function(videoID){
 
-				self.youtube.cueVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
+				self.youtubePlayer.cueVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
 			},
 			randomVideo : function(){
 
@@ -136,7 +137,7 @@
 			},
 			pause : function(button){
 
-				self.youtube.pauseVideo();
+				self.youtubePlayer.pauseVideo();
 			},
 			prev : function(button){
 
@@ -178,7 +179,7 @@
 			},
 			mute : function(button){
 
-				button.element.data('state') ? self.youtube.mute() : self.youtube.unMute();
+				button.element.data('state') ? self.youtubePlayer.mute() : self.youtubePlayer.unMute();
 			},
 			playlist : function(button){
 
@@ -191,19 +192,19 @@
 			},
 			fullscreen: function(button){
 
-				self.youtube.setSize(900, 900);	
+				self.youtubePlayer.setSize(900, 900);	
 			}
 		};
 			
-		this.youtubeEvents = {
+		this.youtubePlayerEvents = {
 
 			ready : function(){
 
-				self.youtube = self.elements.player.find('object:first').get(0);
+				self.youtubePlayer = self.elements.player.find('object:first').get(0);
 
-				self.youtube.addEventListener('onStateChange', '_youtubeevents');
+				self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents');
 
-				self.youtube.addEventListener('onError', '_youtubeevents');
+				self.youtubePlayer.addEventListener('onError', '_youtubeevents');
 
 				self.events.cueVideo();
 
@@ -316,15 +317,17 @@
 
 			this.elements.player = this.element;
 
-			this.elements.playerVideo = $('#player-video');
+			this.elements.playerVideo = this.element.find('.youtube-player-video');
 
-			this.elements.playerObject = $('#player-object');
+			this.elements.playerObject = this.element.find('.youtube-player-object');
 
 			this.keys = {
 				video: 0
 			};
 
-			this.youtube = this.elements.playerObject.get(0);
+			this.uniqueId( this.elements.playerObject[0], 'youtube-player-' );
+
+			this.youtubePlayer = this.elements.playerObject[0];
 
 			this.getPlaylistData(
 				function(){ // success
@@ -344,6 +347,21 @@
 						.removeClass('playlist-loading');
 				}
 			);
+		},
+
+		uniqueId : function(node, prefix){
+
+			var id;
+			do {
+				id = prefix + Math.floor( Math.random() * 101 ).toString();
+
+			} while( document.getElementById(id) );
+
+			if (node){ 
+				node.id = id;
+			}
+
+			return id;
 		},
 
 		trigger: function(scope, callback, arg){
@@ -520,21 +538,21 @@
 
 				switch(this.state = state) {
 					case 0	: 
-						this.youtubeEvents.videoEnded(); 
+						this.youtubePlayerEvents.videoEnded(); 
 						break;
 					case 1 : 
-						this.youtubeEvents.videoPlay();
+						this.youtubePlayerEvents.videoPlay();
 						break;
 					case 3 : 
-						this.youtubeEvents.videoBuffer(); 
+						this.youtubePlayerEvents.videoBuffer(); 
 						break;
 					case 100: 
 					case 101:
 					case 150:
-						this.youtubeEvents.error( state );
+						this.youtubePlayerEvents.error( state );
 						break;
 					case 9 : 
-						this.youtubeEvents.ready();
+						this.youtubePlayerEvents.ready();
 						break;
 				}
 			}
@@ -562,7 +580,7 @@
 						.unbind('click')
 						.click(function(){ 
 
-							window.open(self.youtube.getVideoUrl()); 
+							window.open(self.youtubePlayer.getVideoUrl()); 
 						})
 						.animate({ opacity: 1 }, 180, function(){
 
@@ -605,7 +623,7 @@
 
 			(this.options.swfobject) && this.options.swfobject.embedSWF(
 				'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=1&showinfo=0', 
-				this.youtube.id, '100%', '100%', '8', null, null, this.options.videoParams
+				this.youtubePlayer.id, '100%', '100%', '8', null, null, this.options.videoParams
 			);
 
 			return this;
@@ -615,7 +633,7 @@
 			var self = this;
 
 			this.elements.toolbar = $.extend({
-				$container: $('<ul id="player-toolbar" class="ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">'),
+				$container: $('<ul class="youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">'),
 				updateStates : function(){
 
 					$.each(self.elements.toolbar.buttons, function(key){
@@ -647,13 +665,9 @@
 					.append('<span class="ui-icon '+this.icon+'">')
 					.attr('title', this.text)
 					.data('button', key)
-					.bind('mouseenter', function(){
+					.bind('mouseenter mouseleave', function(){
 
 						$(this).toggleClass('ui-state-hover'); 
-					})
-					.bind('mouseleave', function(){
-
-						$(this).toggleClass('ui-state-hover');
 					})
 					.click(function(){
 
@@ -684,7 +698,7 @@
 
 		createInfobar : function(){
 
-			this.elements.$infobar = $('<div id="player-infobar">').addClass('ui-widget-content ui-corner-all').css('opacity', 0);
+			this.elements.$infobar = $('<div>').addClass('youtube-player-infobar ui-widget-content ui-corner-all').css('opacity', 0);
 
 			this.elements.playerVideo.prepend(this.elements.$infobar);
 
@@ -695,33 +709,33 @@
 
 			var self = this;
 
-			this.elements.playlistScroller = this.elements.playlistScroller || $('<div id="player-playlist-scroller">');
+			this.elements.playlistScroller = $('<div class="youtube-player-playlist-scroller">');
 
 			($.fn.mousewheel) &&
 				this.elements.playlistScroller.unbind().bind('mousewheel', function(event, delta) {
 					delta > 0 ? self.events.scrollbar.up() : self.events.scrollbar.down();
 				});
 
-			this.elements.playlistContainer = this.elements.playlistContainer || $('<div id="player-playlist-container">').addClass('ui-widget-content ui-corner-all');
+			this.elements.playlistContainer = $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
 
-			this.elements.playlist = this.elements.playlist || $('<ol id="player-playlist">').addClass('ui-helper-reset');
+			this.elements.playlist = $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
 
-			this.elements.scrollbar = this.elements.scrollbar || {
+			this.elements.scrollbar = {
 				bar : 
-					$('<div id="player-playlist-scrollbar">')
-						.addClass('ui-widget ui-widget-content ui-corner-all')
+					$('<div>')
+						.addClass('youtube-player-playlist-scrollbar ui-widget ui-widget-content ui-corner-all')
 						.appendTo(this.elements.playlistContainer),
 				up : 
-					$('<span id="player-playlist-scrollbar-up">')
-						.addClass('ui-icon ui-icon-circle-triangle-n')
+					$('<span>')
+						.addClass('youtube-player-playlist-scrollbar-up ui-icon ui-icon-circle-triangle-n')
 						.click(function(){
 						
 							self.events.scrollbar.up();
 						})
 						.appendTo(this.elements.playlistContainer),
 				down : 
-					$('<span id="player-playlist-scrollbar-down">')
-						.addClass('ui-icon ui-icon-circle-triangle-s')
+					$('<span>')
+						.addClass('youtube-player-playlist-scrollbar-down ui-icon ui-icon-circle-triangle-s')
 						.click(function(){ 
 
 							self.events.scrollbar.down();
@@ -738,7 +752,7 @@
 
 				self.videoIds.push(this.id);
 
-				$('<li></li>')
+				$('<li>')
 					.data('video', this)
 					.append(this.title)
 					.addClass('ui-state-default')
