@@ -210,7 +210,7 @@
 
 				self.elements.toolbar.$container.fadeIn(400, function(){
 
-					($.isFunction(self.options.onready)) && self.trigger(self.events, 'onready');
+					self.trigger(self.events, 'onready', arguments);
 				});
 
 				self.elements.playlistContainer.show();
@@ -269,7 +269,7 @@
 						msg = 'This video does not allow playback outside of Youtube.';
 						break;
 					default:
-						msg = '';
+						msg = 'Unknown error';
 				}
 
 				self.trigger(this, 'onerror', [msg]);
@@ -368,7 +368,7 @@
 
 			var type = typeof callback;
 
-			if ( type === 'string' && this.options[ callback ] ) {
+			if ( type === 'string' && this.options[ callback ] && $.isFunction(this.options[ callback ]) ) {
 
 				this.options[ callback ].apply( scope, arg );
 
