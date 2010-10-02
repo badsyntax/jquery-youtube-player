@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player API Example</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" media="screen, projection" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/youtube-player.css" />
+	<style type="text/css">
+		body {
+			font: normal 90% Arial;
+			background: #ddd;
+			margin: 2em;
+		}
+		#github-ribbon {
+			position: absolute; 
+			top: 0; 
+			right: 0; 
+			border: 0;
+		}
+		#theme-switcher {
+			position: absolute;
+			right: 1em;
+			top: 1em;
+		}
+		h1 {
+			font-size: 1em;
+		}
+		img {
+			border: 0;	
+		}
+	</style>
+</head>
+<body>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
+	<script type="text/javascript" src="js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered" style="width:424px;margin:4em auto 0 auto">
+		
+		<h1>jQuery Youtube Player</h1>
+
+		<div class="youtube-player">
+			<div class="youtube-player-video">
+				<div class="youtube-player-object">
+					You need Flash player 8+ and JavaScript enabled.
+				</div>
+			</div>
+		</div>
+
+		<br /><br />
+		
+		<button type="button" id="load-video">
+			Load video
+		</button>
+
+		<button type="button" id="load-playlist">
+			Load playlist
+		</button>
+			
+	</div>
+
+	<script type="text/javascript">
+
+		var config =  {
+			showPlaylist: 0,
+			randomStart: 0,
+			playlist: {
+				title: 'Random videos',
+				videos: [
+					{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
+					{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' }
+				]
+			}
+
+			/*
+			// Youtube playlist
+			playlist: {
+				playlist: '71B8152559FA2805'
+			}
+
+			// Latest user videos
+			playlist: {
+				user: 'TheSensless'
+			}
+			*/
+		};
+
+		var player = $('.youtube-player').player( config );
+		
+		$('#load-video').click(function(){
+
+			player.player('loadVideo', 'viACqjxMRrs');
+
+		});
+
+		$('#load-playlist').click(function(){
+
+		});
+
+	</script>
+</body>
+</html>

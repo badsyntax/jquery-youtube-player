@@ -121,6 +121,11 @@
 
 				self.elements.$infobar.stop().css({opacity: 0});
 
+				if (videoID) {
+
+					self.keys.video = $.inArray(videoID, self.videoIds);
+				}
+
 				self.youtubePlayer.loadVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
 
 				self.router.updateHash();
@@ -208,18 +213,20 @@
 
 				self.events.cueVideo();
 
-				self.elements.toolbar.$container.fadeIn(400, function(){
+				self.elements.toolbar.$container.animate({opacity: 1}, 400, function(){
 
 					self.trigger(self.events, 'onready', arguments);
 				});
 
 				self.elements.playlistContainer.show();
 
-				var videoHeight = self.elements.playlist.find('li:first').outerHeight();
-				
+				var scrollerHeight = self.elements.playlist.height(),
+					videoHeight = self.elements.playlist.find('li:first').outerHeight(),
+					newHeight = videoHeight * self.options.playlistHeight;
+
 				self.elements.playlistContainer.hide();
 
-				self.elements.playlistScroller.height( videoHeight * self.options.playlistHeight );
+				self.elements.playlistScroller.height( newHeight < scrollerHeight ? newHeight : scrollerHeight );
 
 				if (self.options.showPlaylist) {
 
@@ -236,20 +243,19 @@
 			},
 			videoPlay : function(){
 
-				if (!self.elements.toolbar.buttons.play.element.data('state')) {
+				self.updatePlaylist();
 
-					self.updatePlaylist();
+				self.router.updateHash();
 
-					self.router.updateHash();
+				self.elements.toolbar.buttons.play.element.data('state', 1);
 
-					self.elements.toolbar.buttons.play.element.data('state', 1);
+				self.elements.toolbar.updateStates();
 
-					self.elements.toolbar.updateStates();
+				self.elements.$infobar.css({opacity: 0})
 
-					self.elements.$infobar.css({opacity: 0})
+				self.updateInfo(320);
 
-					self.updateInfo(320);
-				}
+				self.trigger(this, 'onVideoPlay', arguments);
 			},
 			videoEnded : function(){
 
@@ -402,7 +408,7 @@
 						title: json.feed.title.$t,
 						id: playlist,
 						videos: []
-					}
+					};
 
 					$.each(json.feed.entry, function(key, vid){
 
@@ -447,8 +453,7 @@
 
 			var self = this;
 
-			this.elements
-				.playlist
+			this.elements.playlist
 				.find('li')
 				.removeClass('ui-state-active')
 				.each(function(key){
@@ -633,7 +638,9 @@
 			var self = this;
 
 			this.elements.toolbar = $.extend({
-				$container: $('<ul class="youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">'),
+				$container: 
+					$('<ul class="youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">')
+					.css('opacity', 0),
 				updateStates : function(){
 
 					$.each(self.elements.toolbar.buttons, function(key){
@@ -662,7 +669,7 @@
 
 				this.element = 
 					$('<li class="ui-state-default ui-corner-all">')
-					.append('<span class="ui-icon '+this.icon+'">')
+					.append('<span class="ui-icon ' + this.icon + '">')
 					.attr('title', this.text)
 					.data('button', key)
 					.bind('mouseenter mouseleave', function(){
@@ -756,13 +763,9 @@
 					.data('video', this)
 					.append(this.title)
 					.addClass('ui-state-default')
-					.mouseenter(function(){
+					.bind('mouseenter mouseleave', function(){
 
-						$(this).addClass('ui-state-hover');
-					})
-					.mouseleave(function(){
-
-						$(this).removeClass('ui-state-hover');
+						$(this).toggleClass('ui-state-hover');
 					})
 					.click(function(){
 
