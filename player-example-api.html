@@ -54,8 +54,10 @@
 			</div>
 		</div>
 
-		<br /><br />
+		<br />
 		
+		<h2>Public methods:</h2>
+
 		<button type="button" id="load-video">
 			Load video
 		</button>
@@ -63,7 +65,16 @@
 		<button type="button" id="load-playlist">
 			Load playlist
 		</button>
-			
+	
+		<!--
+		<button type="button" id="open-playlist">
+			Open playlist
+		</button>
+		
+		<button type="button" id="close-playlist">
+			Close playlist
+		</button>
+		-->
 	</div>
 
 	<script type="text/javascript">
@@ -78,30 +89,31 @@
 					{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' }
 				]
 			}
-
-			/*
-			// Youtube playlist
-			playlist: {
-				playlist: '71B8152559FA2805'
-			}
-
-			// Latest user videos
-			playlist: {
-				user: 'TheSensless'
-			}
-			*/
 		};
 
 		var player = $('.youtube-player').player( config );
 		
 		$('#load-video').click(function(){
 
-			player.player('loadVideo', 'viACqjxMRrs');
+			player.player('loadVideo', 'dilEgVu-6fw');
 
 		});
 
 		$('#load-playlist').click(function(){
-
+			
+			player.player('loadPlaylist', {
+				playlist: '71B8152559FA2805'
+			});
+		});
+		
+		$('#open-playlist').click(function(){
+			
+			player.player('openPlaylist');
+		});
+		
+		$('#close-playlist').click(function(){
+			
+			player.player('closePlaylist');
 		});
 
 	</script>
