@@ -65,6 +65,14 @@
 		<button type="button" id="load-playlist">
 			Load playlist
 		</button>
+
+		<button type="button" id="destroy">
+			Destroy
+		</button>
+
+		<button type="button" id="create">
+			Create
+		</button>
 	
 		<!--
 		<button type="button" id="open-playlist">
@@ -114,6 +122,16 @@
 		$('#close-playlist').click(function(){
 			
 			player.player('closePlaylist');
+		});
+		
+		$('#destroy').click(function(){
+			
+			player.player('destroy');
+		});
+		
+		$('#create').click(function(){
+			
+			player = $('.youtube-player').player( config );
 		});
 
 	</script>
