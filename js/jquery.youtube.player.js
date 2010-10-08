@@ -83,7 +83,72 @@
 
 			this.loadPlaylist();
 		},
+		
+		initRouter :  function(){
 
+			var self = this, hash = window.location.hash.replace(/.*?#\//, '');
+
+			this.router = {
+				hash: hash,
+				actions: /\//.test(hash) ? hash.split('/') : ['v'],
+				updateHash: function(){
+
+					if (self.options.updateHash) {
+
+						window.location.hash = 
+							'/' + self.router.actions[0] + 
+							'/' + self.options.playlist.videos[self.keys.video].id;
+					}
+				}
+			};
+
+			switch(this.router.actions[0]){
+				case 'v' : 
+					this.keys.video = 
+						this.router.actions[1] ? $.inArray(this.router.actions[1], this.videoIds) : this.keys.video; 
+					break;
+				case 'p' : 
+					this.keys.video = $.inArray(this.router.actions[1], this.videoIds); 
+					this.keys.play = 1; 
+					break;
+				default : 
+					break;
+			} 
+
+			return this;
+		},
+
+		uniqueId : function(node, prefix){
+
+			prefix = prefix || 'random-';
+
+			var id;
+			do {
+				id = prefix + Math.floor( Math.random() * 101 ).toString();
+
+			} while( document.getElementById(id) );
+
+			if (node){ 
+				node.id = id;
+			}
+
+			return id;
+		},
+
+		trigger: function(scope, callback, arg){
+
+			var type = typeof callback;
+
+			if ( type === 'string' && this.options[ callback ] && $.isFunction(this.options[ callback ]) ) {
+
+				this.options[ callback ].apply( scope, arg );
+
+			} else if ( type === 'function' ) {
+
+				callback.apply( scope, arg );
+			}
+		},
+		
 		loadPlaylist: function(playlist, success){
 
 			if ( playlist ) {
@@ -123,37 +188,6 @@
 						.removeClass('playlist-loading');
 				}
 			);
-		},
-
-		uniqueId : function(node, prefix){
-
-			prefix = prefix || 'random-';
-
-			var id;
-			do {
-				id = prefix + Math.floor( Math.random() * 101 ).toString();
-
-			} while( document.getElementById(id) );
-
-			if (node){ 
-				node.id = id;
-			}
-
-			return id;
-		},
-
-		trigger: function(scope, callback, arg){
-
-			var type = typeof callback;
-
-			if ( type === 'string' && this.options[ callback ] && $.isFunction(this.options[ callback ]) ) {
-
-				this.options[ callback ].apply( scope, arg );
-
-			} else if ( type === 'function' ) {
-
-				callback.apply( scope, arg );
-			}
 		},
 
 		getPlaylistData : function(success, error){
@@ -260,40 +294,6 @@
 			}
 		},
 
-		initRouter :  function(){
-
-			var self = this, hash = window.location.hash.replace(/.*?#\//, '');
-
-			this.router = {
-				hash: hash,
-				actions: /\//.test(hash) ? hash.split('/') : ['v'],
-				updateHash: function(){
-
-					if (self.options.updateHash) {
-
-						window.location.hash = 
-							'/' + self.router.actions[0] + 
-							'/' + self.options.playlist.videos[self.keys.video].id;
-					}
-				}
-			};
-
-			switch(this.router.actions[0]){
-				case 'v' : 
-					this.keys.video = 
-						this.router.actions[1] ? $.inArray(this.router.actions[1], this.videoIds) : this.keys.video; 
-					break;
-				case 'p' : 
-					this.keys.video = $.inArray(this.router.actions[1], this.videoIds); 
-					this.keys.play = 1; 
-					break;
-				default : 
-					break;
-			} 
-
-			return this;
-		},
-		
 		bindYoutubeEvents : function(){
 
 			var self = this;
