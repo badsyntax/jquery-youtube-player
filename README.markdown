@@ -12,7 +12,7 @@ This jQuery plugin builds a youtube video player with a custom toolbar and playl
  * Play, pause, next, prev, shuffle, repeat, mute
  * Customizable via CSS
 
-**Dependancies:**
+**Dependencies:**
 
  * flash plugin installed on browser
  * swfobject

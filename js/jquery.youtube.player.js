@@ -312,7 +312,7 @@
 
 					self.elements.toolbar.container.animate({opacity: 1}, 400, function(){
 
-						self.trigger(self.api, 'onready', arguments);
+						self.trigger(self, 'onReady', arguments);
 					});
 
 					self.showPlaylist();
@@ -359,13 +359,13 @@
 							msg = 'Unknown error';
 					}
 
-					self.trigger(this, 'onerror', [msg]);
+					self.trigger(this, 'onError', [msg]);
 
 					alert( 'Sorry, there was an error loading this video. ' + msg );
 				},
 				videoBuffer : function(){
 
-					self.trigger(this, 'onbuffer', arguments); 
+					self.trigger(this, 'onBuffer', arguments); 
 				}
 			};
 
