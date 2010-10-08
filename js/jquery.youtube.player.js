@@ -748,8 +748,6 @@
 
 			this.videoIds = [];
 
-			console.debug(this.options.playlist);
-
 			$.each(this.options.playlist.videos, function(){
 
 				self.videoIds.push(this.id);
