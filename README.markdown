@@ -8,9 +8,9 @@ This jQuery plugin builds a youtube video player with a custom toolbar and playl
 
 **Player features:**
 
- * Hash actions (allowing you to link to videos in the playlist)
- * Play, pause, next, prev, shuffle, repeat, mute
- * Customizable via CSS
+ * Hash actions
+ * Customizable toolbar
+ * API and callback events
 
 **Dependencies:**
 
@@ -33,8 +33,9 @@ The plugin accepts 3 types of playlists:
 
 **Demos:**
 
- * [Basic setup](http://badsyntax.github.com/demos/youtube-player/player-example.html)
+ * [Basic demo](http://badsyntax.github.com/demos/youtube-player/player-example.html)
+ * [Advanced demo](http://badsyntax.github.com/demos/youtube-player/player-example-api-events.html) - Examples of the different options, API methods and callback events.
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
 
-This plugin is being (semi) actively developed. Feel free to use the latest revision.
+This plugin is being actively developed. Feel free to use the latest revision.
 Suggestions, feedback, bugs, anything is appreciated. Please use the Issue Tracker to post project related feedback, or send an email to willis.rh@gmail.com
