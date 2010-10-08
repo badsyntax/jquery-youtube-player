@@ -75,6 +75,8 @@
 
 			this.elements.playerObject = this.element.find('.youtube-player-object');
 
+			this.elements.playerObjectClone = this.elements.playerObject.clone();
+
 			this.keys = {
 				video: 0
 			};
@@ -795,6 +797,8 @@
 			this.elements.toolbar.container.remove();
 
 			this.options.swfobject.removeSWF(this.elements.playerObject[0].id);
+			
+			this.elements.playerObjectClone.appendTo( this.elements.playerVideo );
 
 			$.removeData( this.element[0], this._pluginName );
 		}
