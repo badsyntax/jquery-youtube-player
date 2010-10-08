@@ -28,6 +28,16 @@
 		img {
 			border: 0;	
 		}
+		label {
+			padding: .2em 0;
+			display: block;
+			position: relative;
+		}
+		label input {
+			position: absolute;
+			left: 100px;
+			top: 0;
+		}
 	</style>
 </head>
 <body>
@@ -55,6 +65,29 @@
 		</div>
 
 		<br />
+
+		<h2>Options:</h2>
+
+		<form id="options" action="#">
+			<fieldset>
+				<label>
+					Update hash
+					<input type="checkbox" name="updateHash" value="1" />
+				</label>
+				<label>
+					Width
+					<input type="text" name="width" value="425" />
+				</label>
+				<label>
+					Height
+					<input type="text" name="height" value="356" />
+				</label>
+
+				<button type="button" id="reload-options">
+					Reload
+				</button>
+			</fieldset>
+		</form>
 		
 		<h2>Public methods:</h2>
 
@@ -74,16 +107,6 @@
 			Create
 		</button>
 	
-		<!--
-		<button type="button" id="open-playlist">
-			Open playlist
-		</button>
-		
-		<button type="button" id="close-playlist">
-			Close playlist
-		</button>
-		-->
-
 		<h2>Events:</h2>
 
 		<div id="events" style="border:1px solid #aaa;padding:1em;"></div>
@@ -91,82 +114,102 @@
 
 	<script type="text/javascript">
 
-		function updateEvents(title){
+		(function($){
 
-			$('#events').append('<div>' + title + '</div>');
-		}
+			function updateEvents(title){
 
-		var playerConfig =  {
-			showPlaylist: 0,
-			randomStart: 0,
-			playlist: {
-				title: 'Random videos',
-				videos: [
-					{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
-					{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' }
-				]
-			},
-
-			// callback events
-
-			onReady: function(){
-
-				// 'this' is this playerobject
-				// console.debug(this);
-
-				updateEvents('player ready');
-			},
-
-			onVideoPlay: function(){
-
-				updateEvents('video play');
-			},
-
-			onError: function(){
-
-				updateEvents('error');
-			},
-
-			onBuffer: function(){
-
-				updateEvents('buffer');
+				$('#events').append('<div>' + title + '</div>');
 			}
-		};
 
-		var player = $('.youtube-player').player( playerConfig );
-		
-		$('#load-video').click(function(){
+			var playerConfig =  {
+				showPlaylist: 0,
+				randomStart: 0,
+				playlist: {
+					title: 'Random videos',
+					videos: [
+						{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
+						{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' }
+					]
+				},
 
-			player.player('loadVideo', 'dilEgVu-6fw');
+				// callback events
 
-		});
+				onReady: function(){
 
-		$('#load-playlist').click(function(){
+					// 'this' is this playerobject
+					// console.debug(this);
+
+					updateEvents('player ready');
+				},
+
+				onVideoPlay: function(){
+
+					updateEvents('video play');
+				},
+
+				onError: function(){
+
+					updateEvents('error');
+				},
+
+				onBuffer: function(){
+
+					updateEvents('buffer');
+				}
+			};
+
+			var player = $('.youtube-player').player( playerConfig );
 			
-			player.player('loadPlaylist', {
-				playlist: '71B8152559FA2805'
+			$('#load-video').click(function(){
+
+				player.player('loadVideo', 'dilEgVu-6fw');
+
 			});
-		});
-		
-		$('#open-playlist').click(function(){
+
+			$('#load-playlist').click(function(){
+				
+				player.player('loadPlaylist', {
+					playlist: '71B8152559FA2805'
+				});
+			});
 			
-			player.player('openPlaylist');
-		});
-		
-		$('#close-playlist').click(function(){
+			$('#open-playlist').click(function(){
+				
+				player.player('openPlaylist');
+			});
 			
-			player.player('closePlaylist');
-		});
-		
-		$('#destroy').click(function(){
+			$('#close-playlist').click(function(){
+				
+				player.player('closePlaylist');
+			});
 			
-			player.player('destroy');
-		});
-		
-		$('#create').click(function(){
+			$('#destroy').click(function(){
+				
+				player.player('destroy');
+			});
 			
-			player = $('.youtube-player').player( playerConfig );
-		});
+			$('#create').click(function(){
+				
+				player = $('.youtube-player').player( playerConfig );
+			});
+
+			$('#reload-options').click(function(){
+
+				var options = $('#options').serialize().split('&');
+
+				$.each(options, function(key, val){
+
+					var option = val.split('=');
+
+					playerConfig[ option[0] ] = Number(option[1]);
+				});
+
+				player.player('destroy');
+
+				$('.youtube-player').player( playerConfig );
+			});
+
+		})(window.jQuery);
 
 	</script>
 </body>
