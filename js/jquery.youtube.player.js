@@ -26,14 +26,16 @@
 			// initiate the plugin
 			else if ( !obj && ( typeof method === 'object' || ! method ) ) {
 
-				$.data( this, pluginName, new player(this, method) );
+				$.data( this, pluginName, new player(this, method, pluginName) );
 			}
 		});
 	}
 
-	function player(element, options){
+	function player(element, options, pluginName){
 
 		var self = this;
+
+		this._pluginName = pluginName;
 
 		this.options = $.extend({
 			width: 425,			// player width
@@ -97,7 +99,10 @@
 					// has the flash object been built?
 					if (this.youtubePlayer) {
 
+
+						this.createPlaylist();
 						this.cueVideo();
+						this.showPlaylist();
 
 					} else {
 
@@ -234,6 +239,27 @@
 				});
 		},
 
+		showPlaylist : function() {
+
+			this.elements.playlistContainer.show();
+
+			var scrollerHeight = this.elements.playlist.height(),
+				videoHeight = this.elements.playlist.find('li:first').outerHeight(),
+				newHeight = videoHeight * this.options.playlistHeight;
+
+			this.elements.playlistContainer.hide();
+
+			this.elements.playlistScroller.height( newHeight < scrollerHeight ? newHeight : scrollerHeight );
+
+			if (this.options.showPlaylist) {
+
+				this.elements.playlistContainer.animate({
+					height: 'toggle', 
+					opacity: 'toggle'
+				}, 550);
+			}
+		},
+
 		initRouter :  function(){
 
 			var self = this, hash = window.location.hash.replace(/.*?#\//, '');
@@ -270,8 +296,6 @@
 		
 		bindYoutubeEvents : function(){
 
-			if (window.onYouTubePlayerReady) return this;
-
 			var self = this;
 
 			this.youtubePlayerEvents = {
@@ -291,23 +315,7 @@
 						self.trigger(self.api, 'onready', arguments);
 					});
 
-					self.elements.playlistContainer.show();
-
-					var scrollerHeight = self.elements.playlist.height(),
-						videoHeight = self.elements.playlist.find('li:first').outerHeight(),
-						newHeight = videoHeight * self.options.playlistHeight;
-
-					self.elements.playlistContainer.hide();
-
-					self.elements.playlistScroller.height( newHeight < scrollerHeight ? newHeight : scrollerHeight );
-
-					if (self.options.showPlaylist) {
-
-						self.elements.playlistContainer.animate({
-							height: 'toggle', 
-							opacity: 'toggle'
-						}, 550);
-					}
+					self.showPlaylist();
 
 					if (self.keys.play) {
 
@@ -450,11 +458,14 @@
 
 			button.element.data('state') ? this.youtubePlayer.mute() : this.youtubePlayer.unMute();
 		},
+		
+		repeat : function(){
+
+			this.options.repeat = 1;
+		},
 				
 		playVideo : function(){
 		
-			this.loadVideo();
-
 			this.youtubePlayer.playVideo();
 		},
 
@@ -481,6 +492,8 @@
 
 				buttons.play.element.data('state', 0);
 
+				this.loadVideo();
+
 				this.playVideo();
 			}
 		},
@@ -498,6 +511,8 @@
 				}
 
 				buttons.play.element.data('state', 0);
+				
+				this.loadVideo();
 
 				this.playVideo();
 			}
@@ -633,9 +648,11 @@
 					})
 					.click(function(){
 
-						var button = $(this)
-							.data('state', $(this).data('state') && $(this).data('button').toggle ? 0 : 1)
-							.data('button');
+						// update button state
+						var button = $(this).data('button'), 
+							state = $(this).data('state');
+
+						$(this).data('state', state && button.toggle ? 0 : 1);
 	
 						if (button.toggleButton) {
 
@@ -697,7 +714,9 @@
 					delta > 0 ? scrollup() : scrolldown();
 				});
 
-			this.elements.playlistContainer = $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
+			this.elements.playlistContainer = this.elements.playlistContainer || $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
+
+			this.elements.playlistContainer.empty();
 
 			this.elements.playlist = $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
 
@@ -728,6 +747,8 @@
 			this.elements.playlist.empty();
 
 			this.videoIds = [];
+
+			console.debug(this.options.playlist);
 
 			$.each(this.options.playlist.videos, function(){
 
@@ -761,6 +782,23 @@
 			);
 
 			return this;
+		},
+
+		destroy: function(){
+
+			this.element.removeClass('ui-widget').removeAttr('style');
+
+			this.elements.playerVideo.removeAttr('style');
+
+			this.elements.infobar.remove();
+
+			this.elements.playlistContainer.remove();
+
+			this.elements.toolbar.container.remove();
+
+			this.options.swfobject.removeSWF(this.elements.playerObject[0].id);
+
+			$.removeData( this.element[0], this._pluginName );
 		}
 	};
 		
