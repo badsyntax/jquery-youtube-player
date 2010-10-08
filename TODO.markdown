@@ -4,3 +4,4 @@
 * Time progress
 * Buffer progress
 * Toggle buttons (for play/pause)
+* Video thumbnails for playlist

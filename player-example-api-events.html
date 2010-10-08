@@ -62,6 +62,10 @@
 					Height
 					<input type="text" name="height" value="356" />
 				</label>
+				<label>
+					Toolbar
+					<input type="text" name="toolbar" value="play,pause,prev,next,shuffle,repeat,mute,playlistToggle" />
+				</label>
 
 				<button type="button" id="reload-options">
 					Reload
@@ -186,7 +190,7 @@
 
 					var option = val.split('=');
 
-					playerConfig[ option[0] ] = Number(option[1]);
+					playerConfig[ option[0] ] = (option[0] == 'toolbar') ? unescape(option[1]) : Number(option[1]);
 				});
 
 				player.player('destroy');
