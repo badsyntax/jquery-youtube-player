@@ -83,11 +83,20 @@
 			Close playlist
 		</button>
 		-->
+
+		<h2>Events:</h2>
+
+		<div id="events" style="border:1px solid #aaa;padding:1em;"></div>
 	</div>
 
 	<script type="text/javascript">
 
-		var config =  {
+		function updateEvents(title){
+
+			$('#events').append('<div>' + title + '</div>');
+		}
+
+		var playerConfig =  {
 			showPlaylist: 0,
 			randomStart: 0,
 			playlist: {
@@ -96,10 +105,35 @@
 					{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
 					{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' }
 				]
+			},
+
+			// callback events
+
+			onReady: function(){
+
+				// 'this' is this playerobject
+				// console.debug(this);
+
+				updateEvents('player ready');
+			},
+
+			onVideoPlay: function(){
+
+				updateEvents('video play');
+			},
+
+			onError: function(){
+
+				updateEvents('error');
+			},
+
+			onBuffer: function(){
+
+				updateEvents('buffer');
 			}
 		};
 
-		var player = $('.youtube-player').player( config );
+		var player = $('.youtube-player').player( playerConfig );
 		
 		$('#load-video').click(function(){
 
@@ -131,7 +165,7 @@
 		
 		$('#create').click(function(){
 			
-			player = $('.youtube-player').player( config );
+			player = $('.youtube-player').player( playerConfig );
 		});
 
 	</script>
