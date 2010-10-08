@@ -6,38 +6,14 @@
 	<link type="text/css" rel="stylesheet" media="screen, projection" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
 	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/youtube-player.css" />
 	<style type="text/css">
-		body {
-			font: normal 90% Arial;
-			background: #ddd;
-			margin: 2em;
-		}
-		#github-ribbon {
-			position: absolute; 
-			top: 0; 
-			right: 0; 
-			border: 0;
-		}
-		#theme-switcher {
-			position: absolute;
-			right: 1em;
-			top: 1em;
-		}
-		h1 {
-			font-size: 1em;
-		}
-		img {
-			border: 0;	
-		}
-		label {
-			padding: .2em 0;
-			display: block;
-			position: relative;
-		}
-		label input {
-			position: absolute;
-			left: 100px;
-			top: 0;
-		}
+		body { font: normal 90% Arial; background: #ddd; margin: 1em; }
+		#github-ribbon { position: absolute; top: 0; right: 0; border: 0; }
+		#theme-switcher { position: absolute; right: 1em; top: 1em; }
+		#centered{ width: 424px; margin: 2em auto 0 auto; }
+		h1 { font-size: 1.5em; }
+		img { border: 0;}
+		label { padding: .2em 0; display: block; position: relative; }
+		label input { position: absolute; left: 100px; top: 0; }
 	</style>
 </head>
 <body>
@@ -52,7 +28,7 @@
 		</a>
 	</div>
 
-	<div id="centered" style="width:424px;margin:4em auto 0 auto">
+	<div id="centered">
 		
 		<h1>jQuery Youtube Player</h1>
 
@@ -71,6 +47,10 @@
 		<form id="options" action="#">
 			<fieldset>
 				<label>
+					Show playlist
+					<input type="checkbox" name="showPlaylist" value="1" />
+				</label>
+				<label>
 					Update hash
 					<input type="checkbox" name="updateHash" value="1" />
 				</label>
@@ -85,6 +65,10 @@
 
 				<button type="button" id="reload-options">
 					Reload
+				</button>
+
+				<button type="reset">
+					Reset
 				</button>
 			</fieldset>
 		</form>
@@ -113,12 +97,13 @@
 	</div>
 
 	<script type="text/javascript">
+	//<![CDATA[
 
 		(function($){
 
 			function updateEvents(title){
 
-				$('#events').append('<div>' + title + '</div>');
+				$('<div>' + title + '</div>').hide().appendTo('#events').fadeIn();
 			}
 
 			var playerConfig =  {
@@ -211,6 +196,7 @@
 
 		})(window.jQuery);
 
+	//]]>
 	</script>
 </body>
 </html>
