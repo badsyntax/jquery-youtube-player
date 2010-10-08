@@ -18,10 +18,10 @@
 			var obj = $.data( this, pluginName );
 
 			// the plugin needs to be initiated before executing public methods
-			if ( obj && obj.api && obj.api[method] ) {
+			if ( obj && obj[method] ) {
 
 				// execute a public method
-				obj.api[method].apply( obj, Array.prototype.slice.call( args, 1 ) );
+				obj[method].apply( obj, Array.prototype.slice.call( args, 1 ) );
 			} 
 			// initiate the plugin
 			else if ( !obj && ( typeof method === 'object' || ! method ) ) {
@@ -51,215 +51,11 @@
 				allowfullscreen: 'true',
 				allowScriptAccess: 'always'
 			},
-			toolbar: {
-				buttons : {
-					play: { 
-						text: 'Play', 
-						icon: 'ui-icon-play', 
-						toggleButton: 'pause'
-					},
-					pause: { 
-						text: 'Pause', 
-						icon: 'ui-icon-pause', 
-						toggleButton: 'play' 
-					},
-					prev: { 
-						text: 'Prev', 
-						icon: 'ui-icon-seek-prev' 
-					},
-					next: { 
-						text: 'Next', 
-						icon: 'ui-icon-seek-next' 
-					},
-					shuffle: { 
-						text: 'Shuffle/Random', 
-						icon: 'ui-icon-shuffle', 
-						toggle: 1
-					},
-					repeat: { 
-						text: 'Repeat playlist',
-						icon: 'ui-icon-refresh', 
-						toggle: 1 
-					},
-					mute: { 
-						text: 'Mute', 
-						icon: 'ui-icon-volume-on', 
-						toggle: 1 
-					},
-					fullscreen: {
-						text:' Full screen',
-						icon: 'ui-icon-arrow-4-diag',
-						toggle: 1,
-						disabled: 1
-					},
-					playlistToggle: { 
-						text: 'Toggle playlist', 
-						icon: 'ui-icon-script'
-					},
-					playlists: { 
-						text: 'Toggle playlists', 
-						icon: 'ui-icon-video', 
-						toggle: 1, 
-						disabled: 1 
-					}
-				}
-			}
+			toolbar: 'play,pause,prev,next,shuffle,repeat,mute,playlistToggle'
 		}, options);
 
 		this.element = $( element );
 
-		// public event API
-		this.api = {
-
-			play : function(){
-
-				return self.playVideo();
-			},
-			loadVideo : function(videoID){
-
-				return self.loadVideo(videoID);
-			},
-			cueVideo : function(videoID){
-
-				return self.cueVideo(videoID);
-			},
-			randomVideo : function(){
-
-				return self.randomVideo();
-			},
-			pause : function(){
-
-				return self.pauseVideo();
-			},
-			prev : function(){
-
-				return self.prevVideo();
-			},
-			next : function(){
-
-				return self.nextVideo();
-			},
-			shuffle : function(){
-
-				return self.shufflePlaylist();
-			},
-			repeat : function(){
-
-				self.options.repeat = 1;
-			},
-			mute : function(button){
-
-				return self.muteVideo(button);
-			},
-			loadPlaylist: function(playlist){
-
-				self.loadPlaylist(playlist, function(){
-
-					self.cueVideo();
-				});
-			},
-			playlistToggle : function(button){
-
-				self.elements
-					.playlistContainer
-					.animate({
-						height: 'toggle', 
-						opacity: 'toggle'
-					}, 550);
-			},
-			fullscreen: function(button){
-
-				self.youtubePlayer.setSize(900, 900);	
-			}
-		};
-			
-		this.youtubePlayerEvents = {
-
-			ready : function(){
-
-				self.youtubePlayer = self.elements.player.find('object:first').get(0);
-
-				self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents');
-
-				self.youtubePlayer.addEventListener('onError', '_youtubeevents');
-
-				self.cueVideo();
-
-				self.elements.toolbar.container.animate({opacity: 1}, 400, function(){
-
-					self.trigger(self.api, 'onready', arguments);
-				});
-
-				self.elements.playlistContainer.show();
-
-				var scrollerHeight = self.elements.playlist.height(),
-					videoHeight = self.elements.playlist.find('li:first').outerHeight(),
-					newHeight = videoHeight * self.options.playlistHeight;
-
-				self.elements.playlistContainer.hide();
-
-				self.elements.playlistScroller.height( newHeight < scrollerHeight ? newHeight : scrollerHeight );
-
-				if (self.options.showPlaylist) {
-
-					self.elements.playlistContainer.animate({
-						height: 'toggle', 
-						opacity: 'toggle'
-					}, 550);
-				}
-
-				if (self.keys.play) {
-
-					self.playVideo();
-				}
-			},
-			videoPlay : function(){
-
-				self.updatePlaylist();
-
-				self.router.updateHash();
-
-				self.elements.toolbar.buttons.play.element.data('state', 1);
-
-				self.elements.toolbar.updateStates();
-
-				self.elements.infobar.css({opacity: 0})
-
-				self.updateInfo(320);
-
-				self.trigger(this, 'onVideoPlay', arguments);
-			},
-			videoEnded : function(){
-
-				if (self.options.repeat) {
-
-					self.api.next();
-				}
-			},
-			error: function(state){
-
-				switch(state){
-					case 100:
-						msg = 'This video has been removed from Youtube.';
-						break;
-					case 101:
-					case 150:
-						msg = 'This video does not allow playback outside of Youtube.';
-						break;
-					default:
-						msg = 'Unknown error';
-				}
-
-				self.trigger(this, 'onerror', [msg]);
-
-				alert( 'Sorry, there was an error loading this video. ' + msg );
-			},
-			videoBuffer : function(){
-
-				self.trigger(this, 'onbuffer', arguments); 
-			}
-		};
-	
 		this.init();
 	}
 
@@ -298,11 +94,20 @@
 
 					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
 
-					this
-						.createElements()
-						.bindPlayerEvents()
-						.bindYoutubeEvents()
-						.initRouter();
+					// has the flash object been built?
+					if (this.youtubePlayer) {
+
+						this.cueVideo();
+
+					} else {
+
+						this
+							.createElements()
+							.bindPlayerEvents()
+							.bindYoutubeEvents()
+							.initRouter();
+					}
+
 
 					this.trigger(this, success);
 				}, 
@@ -459,6 +264,8 @@
 				default : 
 					break;
 			} 
+
+			return this;
 		},
 		
 		bindYoutubeEvents : function(){
@@ -466,6 +273,93 @@
 			if (window.onYouTubePlayerReady) return this;
 
 			var self = this;
+
+			this.youtubePlayerEvents = {
+
+				ready : function(){
+
+					self.youtubePlayer = self.elements.player.find('object:first').get(0);
+
+					self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents');
+
+					self.youtubePlayer.addEventListener('onError', '_youtubeevents');
+
+					self.cueVideo();
+
+					self.elements.toolbar.container.animate({opacity: 1}, 400, function(){
+
+						self.trigger(self.api, 'onready', arguments);
+					});
+
+					self.elements.playlistContainer.show();
+
+					var scrollerHeight = self.elements.playlist.height(),
+						videoHeight = self.elements.playlist.find('li:first').outerHeight(),
+						newHeight = videoHeight * self.options.playlistHeight;
+
+					self.elements.playlistContainer.hide();
+
+					self.elements.playlistScroller.height( newHeight < scrollerHeight ? newHeight : scrollerHeight );
+
+					if (self.options.showPlaylist) {
+
+						self.elements.playlistContainer.animate({
+							height: 'toggle', 
+							opacity: 'toggle'
+						}, 550);
+					}
+
+					if (self.keys.play) {
+
+						self.playVideo();
+					}
+				},
+				videoPlay : function(){
+
+					self.updatePlaylist();
+
+					self.router.updateHash();
+
+					buttons.play.element.data('state', 1);
+
+					self.elements.toolbar.updateStates();
+
+					self.elements.infobar.css({opacity: 0})
+
+					self.updateInfo(320);
+
+					self.trigger(this, 'onVideoPlay', arguments);
+				},
+				videoEnded : function(){
+
+					if (self.options.repeat) {
+
+						self.nextVideo();
+					}
+				},
+				error: function(state){
+
+					switch(state){
+						case 100:
+							msg = 'This video has been removed from Youtube.';
+							break;
+						case 101:
+						case 150:
+							msg = 'This video does not allow playback outside of Youtube.';
+							break;
+						default:
+							msg = 'Unknown error';
+					}
+
+					self.trigger(this, 'onerror', [msg]);
+
+					alert( 'Sorry, there was an error loading this video. ' + msg );
+				},
+				videoBuffer : function(){
+
+					self.trigger(this, 'onbuffer', arguments); 
+				}
+			};
 
 			window.onYouTubePlayerReady = function(){ 
 
@@ -585,7 +479,7 @@
 
 				this.keys.video--;
 
-				this.elements.toolbar.buttons.play.element.data('state', 0);
+				buttons.play.element.data('state', 0);
 
 				this.playVideo();
 			}
@@ -603,10 +497,25 @@
 					this.keys.video++;
 				}
 
-				this.elements.toolbar.buttons.play.element.data('state', 0);
+				buttons.play.element.data('state', 0);
 
 				this.playVideo();
 			}
+		},
+		
+		playlistToggle : function(button){
+
+			this.elements
+				.playlistContainer
+				.animate({
+					height: 'toggle', 
+					opacity: 'toggle'
+				}, 550);
+		},
+
+		fullscreen: function(button){
+
+			this.youtubePlayer.setSize(900, 900);	
 		},
 
 		updateInfo : function(timeout, text){
@@ -614,7 +523,7 @@
 			var self = this;
 
 			if (
-				( this.elements.toolbar.buttons.play.element.data('state') || this.elements.toolbar.buttons.pause.element.data('state') ) 
+				( buttons.play.element.data('state') || buttons.pause.element.data('state') ) 
 				&& this.elements.infobar.css('opacity') < 1
 			) {
 
@@ -663,12 +572,10 @@
 				.createPlayer()
 				.createToolbar()
 				.createInfobar()
-				.createTracklist();
+				.createPlaylist();
 		},
 
 		createPlayer : function(){
-
-			if (this.elements.player.find('object:first').length) return this;
 
 			this.elements.player.width(this.options.width);
 
@@ -684,45 +591,42 @@
 
 		createToolbar : function(){
 
-			if (this.elements.toolbar) return this;
-
 			var self = this;
 
-			this.elements.toolbar = $.extend({
+			this.elements.toolbar = {
 				container: 
 					$('<ul class="youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">')
 					.css('opacity', 0),
 				updateStates : function(){
 
-					$.each(self.elements.toolbar.buttons, function(key){
+					$.each(self.options.toolbar.split(','), function(key, val) {
 
-						this.element.removeClass('ui-state-active');
+						var button = buttons[val];
 
-						(this.element.data('state')) &&
-						(this.toggle || 
-							(this.toggleButton && 
-							self.elements.toolbar.buttons[this.toggleButton])) &&
-							this.element.addClass('ui-state-active');
+						if (!button) return true;
+
+						button.element.removeClass('ui-state-active');
+
+						(button.element.data('state')) &&
+						(button.toggle || 
+							(button.toggleButton && 
+							buttons[button.toggleButton])) &&
+							button.element.addClass('ui-state-active');
 					});
 				}
-			}, this.options.toolbar || {});
+			};
 
-			$.each(this.elements.toolbar.buttons, function(key) {
+			$.each(this.options.toolbar.split(','), function(key, val) {
 
-				if (this.disabled) { 
+				var button = buttons[val];
 
-					delete self.elements.toolbar.buttons[key];
+				if (!button) return true;
 
-					return true; 
-				}
-
-				var buttonObj = this;
-
-				this.element = 
+				buttons[val].element =
 					$('<li class="ui-state-default ui-corner-all">')
-					.append('<span class="ui-icon ' + this.icon + '">')
-					.attr('title', this.text)
-					.data('button', key)
+					.append('<span class="ui-icon ' + button.icon + '">')
+					.attr('title', button.text)
+					.data('button', button)
 					.bind('mouseenter mouseleave', function(){
 
 						$(this).toggleClass('ui-state-hover'); 
@@ -730,33 +634,30 @@
 					.click(function(){
 
 						var button = $(this)
-							.data('state', $(this).data('state') && buttonObj.toggle ? 0 : 1)
+							.data('state', $(this).data('state') && $(this).data('button').toggle ? 0 : 1)
 							.data('button');
 	
-						if (buttonObj.toggleButton) {
+						if (button.toggleButton) {
 
-							self.elements.toolbar.buttons[buttonObj.toggleButton].element.data('state', 0);
+							buttons[button.toggleButton].element.data('state', 0);
 						}
 
 						self.elements.toolbar.updateStates();
-	
-						if ( self.api[button] ) {
 
-							self.api[button](buttonObj);
-						}
+						button.action.call(self, button);
 
 					})
 					.appendTo(self.elements.toolbar.container);
+
 			});
 
-			this.elements.playerVideo.after(this.elements.toolbar.container);
+
+			this.elements.playerVideo.after( this.elements.toolbar.container );
 
 			return this;
 		},
 
 		createInfobar : function(){
-
-			if (this.elements.infobar) return this;
 
 			this.elements.infobar = $('<div>').addClass('youtube-player-infobar ui-widget-content ui-corner-all').css('opacity', 0);
 
@@ -765,13 +666,11 @@
 			return this;
 		},
 
-		createTracklist : function(){
+		createPlaylist : function(){
 
 			var self = this;
 
-			if (self.elements.playlist) return this;
-			
-			function up(){
+			function scrollup(){
 
 				self.elements.scrollbar.pos = 
 					self.elements.scrollbar.pos > self.elements.playlist.find('li:first').height() ? 
@@ -781,7 +680,7 @@
 				self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
 			}
 
-			function down(){
+			function scrolldown(){
 
 				self.elements.scrollbar.pos = 
 					self.elements.scrollbar.pos < self.elements.playlist.outerHeight() - self.elements.playlistScroller.outerHeight() ? 
@@ -795,7 +694,7 @@
 
 			($.fn.mousewheel) &&
 				this.elements.playlistScroller.unbind().bind('mousewheel', function(event, delta) {
-					delta > 0 ? up() : down();
+					delta > 0 ? scrollup() : scrolldown();
 				});
 
 			this.elements.playlistContainer = $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
@@ -812,7 +711,7 @@
 						.addClass('youtube-player-playlist-scrollbar-up ui-icon ui-icon-circle-triangle-n')
 						.click(function(){
 						
-							up();
+							scrollup();
 						})
 						.appendTo(this.elements.playlistContainer),
 				down : 
@@ -820,7 +719,7 @@
 						.addClass('youtube-player-playlist-scrollbar-down ui-icon ui-icon-circle-triangle-s')
 						.click(function(){ 
 
-							down();
+							scrolldown();
 						})
 						.appendTo(this.elements.playlistContainer),
 				pos : 0
@@ -846,7 +745,7 @@
 
 						self.keys.video = $.inArray( $(this).data('video').id, self.videoIds );
 
-						self.elements.toolbar.buttons.play.element.data('state', 0);
+						buttons.play.element.data('state', 0);
 						
 						self.updatePlaylist();
 						
@@ -864,6 +763,87 @@
 			return this;
 		}
 	};
+		
+	var buttons = {
 
+		play: { 
+			text: 'Play', 
+			icon: 'ui-icon-play', 
+			toggleButton: 'pause',
+			action: function(){
+
+				this.playVideo();
+			}
+		},
+		pause: { 
+			text: 'Pause', 
+			icon: 'ui-icon-pause', 
+			toggleButton: 'play',
+			action: function(){
+					
+				this.pauseVideo();
+			}
+		},
+		prev: { 
+			text: 'Prev', 
+			icon: 'ui-icon-seek-prev',
+			action: function(){
+
+				this.prevVideo();
+			}
+		},
+		next: { 
+			text: 'Next', 
+			icon: 'ui-icon-seek-next',
+			action: function(){
+				
+				this.nextVideo();
+			}
+		},
+		shuffle: { 
+			text: 'Shuffle/Random', 
+			icon: 'ui-icon-shuffle', 
+			toggle: 1,
+			action: function(){
+				
+				this.shufflePlaylist();
+			}
+		},
+		repeat: { 
+			text: 'Repeat playlist',
+			icon: 'ui-icon-refresh', 
+			toggle: 1,
+			action: function(){
+				
+				this.repeat();
+			}
+		},
+		mute: { 
+			text: 'Mute', 
+			icon: 'ui-icon-volume-on', 
+			toggle: 1,
+			action: function(button){
+
+				this.muteVideo(button);
+			}
+		},
+		fullscreen: {
+			text: 'Full screen',
+			icon: 'ui-icon-arrow-4-diag',
+			toggle: 1,
+			action: function(){
+
+				this.fullscreen();
+			}
+		},
+		playlistToggle: { 
+			text: 'Toggle playlist', 
+			icon: 'ui-icon-script',
+			action: function(){
+
+				this.playlistToggle();
+			}
+		}
+	};
 
 })(window.jQuery, window, document);
