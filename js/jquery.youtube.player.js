@@ -49,7 +49,7 @@
 			shuffle: 0,			// shuffle the play list
 			updateHash: 0,			// update the location hash on video play
 			playlistHeight: 5,		// height of the playlist
-			videoParams: { 			// video <object> params
+			videoParams: {			// video <object> params
 				allowfullscreen: 'true',
 				allowScriptAccess: 'always'
 			},
@@ -428,20 +428,28 @@
 			}
 		},
 				
-		loadVideo : function(videoID){
+		loadVideo : function(videoID, title){
 
-			var self = this;
-
-			self.elements.infobar.stop().css({opacity: 0});
+			this.elements.infobar.stop().css({opacity: 0});
 
 			if (videoID) {
 
-				self.keys.video = $.inArray(videoID, self.videoIds);
+				
+				this.options.playlist.videos = title ? [{
+					id: videoID,
+					title: title
+				}] : [];
+
+				this.createPlaylist();
+
+				this.showPlaylist();
+				
+				this.keys.video = $.inArray(videoID, this.videoIds);
 			}
 
-			self.youtubePlayer.loadVideoById(videoID || self.options.playlist.videos[self.keys.video].id, 0);
+			this.youtubePlayer.loadVideoById(videoID || this.options.playlist.videos[this.keys.video].id, 0);
 
-			self.router.updateHash();
+			this.router.updateHash();
 		},
 			
 		pauseVideo : function(){
@@ -522,12 +530,13 @@
 		
 		playlistToggle : function(button){
 
-			this.elements
-				.playlistContainer
-				.animate({
-					height: 'toggle', 
-					opacity: 'toggle'
-				}, 550);
+			(this.elements.playlistContainer.find('li').length) &&
+				this.elements
+					.playlistContainer
+					.animate({
+						height: 'toggle', 
+						opacity: 'toggle'
+					}, 550);
 		},
 
 		fullscreen: function(button){
@@ -553,7 +562,7 @@
 						.css({ 
 							opacity: 0 
 						})
-						.html(text || self.options.playlist.videos[self.keys.video].title)
+						.html(text || ( self.options.playlist.videos[self.keys.video] ? self.options.playlist.videos[self.keys.video].title : ''))
 						.unbind('click')
 						.click(function(){ 
 
@@ -769,6 +778,8 @@
 						buttons.play.element.data('state', 0);
 						
 						self.updatePlaylist();
+
+						self.cueVideo();
 						
 						self.playVideo();
 					})
