@@ -51,6 +51,8 @@
 			shuffle: 0,			// shuffle the play list
 			updateHash: 0,			// update the location hash on video play
 			playlistHeight: 5,		// height of the playlist
+			toolbarAppendTo: false,		// selector or false; element to append the toolbar to
+			playlistAppendTo: false,	// selector or false; element to append the playlist to
 			videoParams: {			// video <object> params
 				allowfullscreen: 'true',
 				allowScriptAccess: 'always'
@@ -704,21 +706,32 @@
 					})
 					.click(function(){
 
-						// update button state
 						var button = $(this).data('button'), 
-							state = $(this).data('state');
+							state = $(this).data('state'),
+							toggle = $(this).data('toggle');
 
-						$(this).data('state', state && button.toggle ? 0 : 1);
-	
 						if (button.toggleButton) {
 
-							buttons[button.toggleButton].element.data('state', 0);
+							toggle = toggle ? 0 : 1;
+						
+							$(this).data('toggle', toggle);
+
+							button.element.find('.ui-icon')
+								.toggleClass( button.icon )
+								.toggleClass( button.toggleButton.icon );
+
+							toggle ? button.element.attr('title', button.toggleButton.text) : button.element.attr('title', button.text);
+
+							toggle ? button.action.call(self, button) : button.toggleButton.action.call(self, button);
+
+						} else {
+						
+							$(this).data('state', state && button.toggle ? 0 : 1);
+
+							self.elements.toolbar.updateStates();
+
+							button.action.call(self, button);
 						}
-
-						self.elements.toolbar.updateStates();
-
-						button.action.call(self, button);
-
 					})
 					.appendTo(self.elements.toolbar.container);
 
@@ -728,7 +741,14 @@
 			this.elements.toolbar.timeCurrent = $('<span>').html('0:00').appendTo(this.elements.toolbar.time);
 			this.elements.toolbar.timeDuration = $('<span>').appendTo(this.elements.toolbar.time);
 
-			this.elements.playerVideo.after( this.elements.toolbar.container );
+			if (this.options.toolbarAppendTo) {
+
+			
+				this.elements.toolbar.container.appendTo( this.options.toolbarAppendTo );
+			} else {
+
+				this.elements.playerVideo.after( this.elements.toolbar.container );
+			}
 
 			return this;
 		},
@@ -834,12 +854,17 @@
 					})
 					.appendTo(self.elements.playlist);
 			});
+				
+			this.elements.playlistContainer.append( this.elements.playlistScroller.append(this.elements.playlist));
 
-			this.elements.toolbar.container.after(
-				this.elements.playlistContainer.append(
-					this.elements.playlistScroller.append(this.elements.playlist)
-				)
-			);
+			if (this.options.playlistAppendTo) {
+
+				this.elements.playlistContainer.appendTo( this.options.playlistAppendTo );
+
+			} else {
+
+				this.elements.toolbar.container.after( this.elements.playlistContainer );
+			}
 
 			return this;
 		},
@@ -869,21 +894,19 @@
 	var buttons = {
 
 		play: { 
-			text: 'Play', 
+			text: 'Play',
 			icon: 'ui-icon-play', 
-			toggleButton: 'pause',
+			toggleButton: {
+				text: 'Pause', 
+				icon: 'ui-icon-pause', 
+				action: function(){
+							
+					this.pauseVideo();
+				}
+			},
 			action: function(){
 
 				this.playVideo();
-			}
-		},
-		pause: { 
-			text: 'Pause', 
-			icon: 'ui-icon-pause', 
-			toggleButton: 'play',
-			action: function(){
-					
-				this.pauseVideo();
 			}
 		},
 		prev: { 

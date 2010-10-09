@@ -19,7 +19,9 @@
 		label { padding: .2em 0; display: block; position: relative; }
 		label input { position: absolute; left: 100px; top: 0; }
 		button { overflow: visible; white-space: nowrap; padding: .5em; cursor: pointer; border: 1px solid #bbb; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; -moz-box-shadow: #bbb 0 1px 4px; -webkit-box-shadow: #bbb 0 1px 4px; box-shadow: #bbb 0 1px 4px; color: #333; -moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF; font: bold 12px helvetica,arial,freesans,clean,sans-serif; background: #f4f4f4; /* for non-css3 browsers */ filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#ddd'); background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); background: -moz-linear-gradient(top,  #fff,  #ddd); /* For Internet Explorer 5.5 - 7 */ filter: progid:DXImageTransform.Microsoft.gradient(startColorStr=#FFFFFFFF, endColorStr=#DDDDDDFF); /* For Internet Explorer 8 */ -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF0000FF, endColorstr=#FFFFFFFF)";	}
-
+                #footer { border-top: 1px solid #aaa; margin-top: 3em; padding-top: .5em; font-size: .9em; color: #888; clear: both; }
+                #footer a { color: #888; text-decoration: none;}
+                #footer a:hover { text-decoration: underline; }
 	</style>
 </head>
 <body>
@@ -37,6 +39,7 @@
 	<div id="centered" style="width:880px">
 		
 
+		<div style="display:block">
 		<div style="float:left;">
 		<h1>jQuery Youtube Player</h1>
 
@@ -120,7 +123,23 @@
 		<h2>Events:</h2>
 
 		<div id="events"></div>
-		</div>
+
+		</div></div>
+
+                <div id="footer">
+                        <a href="player-example.html">Basic</a>
+                        |
+                        <a href="player-example-api-events.html">Advanced</a>
+                        |
+                        <a href="player-example-positioning.html">Positioning</a>
+                        |
+                        <a href="player-example-themes.html">Themes</a>
+                        |
+                        <a href="http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage">Userguide</a>
+                        |
+                        <a href="http://github.com/badsyntax/jquery-youtube-player/issues">Issues</a>
+                </div>
+
 	</div>
 
 	<script type="text/javascript">
