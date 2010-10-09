@@ -5,15 +5,20 @@
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 	<link type="text/css" rel="stylesheet" media="screen, projection" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
 	<link type="text/css" rel="stylesheet" media="screen, projection" href="css/youtube-player.css" />
+	<link href='http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin' rel='stylesheet' type='text/css' />
 	<style type="text/css">
 		body { font: normal 90% Arial; background: #ddd; margin: 1em; }
-		#github-ribbon { position: absolute; top: 0; right: 0; border: 0; }
+		#github-ribbon { position: absolute; top: 0; right: 1px; border: 0; }
 		#theme-switcher { position: absolute; right: 1em; top: 1em; }
 		#centered{ width: 424px; margin: 2em auto 0 auto; }
-		h1 { font-size: 1.5em; }
+                h1 { font-size: 1.5em; font-family: 'Droid Sans', arial, serif; }
+                h2 { font-family: 'Droid Sans', arial, serif; }
+		h1,h2,h3{-moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF;margin:1em 0;}
 		img { border: 0;}
 		label { padding: .2em 0; display: block; position: relative; }
 		label input { position: absolute; left: 100px; top: 0; }
+		button { overflow: visible; white-space: nowrap; padding: .5em; cursor: pointer; border: 1px solid #bbb; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; -moz-box-shadow: #bbb 0 1px 4px; -webkit-box-shadow: #bbb 0 1px 4px; box-shadow: #bbb 0 1px 4px; color: #333; -moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF; font: bold 12px helvetica,arial,freesans,clean,sans-serif; background: #f4f4f4; /* for non-css3 browsers */ filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#ddd'); background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); background: -moz-linear-gradient(top,  #fff,  #ddd); /* For Internet Explorer 5.5 - 7 */ filter: progid:DXImageTransform.Microsoft.gradient(startColorStr=#FFFFFFFF, endColorStr=#DDDDDDFF); /* For Internet Explorer 8 */ -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FF0000FF, endColorstr=#FFFFFFFF)";	}
+
 	</style>
 </head>
 <body>
@@ -28,8 +33,10 @@
 		</a>
 	</div>
 
-	<div id="centered">
+	<div id="centered" style="width:880px">
 		
+
+		<div style="float:left;">
 		<h1>jQuery Youtube Player</h1>
 
 		<div class="youtube-player">
@@ -40,7 +47,9 @@
 			</div>
 		</div>
 
-		<br />
+		</div>
+
+		<div style="float:right;width:424px">
 
 		<h2>Options:</h2>
 
@@ -67,7 +76,7 @@
 					<input type="text" name="toolbar" value="play,pause,prev,next,shuffle,repeat,mute,playlistToggle" />
 				</label>
 
-				<button type="button" id="reload-options">
+				<button type="button" id="reload-options" class="github">
 					Reload
 				</button>
 
@@ -77,7 +86,7 @@
 			</fieldset>
 		</form>
 		
-		<h2>Public methods:</h2>
+		<h2>Methods:</h2>
 
 		<button type="button" id="load-video">
 			Load video
@@ -98,6 +107,7 @@
 		<h2>Events:</h2>
 
 		<div id="events" style="border:1px solid #aaa;padding:1em;"></div>
+		</div>
 	</div>
 
 	<script type="text/javascript">
@@ -107,7 +117,7 @@
 
 			function updateEvents(title){
 
-				$('<div>' + title + '</div>').hide().appendTo('#events').fadeIn();
+				$('<div>' + title + '</div>').hide().appendTo('#events').fadeIn(1000);
 			}
 
 			var playerConfig =  {
