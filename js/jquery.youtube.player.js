@@ -44,6 +44,7 @@
 			playlist: {},			// playlist object
 			showPlaylist: 1,		// show playlist on plugin init
 			showTime: 1,			// show current time and duration in toolbar
+			showTitleOverlay: 1,		// show video title overlay text
 			videoThumbs: 0,			// show videos as thumbnails in the playlist area
 			randomStart: 1,			// show random video on plugin init
 			autoStart: 0,			// auto start the video on init
@@ -67,23 +68,20 @@
 
 	player.prototype = {
 		
-		state: -1, timer: {}, router: {}, videoIds: [], elements: {},
+		state: -1, timer: {}, router: {}, videoIds: [],
 
 		init : function(obj){
 
 			this.element.addClass('ui-widget');
 
-			this.elements.player = this.element;
-
-			this.elements.playerVideo = this.element.find('.youtube-player-video');
-
-			this.elements.playerObject = this.element.find('.youtube-player-object');
-
+			this.elements = {
+				player: this.element,
+				playerVideo: this.element.find('.youtube-player-video'),
+				playerObject: this.element.find('.youtube-player-object')
+			}
 			this.elements.playerObjectClone = this.elements.playerObject.clone();
 
-			this.keys = {
-				video: 0
-			};
+			this.keys = { video: 0 };
 
 			this.uniqueId( this.elements.playerObject[0], 'youtube-player-' );
 
@@ -563,6 +561,8 @@
 		},
 
 		updateInfo : function(timeout, text){
+
+			if (!this.options.showTitleOverlay) return;
 
 			var self = this;
 
