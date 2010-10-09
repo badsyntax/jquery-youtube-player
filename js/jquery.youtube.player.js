@@ -43,6 +43,7 @@
 			swfobject: window.swfobject,	// swfobject object
 			playlist: {},			// playlist object
 			showPlaylist: 1,		// show playlist on plugin init
+			showTime: 1,			// show current time and duration in toolbar
 			randomStart: 1,			// show random video on plugin init
 			autoStart: 0,			// auto start the video on init
 			repeat: 0,			// repeat videos
@@ -143,11 +144,11 @@
 
 			if ( type === 'string' && this.options[ callback ] && $.isFunction(this.options[ callback ]) ) {
 
-				this.options[ callback ].apply( scope, arg );
+				return this.options[ callback ].apply( scope, arg );
 
 			} else if ( type === 'function' ) {
 
-				callback.apply( scope, arg );
+				return callback.apply( scope, arg );
 			}
 		},
 		
@@ -166,13 +167,13 @@
 					// has the flash object been built?
 					if (this.youtubePlayer) {
 
-
+						// reset the playlist and load the first video
 						this.createPlaylist();
-						this.cueVideo();
+						this.loadVideo();
 						this.showPlaylist();
-
 					} else {
 
+						// build everything and set event handlers
 						this
 							.createElements()
 							.bindPlayerEvents()
@@ -180,14 +181,17 @@
 							.initRouter();
 					}
 
+					this.trigger(this, 'onPlaylistLoaded');
 
 					this.trigger(this, success);
 				}, 
 				function(){ // error
 
-					this.elements.playerObject
-						.html('There was an error loading the playlist.')
-						.removeClass('playlist-loading');
+					var msg = 'There was an error loading the playlist.';
+
+					this.elements.playerObject.html( msg );
+
+					this.trigger(this, 'onError', [msg]);
 				}
 			);
 		},
@@ -318,7 +322,7 @@
 					});
 
 					self.showPlaylist();
-
+			
 					if (self.keys.play) {
 
 						self.playVideo();
@@ -337,6 +341,8 @@
 					self.elements.infobar.css({opacity: 0})
 
 					self.updateInfo(320);
+
+					self.updateTime();
 
 					self.trigger(this, 'onVideoPlay', arguments);
 				},
@@ -361,9 +367,10 @@
 							msg = 'Unknown error';
 					}
 
-					self.trigger(this, 'onError', [msg]);
+					if (self.trigger(this, 'onError', [msg]) === undefined){
 
-					alert( 'Sorry, there was an error loading this video. ' + msg );
+						alert( 'There was an error loading this video. ' + msg );
+					}
 				},
 				videoBuffer : function(){
 
@@ -447,9 +454,13 @@
 				this.keys.video = $.inArray(videoID, this.videoIds);
 			}
 
-			this.youtubePlayer.loadVideoById(videoID || this.options.playlist.videos[this.keys.video].id, 0);
+			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
+
+			this.youtubePlayer.loadVideoById(videoID, 0);
 
 			this.router.updateHash();
+
+			this.trigger(this, 'onVideoLoaded', [ videoID ]);
 		},
 			
 		pauseVideo : function(){
@@ -481,10 +492,11 @@
 
 		cueVideo : function(videoID){
 
-			return this.youtubePlayer.cueVideoById(
-				videoID || this.options.playlist.videos[this.keys.video].id, 
-				0
-			);
+			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
+
+			this.trigger(this, 'onVideoCue', [ videoID ]);
+
+			return this.youtubePlayer.cueVideoById( videoID, 0);
 		},
 
 		randomVideo : function(){
@@ -592,6 +604,35 @@
 				}, 120);
 		},
 
+		updateTime : function(){
+
+			if (!this.options.showTime) return;
+
+			var self = this, duration = this.youtubePlayer.getDuration();
+
+			function timeFormat(seconds) {
+
+				seconds = Number(seconds);
+
+				var h = Math.floor(seconds / 3600),
+					m = Math.floor(seconds % 3600 / 60),
+					s = Math.floor(seconds % 3600 % 60);
+
+				return ((h > 0 ? h + ':' : '') + (m > 0 ? (h > 0 && m < 10 ? '0' : '') + m + ':' : '0:') + (s < 10 ? '0' : '') + s);
+			}
+
+			this.elements.toolbar.timeDuration.html( ' / ' + timeFormat( duration ));
+
+			this.elements.toolbar.time.fadeIn();
+
+			this.timeInterval = setInterval(function(){
+
+				var currentTime = self.youtubePlayer.getCurrentTime();
+
+				self.elements.toolbar.timeCurrent.html( timeFormat(currentTime) );
+			}, 100);
+		},
+
 		createElements : function(){
 
 			return this
@@ -679,6 +720,9 @@
 
 			});
 
+			this.elements.toolbar.time = $('<li class="youtube-player-time">').appendTo(this.elements.toolbar.container);
+			this.elements.toolbar.timeCurrent = $('<span>').html('0:00').appendTo(this.elements.toolbar.time);
+			this.elements.toolbar.timeDuration = $('<span>').appendTo(this.elements.toolbar.time);
 
 			this.elements.playerVideo.after( this.elements.toolbar.container );
 
@@ -779,14 +823,14 @@
 						
 						self.updatePlaylist();
 
-						self.cueVideo();
+						self.loadVideo();
 						
 						self.playVideo();
 					})
 					.appendTo(self.elements.playlist);
 			});
 
-			this.elements.playerVideo.after(
+			this.elements.toolbar.container.after(
 				this.elements.playlistContainer.append(
 					this.elements.playlistScroller.append(this.elements.playlist)
 				)
@@ -796,6 +840,8 @@
 		},
 
 		destroy: function(){
+
+			clearInterval( this.timeInterval );
 
 			this.element.removeClass('ui-widget').removeAttr('style');
 

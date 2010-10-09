@@ -13,7 +13,7 @@
 		#centered{ width: 424px; margin: 2em auto 0 auto; }
                 h1 { font-size: 1.5em; font-family: 'Droid Sans', arial, serif; }
                 h2 { font-family: 'Droid Sans', arial, serif; }
-		h1,h2,h3{-moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF;margin:1em 0;}
+		h1,h2,h3{-moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF;margin:1em 0 .5em 0;}
 		img { border: 0;}
 		label { padding: .2em 0; display: block; position: relative; }
 		label input { position: absolute; left: 100px; top: 0; }
@@ -57,7 +57,7 @@
 			<fieldset>
 				<label>
 					Show playlist
-					<input type="checkbox" name="showPlaylist" value="1" />
+					<input type="checkbox" name="showPlaylist" value="1" checked="checked" />
 				</label>
 				<label>
 					Update hash
@@ -121,7 +121,7 @@
 			}
 
 			var playerConfig =  {
-				showPlaylist: 0,
+				showPlaylist: 1,
 				randomStart: 0,
 				playlist: {
 					title: 'Random videos',
@@ -149,11 +149,29 @@
 				onError: function(){
 
 					updateEvents('error');
+
+					// suppress the error alert
+					return false;
 				},
 
 				onBuffer: function(){
 
 					updateEvents('buffer');
+				},
+
+				onPlaylistLoaded: function(){
+
+					updateEvents('playlist loaded');
+				},
+
+				onVideoLoaded: function(videoID){
+
+					updateEvents('video loaded: ' + videoID);
+				},
+
+				onVideoCue: function(videoID){
+
+					updateEvents('video cued: ' + videoID);
 				}
 			};
 

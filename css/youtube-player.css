@@ -6,6 +6,15 @@
 	background: #111;
 	margin: .1em 0 0 0;
 }
+.youtube-player-toolbar li.youtube-player-time {
+	float: right; 
+	font-weight: normal; 
+	font-size: 10px; 
+	line-height: 28px; 
+	margin: 0pt 5px 0pt 0pt;
+	padding: 0;
+	display: none;
+}
 .youtube-player-object {
 	border: 1px solid #282828;
 }
