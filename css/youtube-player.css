@@ -66,6 +66,7 @@
 	list-style-type: decimal;
 	padding: 2px 4px 2px;
 	white-space: nowrap;
+	font-size: 13px;
 }
 .youtube-player-playlist-container {
 	border: 1px solid #282828;
