@@ -18,6 +18,16 @@
 .youtube-player-object {
 	border: 1px solid #282828;
 }
+.youtube-player-playlist .youtube-player-thumb {
+	float: left;
+	height: 90px;
+	width: 124px;
+	list-style: none;
+}
+.youtube-player-playlist .youtube-player-thumb img {
+	height: 90px;
+	width: 124px;
+}
 .youtube-player-toolbar li {
 	cursor: pointer;
 	float: left;

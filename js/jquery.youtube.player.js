@@ -44,6 +44,7 @@
 			playlist: {},			// playlist object
 			showPlaylist: 1,		// show playlist on plugin init
 			showTime: 1,			// show current time and duration in toolbar
+			videoThumbs: 0,			// show videos as thumbnails in the playlist area
 			randomStart: 1,			// show random video on plugin init
 			autoStart: 0,			// auto start the video on init
 			repeat: 0,			// repeat videos
@@ -270,9 +271,12 @@
 
 						var height = $(this).addClass('ui-state-active').outerHeight();
 
-						self.elements.scrollbar.pos = (key * height) - ( Math.floor(self.options.playlistHeight / 2) * height);
+						if ( !self.options.videoThumbs ){
 
-						self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
+							self.elements.scrollbar.pos = (key * height) - ( Math.floor(self.options.playlistHeight / 2) * height);
+
+							self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
+						}
 
 						return false;
 					}
@@ -809,8 +813,9 @@
 
 				$('<li>')
 					.data('video', this)
-					.append(this.title)
+					.append( self.options.videoThumbs ? '<img alt="' + this.title + '" title="' + this.title + '" src="http://img.youtube.com/vi/' + this.id + '/2.jpg" />' : this.title)
 					.addClass('ui-state-default')
+					.addClass( self.options.videoThumbs ? 'youtube-player-thumb' : '' )
 					.bind('mouseenter mouseleave', function(){
 
 						$(this).toggleClass('ui-state-hover');
