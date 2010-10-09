@@ -644,9 +644,9 @@
 
 		createPlayer : function(){
 
-			this.elements.player.width(this.options.width);
+			this.elements.player.width( parseInt( this.options.width ) );
 
-			this.elements.playerVideo.height(this.options.height);
+			this.elements.playerVideo.height( parseInt( this.options.height ) );
 
 			this.options.swfobject.embedSWF(
 				'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=1&showinfo=0', 

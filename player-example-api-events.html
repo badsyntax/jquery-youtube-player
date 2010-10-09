@@ -60,6 +60,10 @@
 					<input type="checkbox" name="showPlaylist" value="1" checked="checked" />
 				</label>
 				<label>
+					Show time
+					<input type="checkbox" name="showTime" value="1" checked="checked" />
+				</label>
+				<label>
 					Update hash
 					<input type="checkbox" name="updateHash" value="1" />
 				</label>
@@ -212,14 +216,12 @@
 
 			$('#reload-options').click(function(){
 
-				var options = $('#options').serialize().split('&');
+				$('#options input').each(function(){
 
-				$.each(options, function(key, val){
-
-					var option = val.split('=');
-
-					playerConfig[ option[0] ] = (option[0] == 'toolbar') ? unescape(option[1]) : Number(option[1]);
+					playerConfig[ this.name ] = ( this.type == 'checkbox' && this.checked ) ? this.value : this.type =='text' ? this.value : 0;
 				});
+
+				console.debug(playerConfig);
 
 				player.player('destroy');
 
