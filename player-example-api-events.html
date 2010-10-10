@@ -5,7 +5,7 @@
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 	<link type="text/css" rel="stylesheet" media="all" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
 	<link type="text/css" rel="stylesheet" media="all" href="css/youtube-player.css" />
-	<link type="text/css" rel="stylesheet" media="all" href="css/example.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/example_files/example.css" />
 	<link type="text/css" rel="stylesheet" media="all" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
 </head>
 <body class="advanced">
@@ -92,14 +92,6 @@
 				
 				<h2>Methods:</h2>
 
-				<button type="button" id="load-video">
-					Load video
-				</button>
-
-				<button type="button" id="load-playlist">
-					Load playlist
-				</button>
-
 				<button type="button" id="destroy">
 					Destroy
 				</button>
@@ -107,9 +99,21 @@
 				<button type="button" id="create">
 					Create
 				</button>
-			
-				<h2>Events:</h2>
 
+				<br />
+			
+				<input type="text" name="load-video-field" value="dilEgVu-6fw" />
+				<button type="button" id="load-video">
+					Load video
+				</button>
+				<br />
+				
+				<input type="text" name="load-video-field" value="dilEgVu-6fw" />
+				<button type="button" id="load-playlist">
+					Load playlist
+				</button>
+
+				<h2>Events:</h2>
 				<div id="events"></div>
 
 			</div>
@@ -118,6 +122,8 @@
 		<div id="footer">
 			<a href="player-example.html">Basic</a> |
 			<a href="player-example-api-events.html">Advanced</a> |
+			<a href="player-example-multiple-playlists.html">Multiple Playlists</a> |
+			<a href="player-example-custom-playlist.html">Custom Playlist</a> |
 			<a href="player-example-positioning.html">Positioning</a> |
 			<a href="player-example-themes.html">Themes</a> |
 			<a href="http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage">Userguide</a> |
@@ -164,12 +170,9 @@
 					updateEvents('video play');
 				},
 
-				onError: function(){
+				onError: function(msg){
 
-					updateEvents('error');
-
-					// suppress the error alert
-					return false;
+					updateEvents(msg);
 				},
 
 				onBuffer: function(){
@@ -202,7 +205,9 @@
 			
 			$('#load-video').click(function(){
 
-				player.player('loadVideo', 'dilEgVu-6fw');
+				var videoID = $('input[name=load-video-field]').val();
+
+				player.player('loadVideo', videoID);
 
 			});
 
