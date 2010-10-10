@@ -698,10 +698,13 @@
 						button.element.removeClass('ui-state-active');
 
 						(button.element.data('state')) &&
-						(button.toggle || 
-							(button.toggleButton && 
-							buttons[button.toggleButton])) &&
-							button.element.addClass('ui-state-active');
+						(button.toggle) && 
+						button.element.addClass('ui-state-active');
+
+						if (button.element.data('state') && button.toggleButton){
+
+							button.element.trigger('on');
+						}
 					});
 				}
 			};
@@ -721,25 +724,51 @@
 
 						$(this).toggleClass('ui-state-hover'); 
 					})
+					.bind('off', function(){
+
+						var button = $(this).data('button'), toggle = 1;
+						
+						$(this).data('toggle', toggle);
+						$(this).data('state', 0);
+
+						button.element.find('.ui-icon')
+							.removeClass( button.toggleButton.icon )
+							.addClass( button.icon );
+		
+						button.element.attr('title', button.text)
+
+						button.toggleButton.action.call(self, button)
+
+					})
+					.bind('on', function(){
+
+						var button = $(this).data('button'), toggle = 0;
+						
+						$(this).data('toggle', toggle);
+						$(this).data('state', 1);
+
+						button.element.find('.ui-icon')
+							.removeClass( button.icon )
+							.addClass( button.toggleButton.icon );
+
+						button.element.attr('title', button.toggleButton.text)
+
+						button.action.call(self, button)
+					})
+					.bind('toggle', function(){
+						
+						var toggle = $(this).data('toggle');
+
+						( toggle || toggle == undefined) ? $(this).trigger('on') : $(this).trigger('off');
+					})
 					.click(function(){
 
 						var button = $(this).data('button'), 
-							state = $(this).data('state'),
-							toggle = $(this).data('toggle');
+							state = $(this).data('state');
 
 						if (button.toggleButton) {
-
-							toggle = toggle ? 0 : 1;
-						
-							$(this).data('toggle', toggle);
-
-							button.element.find('.ui-icon')
-								.toggleClass( button.icon )
-								.toggleClass( button.toggleButton.icon );
-
-							toggle ? button.element.attr('title', button.toggleButton.text) : button.element.attr('title', button.text);
-
-							toggle ? button.action.call(self, button) : button.toggleButton.action.call(self, button);
+							
+							$(this).trigger('toggle');
 
 						} else {
 						
