@@ -268,7 +268,7 @@
 
 			var self = this;
 
-			this.elements.playlist
+			(this.elements.playlist) && this.elements.playlist
 				.find('li')
 				.removeClass('ui-state-active')
 				.each(function(key){
@@ -451,7 +451,7 @@
 
 			if (videoID) {
 
-				
+				// reset the playlist
 				this.options.playlist.videos = title ? [{
 					id: videoID,
 					title: title
@@ -461,15 +461,19 @@
 
 				this.showPlaylist();
 				
+				// reset the playlist key
 				this.keys.video = $.inArray(videoID, this.videoIds);
 			}
 
+			// get video youtube ID
 			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
 
+			// (videoID, startSeconds, suggestQuality)
 			this.youtubePlayer.loadVideoById(videoID, 0);
 
 			this.router.updateHash();
 
+			// TODO: need to determine if video has loaded successfully 
 			this.trigger(this, 'onVideoLoaded', [ videoID ]);
 		},
 			
@@ -639,9 +643,16 @@
 
 			this.timeInterval = setInterval(function(){
 
-				var currentTime = self.youtubePlayer.getCurrentTime();
+				if (!self.youtubePlayer.getCurrentTime) {
 
-				self.elements.toolbar.timeCurrent.html( timeFormat(currentTime) );
+					clearInterval( self.timeInterval );
+
+				} else {
+
+					var currentTime = self.youtubePlayer.getCurrentTime();
+
+					self.elements.toolbar.timeCurrent.html( timeFormat(currentTime) );
+				}
 			}, 100);
 		},
 
@@ -772,104 +783,138 @@
 
 			var self = this;
 
-			function scrollup(){
+			function videoClickHandler(){
 
-				self.elements.scrollbar.pos = 
-					self.elements.scrollbar.pos > self.elements.playlist.find('li:first').height() ? 
-					self.elements.scrollbar.pos - self.elements.playlist.find('li:first').height() : 
-					0;
+				var videoData = $(this).data('video');
 
-				self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
+				if (!videoData) return;
+
+				self.keys.video = $.inArray( videoData.id, self.videoIds );
+
+				buttons.play.element.data('state', 0);
+				
+				self.updatePlaylist();
+
+				self.loadVideo();
+				
+				self.playVideo();
 			}
-
-			function scrolldown(){
-
-				self.elements.scrollbar.pos = 
-					self.elements.scrollbar.pos < self.elements.playlist.outerHeight() - self.elements.playlistScroller.outerHeight() ? 
-					self.elements.scrollbar.pos + self.elements.playlist.find('li:first').height() : 
-					self.elements.scrollbar.pos;
-
-				self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
-			}
-
-			this.elements.playlistScroller = $('<div class="youtube-player-playlist-scroller">');
-
-			($.fn.mousewheel) &&
-				this.elements.playlistScroller.unbind().bind('mousewheel', function(event, delta) {
-					delta > 0 ? scrollup() : scrolldown();
-				});
-
-			this.elements.playlistContainer = this.elements.playlistContainer || $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
-
-			this.elements.playlistContainer.empty();
-
-			this.elements.playlist = $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
-
-			this.elements.scrollbar = {
-				bar : 
-					$('<div>')
-						.addClass('youtube-player-playlist-scrollbar ui-widget ui-widget-content ui-corner-all')
-						.appendTo(this.elements.playlistContainer),
-				up : 
-					$('<span>')
-						.addClass('youtube-player-playlist-scrollbar-up ui-icon ui-icon-circle-triangle-n')
-						.click(function(){
-						
-							scrollup();
-						})
-						.appendTo(this.elements.playlistContainer),
-				down : 
-					$('<span>')
-						.addClass('youtube-player-playlist-scrollbar-down ui-icon ui-icon-circle-triangle-s')
-						.click(function(){ 
-
-							scrolldown();
-						})
-						.appendTo(this.elements.playlistContainer),
-				pos : 0
-			}
-
-			this.elements.playlist.empty();
 
 			this.videoIds = [];
 
-			$.each(this.options.playlist.videos, function(){
+			if (this.options.playlistBuilder) {
 
-				self.videoIds.push(this.id);
+				// custom playlist
+			
+				$.each(this.options.playlist.videos, function(){
 
-				$('<li>')
-					.data('video', this)
-					.append( self.options.videoThumbs ? '<img alt="' + this.title + '" title="' + this.title + '" src="http://img.youtube.com/vi/' + this.id + '/2.jpg" />' : this.title)
-					.addClass('ui-state-default')
-					.addClass( self.options.videoThumbs ? 'youtube-player-thumb' : '' )
-					.bind('mouseenter mouseleave', function(){
+					self.videoIds.push( this.id );
+				});
 
-						$(this).toggleClass('ui-state-hover');
-					})
+				var playlist = this.options.playlistBuilder.call(this, this.options.playlist.videos);
+
+				playlist
+					.items
 					.click(function(){
 
-						self.keys.video = $.inArray( $(this).data('video').id, self.videoIds );
+						videoClickHandler.apply(this, arguments);
+					});
 
-						buttons.play.element.data('state', 0);
-						
-						self.updatePlaylist();
-
-						self.loadVideo();
-						
-						self.playVideo();
-					})
-					.appendTo(self.elements.playlist);
-			});
-				
-			this.elements.playlistContainer.append( this.elements.playlistScroller.append(this.elements.playlist));
-
-			if (this.options.playlistAppendTo) {
-
-				this.elements.playlistContainer.appendTo( this.options.playlistAppendTo );
+				this.elements.playlistContainer = playlist.container;
 
 			} else {
 
-				this.elements.toolbar.container.after( this.elements.playlistContainer );
+				// default playlist
+
+				function scrollup(){
+
+					self.elements.scrollbar.pos = 
+						self.elements.scrollbar.pos > self.elements.playlist.find('li:first').height() ? 
+						self.elements.scrollbar.pos - self.elements.playlist.find('li:first').height() : 
+						0;
+
+					self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
+				}
+
+				function scrolldown(){
+
+					self.elements.scrollbar.pos = 
+						self.elements.scrollbar.pos < self.elements.playlist.outerHeight() - self.elements.playlistScroller.outerHeight() ? 
+						self.elements.scrollbar.pos + self.elements.playlist.find('li:first').height() : 
+						self.elements.scrollbar.pos;
+
+					self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
+				}
+
+				this.elements.playlistScroller = $('<div class="youtube-player-playlist-scroller">');
+
+				($.fn.mousewheel) &&
+					this.elements.playlistScroller.unbind().bind('mousewheel', function(event, delta) {
+						delta > 0 ? scrollup() : scrolldown();
+					});
+
+				this.elements.playlistContainer = this.elements.playlistContainer || $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
+
+				this.elements.playlistContainer.empty();
+
+				this.elements.playlist = $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
+
+				this.elements.scrollbar = {
+					bar : 
+						$('<div>')
+							.addClass('youtube-player-playlist-scrollbar ui-widget ui-widget-content ui-corner-all')
+							.appendTo(this.elements.playlistContainer),
+					up : 
+						$('<span>')
+							.addClass('youtube-player-playlist-scrollbar-up ui-icon ui-icon-circle-triangle-n')
+							.click(function(){
+							
+								scrollup();
+							})
+							.appendTo(this.elements.playlistContainer),
+					down : 
+						$('<span>')
+							.addClass('youtube-player-playlist-scrollbar-down ui-icon ui-icon-circle-triangle-s')
+							.click(function(){ 
+
+								scrolldown();
+							})
+							.appendTo(this.elements.playlistContainer),
+					pos : 0
+				}
+
+				this.elements.playlist.empty();
+
+				$.each(this.options.playlist.videos, function(){
+
+					self.videoIds.push(this.id);
+
+					$('<li>')
+						.data('video', this)
+						.append( self.options.videoThumbs ? '<img alt="' + this.title + '" title="' + this.title + '" src="http://img.youtube.com/vi/' + this.id + '/2.jpg" />' : this.title)
+						.addClass('ui-state-default')
+						.addClass( self.options.videoThumbs ? 'youtube-player-thumb' : '' )
+						.bind('mouseenter mouseleave', function(){
+
+							$( this ).toggleClass( 'ui-state-hover' );
+						})
+						.click(function(){
+			
+							videoClickHandler.apply(this, arguments);
+						})
+						.appendTo(self.elements.playlist);
+				});
+					
+				this.elements.playlistContainer.append( this.elements.playlistScroller.append(this.elements.playlist));
+
+				if (this.options.playlistAppendTo) {
+
+					this.elements.playlistContainer.appendTo( this.options.playlistAppendTo );
+
+				} else {
+
+					this.elements.toolbar.container.after( this.elements.playlistContainer );
+				}
 			}
 
 			return this;
