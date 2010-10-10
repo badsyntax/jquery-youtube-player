@@ -14,6 +14,7 @@
 	margin: 0pt 5px 0pt 0pt;
 	padding: 0;
 	display: none;
+	cursor: default;
 }
 .youtube-player-object {
 	border: 1px solid #282828;
