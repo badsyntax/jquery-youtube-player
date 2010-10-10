@@ -182,8 +182,6 @@
 							.initRouter();
 					}
 
-					this.trigger(this, 'onPlaylistLoaded');
-
 					this.trigger(this, success);
 				}, 
 				function(){ // error
@@ -237,22 +235,30 @@
 					? 'http://gdata.youtube.com/feeds/base/users/' + playlist.user + '/uploads?v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
 					: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist.playlist;
 
+				this.trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
+
 				$.ajax({
 					type: 'GET',
 					url: url,
 					data: { alt: 'json' },
 					dataType: 'json',
 					error: function(){ 
+				
+						self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
 
 						error.call( self ); 
 					},
 					success: function(){
+						
+						self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
 
 						ajaxSuccess.apply( self, arguments );
 					}
 				});
 
 			} else {
+						
+				self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
 
 				success.call( self );
 			}
