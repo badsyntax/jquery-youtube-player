@@ -6,14 +6,6 @@
  * Contact	: willis.rh@gmail.com | badsyntax.co.uk
  */
 
-/*
-A thought on how to handle toolbar button states against player events.
-We bind the logic of the various player actions to the toolbar button 
-action functions, (where appropriate) then trigger the button actions.
-What about the api then? Route the api methods to the button methods?
-What if certain buttons aren't added to the toolbar?
-*/
-
 (function($, window, document, undefined){
 
 	$.fn.player = function(method){
