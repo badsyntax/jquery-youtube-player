@@ -7,7 +7,7 @@ body { font: normal 90% Arial; background: #ddd; margin: 1em; }
 #centered{ width: 425px; margin: 2em auto 0 auto; }
 .advanced #centered{ width: 780px;}
 .index #centered{ width: 700px; }
-#events{ border: 1px solid #aaa; padding: 1em; max-height: 10em; overflow: auto }
+#events{ border: 1px solid #aaa; padding: 1em; max-height: 6em; overflow: auto }
 h1 { font-size: 1.5em; font-family: 'Droid Sans', arial, serif; }
 h2 { font-family: 'Droid Sans', arial, serif; }
 h1,h2,h3{-moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF; margin: .8em 0 .5em 0;}

@@ -11,3 +11,5 @@
 * Solid cross browser testing
 * Update documentation
 * Add option for default OS scrollbar in playlist
+* Using the player for one video (no playlist)
+* Add screenshots page
