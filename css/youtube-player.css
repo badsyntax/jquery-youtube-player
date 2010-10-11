@@ -49,11 +49,19 @@
 	padding: 3px 6px;
 	top: 0px;
 	z-index: 99;
+	border: 0;
 }
 .youtube-player-playlist-scroller {
 	border: 0;
 	margin: 2px;
 	overflow: hidden;
+}
+.youtube-player-playlist-os-scrollbar {
+	overflow: auto;
+}
+.youtube-player-playlist-os-scrollbar ol {
+	margin: 0;
+	padding: 0;
 }
 .youtube-player-playlist {
 	list-style: decimal;
