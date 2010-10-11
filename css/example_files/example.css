@@ -10,7 +10,7 @@ body { font: normal 90% Arial; background: #ddd; margin: 1em; }
 #events{ border: 1px solid #aaa; padding: 1em; max-height: 10em; overflow: auto }
 h1 { font-size: 1.5em; font-family: 'Droid Sans', arial, serif; }
 h2 { font-family: 'Droid Sans', arial, serif; }
-h1,h2,h3{-moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF;margin:1em 0 .5em 0;}
+h1,h2,h3{-moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF; margin: .8em 0 .5em 0;}
 img { border: 0;}
 label { padding: .2em 0; display: block; position: relative; }
 label input { position: absolute; left: 130px; top: 0; }
@@ -21,6 +21,7 @@ button { overflow: visible; white-space: nowrap; padding: .5em; cursor: pointer;
 .playlists li { }
 .playlists a { color: #000; padding: .3em 0; display: block; }
 .playlists a:hover { color: #990000; }
+.field-row { padding: .3em 0; }
 #footer { border-top: 1px solid #aaa; margin-top: 3em; padding-top: .5em; font-size: .9em; color: #888; clear: both; }
 #footer a { color: #888; text-decoration: none;}
 #footer a:hover { text-decoration: underline; }

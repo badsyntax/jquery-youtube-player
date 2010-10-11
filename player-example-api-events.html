@@ -96,26 +96,30 @@
 				
 				<h2>Methods:</h2>
 
-				<button type="button" id="destroy">
-					Destroy
-				</button>
+				<div class="field-row">
 
-				<button type="button" id="create">
-					Create
-				</button>
+					<button type="button" id="destroy">
+						Destroy
+					</button>
 
-				<br />
-			
-				<input type="text" name="load-video-field" value="dilEgVu-6fw" />
-				<button type="button" id="load-video">
-					Load video
-				</button>
-				<br />
+					<button type="button" id="create">
+						Create
+					</button>
+				</div>
+
+				<div class="field-row">
+					<input type="text" name="load-video-field" value="dilEgVu-6fw" />
+					<button type="button" id="load-video">
+						Load video
+					</button>
+				</div>
 				
-				<input type="text" name="load-video-field" value="dilEgVu-6fw" />
-				<button type="button" id="load-playlist">
-					Load playlist
-				</button>
+				<div class="field-row">
+					<input type="text" name="load-playlist-field" value="71B8152559FA2805" />
+					<button type="button" id="load-playlist">
+						Load playlist
+					</button>
+				</div>
 
 				<h2>Events:</h2>
 				<div id="events"></div>
@@ -165,6 +169,8 @@
 
 				onError: function(msg){
 
+					alert(msg);
+
 					updateEvents(msg);
 				},
 
@@ -205,10 +211,10 @@
 			});
 
 			$('#load-playlist').click(function(){
+
+				var playlistID = $('input[name=load-playlist-field]').val();
 				
-				player.player('loadPlaylist', {
-					playlist: '71B8152559FA2805'
-				});
+				player.player('loadPlaylist', { playlist: playlistID });
 			});
 			
 			$('#open-playlist').click(function(){
