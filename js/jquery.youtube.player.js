@@ -6,6 +6,14 @@
  * Contact	: willis.rh@gmail.com | badsyntax.co.uk
  */
 
+/*
+A thought on how to handle toolbar button states against player events.
+We bind the logic of the various player actions to the toolbar button 
+action functions, (where appropriate) then trigger the button actions.
+What about the api then? Route the api methods to the button methods?
+What if certain buttons aren't added to the toolbar?
+*/
+
 (function($, window, document, undefined){
 
 	$.fn.player = function(method){
@@ -301,20 +309,24 @@
 
 			var scrollerHeight = this.elements.playlist.height(),
 				videoHeight = this.elements.playlist.find('li:first').outerHeight(),
-				newHeight = videoHeight * this.options.playlistHeight;
+				newHeight = videoHeight * this.options.playlistHeight,
+				height = newHeight < scrollerHeight ? newHeight : scrollerHeight;
 
 			this.elements.playlistContainer.hide();
 
-			this.elements.playlistScroller.height( newHeight < scrollerHeight ? newHeight : scrollerHeight );
+			if (height) {
 
-			( this.options.playlistScrollbarOS ) && this.elements.playlistScroller.addClass('youtube-player-playlist-os-scrollbar');
+				this.elements.playlistScroller.height( height );
 
-			if (this.options.showPlaylist) {
+				( this.options.playlistScrollbarOS ) && this.elements.playlistScroller.addClass('youtube-player-playlist-os-scrollbar');
 
-				this.elements.playlistContainer.animate({
-					height: 'toggle', 
-					opacity: 'toggle'
-				}, 550);
+				if (this.options.showPlaylist) {
+
+					this.elements.playlistContainer.animate({
+						height: 'toggle', 
+						opacity: 'toggle'
+					}, 550);
+				}
 			}
 		},
 
@@ -579,12 +591,18 @@
 		updateInfo : function(timeout, text){
 
 			if (!this.options.showTitleOverlay) return;
+				
+			text = text || ( 
+					this.options.playlist.videos[this.keys.video] ? 
+					this.options.playlist.videos[this.keys.video].title : ''
+				);
 
 			var self = this;
 
 			if (
 				( buttons.play.element.data('state') || buttons.pause.element.data('state') ) 
 				&& this.elements.infobar.css('opacity') < 1
+				&& text
 			) {
 
 				clearTimeout(this.timer.hideInfo);
@@ -596,7 +614,7 @@
 						.css({ 
 							opacity: 0 
 						})
-						.html(text || ( self.options.playlist.videos[self.keys.video] ? self.options.playlist.videos[self.keys.video].title : ''))
+						.html( text )
 						.unbind('click')
 						.click(function(){ 
 							
