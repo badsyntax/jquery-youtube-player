@@ -17,15 +17,14 @@
 			// get plugin reference
 			var obj = $.data( this, pluginName );
 
-			// the plugin needs to be initiated before executing public methods
 			if ( obj && obj[method] ) {
 
 				// execute a public method
 				obj[method].apply( obj, Array.prototype.slice.call( args, 1 ) );
 			} 
-			// initiate the plugin
 			else if ( !obj && ( typeof method === 'object' || ! method ) ) {
 
+				// initiate the plugin
 				$.data( this, pluginName, new player(this, method, pluginName) );
 			}
 		});
@@ -183,8 +182,8 @@
 						// build everything and set event handlers
 						this
 							.createElements()
-							.bindPlayerEvents()
-							.bindYoutubeEvents()
+							.bindPlayerEventHandlers()
+							.bindYoutubeEventHandlers()
 							.initRouter();
 					}
 
@@ -321,7 +320,7 @@
 			}
 		},
 
-		bindYoutubeEvents : function(){
+		bindYoutubeEventHandlers : function(){
 
 			var self = this;
 
@@ -410,7 +409,7 @@
 			return this;
 		},
 
-		bindPlayerEvents : function(){
+		bindPlayerEventHandlers : function(){
 
 			var self = this;
 
