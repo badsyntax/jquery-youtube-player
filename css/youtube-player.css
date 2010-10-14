@@ -53,12 +53,12 @@
 }
 .youtube-player-playlist {
 	list-style: decimal;
-	overflow-x: hidden;
 	overflow: auto;
 	margin: 2px;
 	padding: 0;
 }
 .youtube-player-playlist li {
+	overflow-x: hidden;
 	border: 0;
 	cursor: pointer;
 	text-decoration: none;
