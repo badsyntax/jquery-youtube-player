@@ -50,8 +50,6 @@
 
 		(function($){
 			var config =  {
-				showPlaylist: 1,
-				randomStart: 0,
 
 				playlistBuilder: function(videos){
 
@@ -74,6 +72,11 @@
 							.jcarousel()
 							.find('li')
 					};
+				},
+
+				playlistBuilderClickHandler: function(event){
+
+					event.preventDefault();
 				},
 
 				playlist: {

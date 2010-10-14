@@ -45,12 +45,15 @@
 		(function($){
 
 			var config =  {
-				showPlaylist: 0,
-				randomStart: 0,
 
 				onReady: function(){
 
-					$('#switcher').themeswitcher();
+					$('#switcher').themeswitcher({
+						onSelect: function(){
+
+							return false;
+						}
+					});
 				},
 
 				// Custom playlist

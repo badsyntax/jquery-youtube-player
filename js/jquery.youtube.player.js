@@ -52,7 +52,6 @@
 			shuffle: 0,			// shuffle the play list (boolean)
 			updateHash: 0,			// update the location hash on video play (boolean)
 			playlistHeight: 5,		// height of the playlist (integer) (N * playlist item height)
-			playlistScrollbarOS: 0,		// use OS scrollbar for playlist area (boolean)
 			playlistBuilder: null,		// custom playlist builder function (null or function) see http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage#fn9
 			playlistBuilderClickHandler: null, // custom playlist video click event handler, useful if you want to prevent default click event (null or function)
 			toolbarAppendTo: false,		// element to append the toolbar to (selector or false)
@@ -288,12 +287,7 @@
 							
 							var pos = (key * height) - ( Math.floor(self.options.playlistHeight / 2) * height);
 
-							if ( !self.options.playlistScrollbarOS ) {
-
-								self.elements.scrollbar.pos = pos;
-							}
-
-							self.elements.playlistScroller.scrollTop( pos );
+							self.elements.playlist.scrollTop( pos );
 						}
 
 						return false;
@@ -305,7 +299,8 @@
 
 			this.elements.playlistContainer.show();
 
-			var scrollerHeight = this.elements.playlist.height(),
+			var 
+				scrollerHeight = this.elements.playlist.height(),
 				videoHeight = this.elements.playlist.find('li:first').outerHeight(),
 				newHeight = videoHeight * this.options.playlistHeight,
 				height = newHeight < scrollerHeight ? newHeight : scrollerHeight;
@@ -314,9 +309,7 @@
 
 			if (height) {
 
-				this.elements.playlistScroller.height( height );
-
-				( this.options.playlistScrollbarOS ) && this.elements.playlistScroller.addClass('youtube-player-playlist-os-scrollbar');
+				this.elements.playlist.height( height );
 
 				if (this.options.showPlaylist) {
 
@@ -891,63 +884,7 @@
 						})
 						.appendTo(self.elements.playlist);
 				});
-				
-				self.elements.playlistScroller = $('<div class="youtube-player-playlist-scroller">');
 			}
-
-			function buildScrollbar(){
-
-
-				function scrollup(){
-
-					self.elements.scrollbar.pos = 
-						self.elements.scrollbar.pos > self.elements.playlist.find('li:first').height() ? 
-						self.elements.scrollbar.pos - self.elements.playlist.find('li:first').height() : 
-						0;
-
-					self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
-				}
-
-				function scrolldown(){
-
-					self.elements.scrollbar.pos = 
-						self.elements.scrollbar.pos < self.elements.playlist.outerHeight() - self.elements.playlistScroller.outerHeight() ? 
-						self.elements.scrollbar.pos + self.elements.playlist.find('li:first').height() : 
-						self.elements.scrollbar.pos;
-
-					self.elements.playlistScroller.scrollTop(self.elements.scrollbar.pos);
-				}
-
-				($.fn.mousewheel) &&
-					self.elements.playlistScroller.unbind().bind('mousewheel', function(event, delta) {
-						delta > 0 ? scrollup() : scrolldown();
-					});
-
-				self.elements.scrollbar = {
-					bar : 
-						$('<div>')
-							.addClass('youtube-player-playlist-scrollbar ui-widget ui-widget-content ui-corner-all')
-							.appendTo(self.elements.playlistContainer),
-					up : 
-						$('<span>')
-							.addClass('youtube-player-playlist-scrollbar-up ui-icon ui-icon-circle-triangle-n')
-							.click(function(){
-							
-								scrollup();
-							})
-							.appendTo(self.elements.playlistContainer),
-					down : 
-						$('<span>')
-							.addClass('youtube-player-playlist-scrollbar-down ui-icon ui-icon-circle-triangle-s')
-							.click(function(){ 
-
-								scrolldown();
-							})
-							.appendTo(self.elements.playlistContainer),
-					pos : 0
-				}
-			}
-
 
 			this.videoIds = [];
 
@@ -975,12 +912,8 @@
 
 				buildPlaylist();
 
-				( !this.options.playlistScrollbarOS ) && buildScrollbar();
-
 				this.elements.playlistContainer.append( 
-					this.elements.playlistScroller.append(
 						this.elements.playlist
-					)
 				);
 
 				if (this.options.playlistAppendTo) {

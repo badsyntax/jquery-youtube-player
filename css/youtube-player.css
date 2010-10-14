@@ -51,22 +51,12 @@
 	z-index: 99;
 	border: 0;
 }
-.youtube-player-playlist-scroller {
-	border: 0;
-	margin: 2px;
-	overflow: hidden;
-}
-.youtube-player-playlist-os-scrollbar {
-	overflow: auto;
-}
-.youtube-player-playlist-os-scrollbar ol {
-	margin: 0;
-	padding: 0;
-}
 .youtube-player-playlist {
 	list-style: decimal;
 	overflow-x: hidden;
-	padding: 0px 16px 0 0;
+	overflow: auto;
+	margin: 2px;
+	padding: 0;
 }
 .youtube-player-playlist li {
 	border: 0;
@@ -82,29 +72,6 @@
 	display: none;
 	margin-top: .2em;
 	position: relative;
-}
-.youtube-player-playlist-scrollbar {
-	border: 0;
-	height: 100%;
-	right: 0;
-	position: absolute;
-	top: 0;
-	width: 20px;
-	z-index: 2;
-}
-.youtube-player-playlist-scrollbar-up {
-	cursor: pointer;
-	position: absolute;
-	right: 2px;
-	top: 5px;
-	z-index: 2;
-}
-.youtube-player-playlist-scrollbar-down {
-	position: absolute;
-	right: 2px;
-	bottom: 5px;
-	cursor: pointer;
-	z-index: 2;
 }
 .ui-state-default, .ui-widget-content .ui-state-default {
 	background-position: -9999px -9999px;
