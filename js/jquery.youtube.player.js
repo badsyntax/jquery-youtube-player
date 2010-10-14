@@ -53,13 +53,16 @@
 			updateHash: 0,			// update the location hash on video play (boolean)
 			playlistHeight: 5,		// height of the playlist (integer) (N * playlist item height)
 			playlistScrollbarOS: 0,		// use OS scrollbar for playlist area (boolean)
+			playlistBuilder: null,		// custom playlist builder function (null or function) see http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage#fn9
+			playlistBuilderClickHandler: null, // custom playlist video click event handler, useful if you want to prevent default click event (null or function)
 			toolbarAppendTo: false,		// element to append the toolbar to (selector or false)
 			playlistAppendTo: false,	// element to append the playlist to (selector or false)
 			videoParams: {			// video <object> params (object literal)
 				allowfullscreen: 'true',
 				allowScriptAccess: 'always'
 			},
-			toolbar: 'play,pause,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons (csv string)
+			toolbarButtons: {},		// custom toolbar buttons
+			toolbar: 'play,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons (csv string)
 		}, options);
 
 		this.element = $( element );
@@ -75,11 +78,14 @@
 
 			this.element.addClass('ui-widget');
 
+			this.buttons = $.extend({}, $.youtubePlayerButtons, this.options.toolbarButtons);
+
 			this.elements = {
 				player: this.element,
 				playerVideo: this.element.find('.youtube-player-video'),
 				playerObject: this.element.find('.youtube-player-object')
 			}
+
 			this.elements.playerObjectClone = this.elements.playerObject.clone();
 
 			this.keys = { video: 0 };
@@ -356,7 +362,7 @@
 
 					self.router.updateHash();
 
-					buttons.play.element.data('state', 1);
+					self.buttons.play.element.data('state', 1);
 
 					self.elements.toolbar.updateStates();
 
@@ -536,7 +542,7 @@
 
 				this.keys.video--;
 
-				buttons.play.element.data('state', 0);
+				this.buttons.play.element.data('state', 0);
 
 				this.loadVideo();
 
@@ -556,7 +562,7 @@
 					this.keys.video++;
 				}
 
-				buttons.play.element.data('state', 0);
+				this.buttons.play.element.data('state', 0);
 				
 				this.loadVideo();
 
@@ -592,7 +598,7 @@
 			var self = this;
 
 			if (
-				( buttons.play.element.data('state') || buttons.pause.element.data('state') ) 
+				( this.buttons.play.element.data('state') || this.buttons.pause.element.data('state') ) 
 				&& this.elements.infobar.css('opacity') < 1
 				&& text
 			) {
@@ -611,7 +617,7 @@
 						.click(function(){ 
 							
 							// pause the video
-							buttons.play.element.trigger( 'off' );
+							self.buttons.play.element.trigger( 'off' );
 
 							window.open( self.youtubePlayer.getVideoUrl() ); 
 						})
@@ -710,7 +716,7 @@
 
 					$.each(self.options.toolbar.split(','), function(key, val) {
 
-						var button = buttons[val];
+						var button = self.buttons[val];
 
 						if (!button) return true;
 
@@ -730,11 +736,11 @@
 
 			$.each(this.options.toolbar.split(','), function(key, val) {
 
-				var button = buttons[val];
+				var button = self.buttons[val];
 
-				if (!button) return true;
+				if (!button || !button.text) return true;
 
-				buttons[val].element =
+				self.buttons[val].element =
 					$('<li class="ui-state-default ui-corner-all">')
 					.append('<span class="ui-icon ' + button.icon + '">')
 					.attr('title', button.text)
@@ -845,7 +851,7 @@
 
 				self.keys.video = $.inArray( videoData.id, self.videoIds );
 
-				buttons.play.element.data('state', 0);
+				self.buttons.play.element.data('state', 0);
 				
 				self.updatePlaylist();
 
@@ -945,7 +951,7 @@
 
 			this.videoIds = [];
 
-			if (this.options.playlistBuilder) {
+			if (this.options.playlistBuilder && $.isFunction( this.options.playlistBuilder )) {
 
 				$.each(this.options.playlist.videos, function(){
 
@@ -958,7 +964,9 @@
 					.items
 					.click(function(){
 
-						videoClickHandler.apply(this, arguments);
+						self.trigger(this, videoClickHandler, arguments);
+
+						self.trigger(self, 'playlistBuilderClickHandler', arguments);
 					});
 
 				this.elements.playlistContainer = playlist.container;
@@ -1012,7 +1020,7 @@
 		}
 	};
 		
-	var buttons = {
+	$.youtubePlayerButtons = {
 
 		play: { 
 			text: 'Play',
