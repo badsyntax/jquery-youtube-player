@@ -13,3 +13,8 @@
 * Add option for default OS scrollbar in playlist
 * Using the player for one video (no playlist)
 * Add screenshots page
+* Option setter and getter
+* Repeat all videos in playlist
+* Get track info by id (so user doesn't have to supply title in custom playlist)
+* Change OS Scrollbar option to 'customScrollbar'
+* Custom playlistBuilder click handler option
