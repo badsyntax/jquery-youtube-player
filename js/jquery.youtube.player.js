@@ -60,7 +60,7 @@
 				allowScriptAccess: 'always'
 			},
 			toolbarButtons: {},		// custom toolbar buttons
-			toolbar: 'play,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons (csv string)
+			toolbar: 'play,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons
 		}, options);
 
 		this.element = $( element );
@@ -251,13 +251,13 @@
 				
 						self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
 
-						error.call( self ); 
+						self.trigger(self, error);
 					},
 					success: function(){
 						
 						self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
 
-						ajaxSuccess.apply( self, arguments );
+						self.trigger(self, ajaxSuccess, arguments);
 					}
 				});
 
@@ -299,22 +299,33 @@
 			this.elements.playlistContainer.show();
 
 			var 
-				scrollerHeight = this.elements.playlist.height(),
+				oldHeight = this.elements.playlist.height(),
+				scrollerHeight = this.elements.playlist.css('height', 'auto').height(),
 				videoHeight = this.elements.playlist.find('li:first').outerHeight(),
 				newHeight = videoHeight * this.options.playlistHeight,
-				height = newHeight < scrollerHeight ? newHeight : scrollerHeight;
+				height = newHeight < scrollerHeight ? newHeight : scrollerHeight,
+				shown = $.data(this.elements.playlistContainer[0], 'shown');
+			
+			if (!shown) {
+			
+				this.elements.playlistContainer.hide();
+			}
+			
+			if (!this.elements.playlist.children().length) {
+	
+				this.elements.playlistContainer.hide();
 
-			this.elements.playlistContainer.hide();
-
-			if (height) {
+			} else if (height) {
 
 				this.elements.playlist.height( height );
 
 				if (this.options.showPlaylist) {
 
+					$.data(this.elements.playlistContainer[0], 'shown', 1);
+
 					this.elements.playlistContainer.animate({
-						height: 'toggle', 
-						opacity: 'toggle'
+						height: 'show', 
+						opacity: 'show'
 					}, 550);
 				}
 			}
@@ -453,36 +464,62 @@
 			}
 		},
 				
-		loadVideo : function(videoID, title){
+		loadVideo : function(video, cue, addToPlaylist){
+
+			var self = this;
 
 			this.hideInfo();
 
-			if (videoID) {
-
-				// reset the playlist
-				this.options.playlist.videos = title ? [{
-					id: videoID,
-					title: title
-				}] : [];
-
-				this.createPlaylist();
-
-				this.showPlaylist();
+			function load(videoID){
 				
-				// reset the playlist key
-				this.keys.video = $.inArray(videoID, this.videoIds);
+				// (videoID, startSeconds, suggestQuality)
+				self.youtubePlayer.loadVideoById(videoID, 0);
+
+				// update the location hash
+				self.router.updateHash();
+
+				// TODO: need to determine if video has loaded successfully 
+				self.trigger(self, 'onVideoLoaded', [ videoID ]);
 			}
 
-			// get video youtube ID
-			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
+			if (video) {
+			
+				var videoID = video.id, title = video.title;
 
-			// (videoID, startSeconds, suggestQuality)
-			this.youtubePlayer.loadVideoById(videoID, 0);
+				if (cue) {
 
-			this.router.updateHash();
+					this.options.playlist.videos
+						.push({
+							id: videoID,
+							title: title
+						});
+				
+					this.createPlaylist(cue);
 
-			// TODO: need to determine if video has loaded successfully 
-			this.trigger(this, 'onVideoLoaded', [ videoID ]);
+					this.showPlaylist();
+
+
+				} else {
+				
+					this.videoIds = [];
+
+					this.options.playlist.videos = title ? 
+						[{
+							id: videoID,
+							title: title
+						}] : [];
+				
+					this.createPlaylist(cue);
+
+					this.showPlaylist();
+
+					load(videoID);
+				}
+
+			} else {
+
+				load( this.options.playlist.videos[this.keys.video].id );
+			}
 		},
 			
 		pauseVideo : function(){
@@ -573,6 +610,7 @@
 					}, 550);
 		},
 
+		// TODO
 		fullscreen: function(button){
 
 			this.youtubePlayer.setSize(900, 900);	
@@ -831,7 +869,7 @@
 			return this;
 		},
 
-		createPlaylist : function(){
+		createPlaylist : function(append){
 
 			var self = this;
 
@@ -858,13 +896,20 @@
 					self.elements.playlistContainer || 
 					$('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
 				
-				self.elements.playlistContainer.empty();
-
-				self.elements.playlist = $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
+				self.elements.playlist = 
+					self.elements.playlist ||
+					$('<ol>').addClass('youtube-player-playlist ui-helper-reset');
 				
-				self.elements.playlist.empty();
+				if (!append) {
+				
+					self.elements.playlistContainer.empty();
 
-				$.each(self.options.playlist.videos, function(){
+					self.elements.playlist.empty();
+				}
+
+				var videos = append ? [ self.options.playlist.videos[self.options.playlist.videos.length - 1] ] : self.options.playlist.videos;
+
+				$.each(videos, function(){
 
 					self.videoIds.push(this.id);
 
@@ -879,13 +924,14 @@
 						})
 						.click(function(){
 			
-							videoClickHandler.apply(this, arguments);
+							self.trigger(this, videoClickHandler, arguments);
 						})
 						.appendTo(self.elements.playlist);
 				});
-			}
 
-			this.videoIds = [];
+				if (!append) self.elements.playlist.show();
+
+			}
 
 			if (this.options.playlistBuilder && $.isFunction( this.options.playlistBuilder )) {
 
@@ -911,9 +957,7 @@
 
 				buildPlaylist();
 
-				this.elements.playlistContainer.append( 
-						this.elements.playlist
-				);
+				this.elements.playlistContainer.append( this.elements.playlist );
 
 				if (this.options.playlistAppendTo) {
 

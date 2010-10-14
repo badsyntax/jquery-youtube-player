@@ -19,16 +19,6 @@
 .youtube-player-object {
 	border: 1px solid #282828;
 }
-.youtube-player-playlist .youtube-player-thumb {
-	float: left;
-	height: 90px;
-	width: 124px;
-	list-style: none;
-}
-.youtube-player-playlist .youtube-player-thumb img {
-	height: 90px;
-	width: 124px;
-}
 .youtube-player-toolbar li {
 	cursor: pointer;
 	float: left;
@@ -51,6 +41,12 @@
 	z-index: 99;
 	border: 0;
 }
+.youtube-player-playlist-container {
+	border: 1px solid #282828;
+	margin-top: .2em;
+	position: relative;
+	display: none;
+}
 .youtube-player-playlist {
 	list-style: decimal;
 	overflow: auto;
@@ -67,11 +63,15 @@
 	white-space: nowrap;
 	font-size: 13px;
 }
-.youtube-player-playlist-container {
-	border: 1px solid #282828;
-	display: none;
-	margin-top: .2em;
-	position: relative;
+.youtube-player-playlist .youtube-player-thumb {
+	float: left;
+	height: 90px;
+	width: 124px;
+	list-style: none;
+}
+.youtube-player-playlist .youtube-player-thumb img {
+	height: 90px;
+	width: 124px;
 }
 .ui-state-default, .ui-widget-content .ui-state-default {
 	background-position: -9999px -9999px;
