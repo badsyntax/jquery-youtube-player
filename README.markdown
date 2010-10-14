@@ -33,8 +33,8 @@ The plugin accepts 3 types of playlists:
 
 **Demos:**
 
- * [Basic demo](http://badsyntax.github.com/demos/youtube-player/player-example.html)
- * [Advanced demo](http://badsyntax.github.com/demos/youtube-player/player-example-api-events.html) - Examples of the different options, API methods and callback events.
+ * [Basic demo](http://badsyntax.github.com/youtube-player/player-example.html)
+ * [Advanced demo](http://badsyntax.github.com/youtube-player/player-example-api-events.html) - Examples of the different options, API methods and callback events.
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
 
 This plugin is being actively developed. Feel free to use the latest revision.
