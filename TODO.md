@@ -16,3 +16,5 @@
 * Repeat all videos in playlist
 * Get track info by id (so user doesn't have to supply title in custom playlist)
 * <strike>Custom playlistBuilder click handler option</strike>
+* Add option to use chromed youtube video player and no custom toolbar
+* Show examples how to add to blog posts / cms etc

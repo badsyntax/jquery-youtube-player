@@ -41,7 +41,7 @@
 			height: 356,			// player height (integer)
 			swfobject: window.swfobject,	// swfobject object (object)
 			playlist: {},			// playlist object (object literal)
-			_showPlaylist: 1,		// show playlist on plugin init (boolean)
+			showPlaylist: 1,		// show playlist on plugin init (boolean)
 			showTime: 1,			// show current time and duration in toolbar (boolean)
 			showTitleOverlay: 1,		// show video title overlay text (boolean)
 			videoThumbs: 0,			// show videos as thumbnails in the playlist area (boolean) (experimental)
@@ -66,14 +66,14 @@
 
 		this.element = $( element );
 
-		this.init();
+		this._init();
 	}
 
 	player.prototype = {
 		
 		state: -1, timer: {}, router: {}, videoIds: [],
 
-		init : function(){
+		_init : function(){
 
 			this.element.addClass('ui-widget');
 
@@ -90,12 +90,12 @@
 
 			this.keys = { video: 0 };
 
-			this.uniqueId( this.elements.playerObject[0], 'youtube-player-' );
+			this._uniqueId( this.elements.playerObject[0], 'youtube-player-' );
 
 			this.loadPlaylist();
 		},
 		
-		initRouter :  function(){
+		_initRouter :  function(){
 
 			var self = this, hash = window.location.hash.replace(/.*?#\//, '');
 
@@ -129,7 +129,7 @@
 			return this;
 		},
 
-		uniqueId : function(node, prefix){
+		_uniqueId : function(node, prefix){
 
 			prefix = prefix || 'random-';
 
@@ -146,9 +146,11 @@
 			return id;
 		},
 
-		trigger: function(scope, callback, arg){
+		_trigger: function(scope, callback, arg){
 
 			var type = typeof callback;
+
+			arg = arg || [];
 
 			if ( type === 'string' && this.options[ callback ] && $.isFunction(this.options[ callback ]) ) {
 
@@ -156,182 +158,10 @@
 
 			} else if ( type === 'function' ) {
 
-				return callback.apply( scope, arg );
+				callback.apply( scope, arg );
 			}
 		},
 		
-		loadPlaylist: function(playlist, play, show, success){
-			
-			if ( playlist ) {
-
-				this.options.playlist = playlist;
-			}
-
-			this._getPlaylistData(
-				function(){ // success
-
-					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
-
-					// has the flash object been built?
-					if (this.youtubePlayer) {
-
-						// reset the playlist
-						this._addVideosToPlaylist();
-
-						// play or cue the video
-						(play) ? this.loadVideo() : this.cueVideo();
-
-						this._showPlaylist(show);
-
-					} else {
-
-						// build everything and set event handlers
-						this
-							._createElements()
-							._bindPlayerEventHandlers()
-							._bindYoutubeEventHandlers()
-							.initRouter();
-					}
-
-					this.trigger(this, success);
-				}, 
-				function(){ // error
-
-					var msg = 'There was an error loading the playlist.';
-
-					this.elements.playerObject.html( msg );
-
-					this.trigger(this, 'onError', [msg]);
-				}
-			);
-		},
-
-		_getPlaylistData : function(success, error){
-
-			var self = this, playlist = this.options.playlist;
-
-			if (playlist.user || playlist.playlist) {
-
-				function ajaxSuccess(json){
-
-					if (!json) { 
-
-						error.call( self ); 
-
-						return; 
-					}
-
-					// replace playlist ID with json array
-					self.options.playlist = {
-						title: json.feed.title.$t,
-						id: playlist,
-						videos: []
-					};
-
-					$.each(json.feed.entry, function(key, vid){
-
-						self.options.playlist.videos.push({
-							id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/, '$1'), // munge video id from href
-							title: vid.title.$t
-						});
-					});
-
-					self.elements.playerObject.fadeOut(180, function(){
-
-						success.call( self );
-					});
-				}
-				
-				var url = playlist.user 
-					? 'http://gdata.youtube.com/feeds/base/users/' + playlist.user + '/uploads?v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
-					: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist.playlist;
-
-				this.trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
-
-				$.ajax({
-					type: 'GET',
-					url: url,
-					data: { alt: 'json' },
-					dataType: 'json',
-					error: function(){ 
-				
-						self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
-
-						self.trigger(self, error);
-					},
-					success: function(){
-						
-						self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
-
-						self.trigger(self, ajaxSuccess, arguments);
-					}
-				});
-
-			} else {
-						
-				self.trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
-
-				self.trigger(self, success);
-			}
-		},
-
-		_updatePlaylist : function(){
-
-			var self = this;
-
-			(this.elements.playlist) && this.elements.playlist
-				.find('li')
-				.removeClass('ui-state-active')
-				.each(function(key){
-
-					if (self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
-
-						var height = $(this).addClass('ui-state-active').outerHeight();
-
-						if ( !self.options.videoThumbs ){
-							
-							var pos = (key * height) - ( Math.floor(self.options.playlistHeight / 2) * height);
-
-							self.elements.playlist.scrollTop( pos );
-						}
-
-						return false;
-					}
-				});
-		},
-
-		_showPlaylist : function(show) {
-
-			show = show === undefined ? true : show;
-
-			(show) && this.elements.playlistContainer.show();
-
-			var 
-				oldHeight = this.elements.playlist.height(),
-				scrollerHeight = this.elements.playlist.css('height', 'auto').height(),
-				videoHeight = this.elements.playlist.find('li:first').outerHeight(),
-				newHeight = videoHeight * this.options.playlistHeight,
-				height = newHeight < scrollerHeight ? newHeight : scrollerHeight;
-			
-			(show) && this.elements.playlistContainer.hide();
-
-			if (!this.elements.playlist.children().length) {
-				this.elements.playlistContainer.hide();
-
-			} else if (height) {
-
-				this.elements.playlist.height( height );
-
-				if (this.options._showPlaylist || show) {
-
-					this.elements.playlistContainer.animate({
-						height: 'show', 
-						opacity: 'show'
-					}, this.options.playlistSpeed);
-				}
-			}
-		},
-
 		_bindYoutubeEventHandlers : function(){
 
 			var self = this;
@@ -350,7 +180,7 @@
 
 					self.elements.toolbar.container.animate({opacity: 1}, 400, function(){
 
-						self.trigger(self, 'onReady', arguments);
+						self._trigger(self, 'onReady', arguments);
 					});
 
 					self._showPlaylist();
@@ -374,7 +204,7 @@
 
 					self._updateTime();
 
-					self.trigger(this, 'onVideoPlay', arguments);
+					self._trigger(this, 'onVideoPlay', arguments);
 				},
 				videoEnded : function(){
 
@@ -397,14 +227,14 @@
 							msg = 'Unknown error';
 					}
 
-					if (self.trigger(this, 'onError', [msg]) === undefined){
+					if (self._trigger(this, 'onError', [msg]) === undefined){
 
 						alert( 'There was an error loading this video. ' + msg );
 					}
 				},
 				videoBuffer : function(){
 
-					self.trigger(this, 'onBuffer', arguments); 
+					self._trigger(this, 'onBuffer', arguments); 
 				}
 			};
 
@@ -464,6 +294,133 @@
 				}
 			}
 		},
+		
+		_getPlaylistData : function(success, error){
+
+			var self = this, playlist = this.options.playlist;
+
+			if (playlist.user || playlist.playlist) {
+
+				function ajaxSuccess(json){
+
+					if (!json) { 
+
+						error.call( self ); 
+
+						return; 
+					}
+
+					// replace playlist ID with json array
+					self.options.playlist = {
+						title: json.feed.title.$t,
+						id: playlist,
+						videos: []
+					};
+
+					$.each(json.feed.entry, function(key, vid){
+
+						self.options.playlist.videos.push({
+							id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/, '$1'), // munge video id from href
+							title: vid.title.$t
+						});
+					});
+
+					self.elements.playerObject.fadeOut(180, function(){
+
+						success.call( self );
+					});
+				}
+				
+				var url = playlist.user 
+					? 'http://gdata.youtube.com/feeds/base/users/' + playlist.user + '/uploads?v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
+					: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist.playlist;
+
+				this._trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
+
+				$.ajax({
+					type: 'GET',
+					url: url,
+					data: { alt: 'json' },
+					dataType: 'json',
+					error: function(){ 
+				
+						self._trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
+
+						self._trigger(self, error);
+					},
+					success: function(){
+						
+						self._trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
+
+						self._trigger(self, ajaxSuccess, arguments);
+					}
+				});
+
+			} else {
+						
+				self._trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
+
+				self._trigger(self, success);
+			}
+		},
+
+		_updatePlaylist : function(){
+
+			var self = this;
+
+			(this.elements.playlist) && this.elements.playlist
+				.find('li')
+				.removeClass('ui-state-active')
+				.each(function(key){
+
+					if (self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
+
+						var height = $(this).addClass('ui-state-active').outerHeight();
+
+						if ( !self.options.videoThumbs ){
+							
+							var pos = (key * height) - ( Math.floor(self.options.playlistHeight / 2) * height);
+
+							self.elements.playlist.scrollTop( pos );
+						}
+
+						return false;
+					}
+				});
+		},
+
+		_showPlaylist : function(show) {
+
+			show = show === undefined ? true : show;
+
+			(show) && this.elements.playlistContainer.show();
+
+			var 
+				oldHeight = this.elements.playlist.height(),
+				scrollerHeight = this.elements.playlist.css('height', 'auto').height(),
+				videoHeight = this.elements.playlist.find('li:first').outerHeight(),
+				newHeight = videoHeight * this.options.playlistHeight,
+				height = newHeight < scrollerHeight ? newHeight : scrollerHeight;
+			
+			(show) && this.elements.playlistContainer.hide();
+
+			if (!this.elements.playlist.children().length) {
+				this.elements.playlistContainer.hide();
+
+			} else if (height) {
+
+				this.elements.playlist.height( height );
+
+				if (this.options.showPlaylist || show) {
+
+					this.elements.playlistContainer.animate({
+						height: 'show', 
+						opacity: 'show'
+					}, this.options.playlistSpeed);
+				}
+			}
+		},
+
 				
 		loadVideo : function(video, cue, addToPlaylist){
 
@@ -480,7 +437,7 @@
 				self.router.updateHash();
 
 				// TODO: need to determine if video has loaded successfully 
-				self.trigger(self, 'onVideoLoaded', [ videoID ]);
+				self._trigger(self, 'onVideoLoaded', [ videoID ]);
 			}
 
 			if (video) {
@@ -518,6 +475,54 @@
 				load( this.options.playlist.videos[this.keys.video].id );
 			}
 		},
+		
+		loadPlaylist: function(playlist, play, show, success){
+			
+			if ( playlist ) {
+
+				this.options.playlist = playlist;
+			}
+
+
+			this._getPlaylistData(
+				function(){ // success
+
+					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
+
+					// has the flash object been built?
+					if (this.youtubePlayer) {
+
+						// reset the playlist
+						this._addVideosToPlaylist();
+
+						// play or cue the video
+						(play) ? this.loadVideo() : this.cueVideo();
+
+						this._showPlaylist(show);
+
+					} else {
+
+						// build everything and set event handlers
+						this
+							._createElements()
+							._bindPlayerEventHandlers()
+							._bindYoutubeEventHandlers()
+							._initRouter();
+					}
+
+					this._trigger(this, success);
+				}, 
+				function(){ // error
+
+					var msg = 'There was an error loading the playlist.';
+
+					this.elements.playerObject.html( msg );
+
+					this._trigger(this, 'onError', [msg]);
+				}
+			);
+		},
+
 			
 		pauseVideo : function(){
 
@@ -551,7 +556,7 @@
 
 			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
 
-			this.trigger(this, 'onVideoCue', [ videoID ]);
+			this._trigger(this, 'onVideoCue', [ videoID ]);
 
 			return this.youtubePlayer.cueVideoById( videoID, 0);
 		},
@@ -710,12 +715,19 @@
 		},
 
 		_createElements : function(){
+			
+			var flashVersion = this.options.swfobject.getFlashPlayerVersion();
 
-			return this
+			if (flashVersion.major >= 8){
+
+				this
 				._createPlayer()
 				._createToolbar()
 				._createInfobar()
 				._createPlaylist();
+			}
+
+			return this;
 		},
 
 		_createPlayer : function(){
@@ -724,14 +736,12 @@
 
 			this.elements.playerVideo.height( parseInt( this.options.height ) );
 
-			this.options.swfobject.embedSWF(
-				'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=1&showinfo=0', 
-				this.elements.playerObject[0].id, '100%', '100%', '8', null, null, this.options.videoParams
-			);
+			var swfpath = 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=1&showinfo=0';
+
+			this.options.swfobject.embedSWF( swfpath, this.elements.playerObject[0].id, '100%', '100%', '8', null, null, this.options.videoParams);
 
 			return this;
 		},
-
 		_createToolbar : function(){
 
 			var self = this;
@@ -769,8 +779,8 @@
 				if (!button || !button.text) return true;
 
 				self.buttons[val].element =
-					$('<li class="ui-state-default ui-corner-all">')
-					.append('<span class="ui-icon ' + button.icon + '">')
+					$('<li class="ui-state-default ui-corner-all"></span>')
+					.append('<span class="ui-icon ' + button.icon + '"></span>')
 					.attr('title', button.text)
 					.data('button', button)
 					.bind('mouseenter mouseleave', function(){
@@ -922,7 +932,7 @@
 						})
 						.click(function(){
 			
-							self.trigger(this, videoClickHandler, arguments);
+							self._trigger(this, videoClickHandler, arguments);
 						})
 						.appendTo(self.elements.playlist);
 				});
@@ -941,9 +951,9 @@
 					.items
 					.click(function(){
 
-						self.trigger(this, videoClickHandler, arguments);
+						self._trigger(this, videoClickHandler, arguments);
 
-						self.trigger(self, 'playlistBuilderClickHandler', arguments);
+						self._trigger(self, 'playlistBuilderClickHandler', arguments);
 					});
 
 				this.elements.playlistContainer = playlist.container;
