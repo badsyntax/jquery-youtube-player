@@ -41,7 +41,7 @@
 			height: 356,			// player height (integer)
 			swfobject: window.swfobject,	// swfobject object (object)
 			playlist: {},			// playlist object (object literal)
-			showPlaylist: 1,		// show playlist on plugin init (boolean)
+			_showPlaylist: 1,		// show playlist on plugin init (boolean)
 			showTime: 1,			// show current time and duration in toolbar (boolean)
 			showTitleOverlay: 1,		// show video title overlay text (boolean)
 			videoThumbs: 0,			// show videos as thumbnails in the playlist area (boolean) (experimental)
@@ -53,6 +53,7 @@
 			playlistHeight: 5,		// height of the playlist (integer) (N * playlist item height)
 			playlistBuilder: null,		// custom playlist builder function (null or function) see http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage#fn9
 			playlistBuilderClickHandler: null, // custom playlist video click event handler, useful if you want to prevent default click event (null or function)
+			playlistSpeed: 550,		// speed of playlist show/hide animate
 			toolbarAppendTo: false,		// element to append the toolbar to (selector or false)
 			playlistAppendTo: false,	// element to append the playlist to (selector or false)
 			videoParams: {			// video <object> params (object literal)
@@ -76,13 +77,14 @@
 
 			this.element.addClass('ui-widget');
 
+			// extend the default toolbuttons with user specified buttons
 			this.buttons = $.extend({}, $.youtubePlayerButtons, this.options.toolbarButtons);
 
 			this.elements = {
 				player: this.element,
 				playerVideo: this.element.find('.youtube-player-video'),
 				playerObject: this.element.find('.youtube-player-object')
-			}
+			};
 
 			this.elements.playerObjectClone = this.elements.playerObject.clone();
 
@@ -165,7 +167,7 @@
 				this.options.playlist = playlist;
 			}
 
-			this.getPlaylistData(
+			this._getPlaylistData(
 				function(){ // success
 
 					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
@@ -174,16 +176,17 @@
 					if (this.youtubePlayer) {
 
 						// reset the playlist and load the first video
-						this.createPlaylist();
+						this._createPlaylist();
 						this.loadVideo();
-						this.showPlaylist();
+						this._showPlaylist();
+
 					} else {
 
 						// build everything and set event handlers
 						this
-							.createElements()
-							.bindPlayerEventHandlers()
-							.bindYoutubeEventHandlers()
+							._createElements()
+							._bindPlayerEventHandlers()
+							._bindYoutubeEventHandlers()
 							.initRouter();
 					}
 
@@ -200,7 +203,7 @@
 			);
 		},
 
-		getPlaylistData : function(success, error){
+		_getPlaylistData : function(success, error){
 
 			var self = this, playlist = this.options.playlist;
 
@@ -269,7 +272,7 @@
 			}
 		},
 
-		updatePlaylist : function(){
+		_updatePlaylist : function(){
 
 			var self = this;
 
@@ -294,9 +297,11 @@
 				});
 		},
 
-		showPlaylist : function() {
+		_showPlaylist : function(show) {
 
-			this.elements.playlistContainer.show();
+			show = show === undefined ? true : show;
+
+			(show) && this.elements.playlistContainer.show();
 
 			var 
 				oldHeight = this.elements.playlist.height(),
@@ -319,19 +324,19 @@
 
 				this.elements.playlist.height( height );
 
-				if (this.options.showPlaylist) {
+				if (this.options._showPlaylist) {
 
 					$.data(this.elements.playlistContainer[0], 'shown', 1);
 
 					this.elements.playlistContainer.animate({
 						height: 'show', 
 						opacity: 'show'
-					}, 550);
+					}, this.options.playlistSpeed);
 				}
 			}
 		},
 
-		bindYoutubeEventHandlers : function(){
+		_bindYoutubeEventHandlers : function(){
 
 			var self = this;
 
@@ -352,7 +357,7 @@
 						self.trigger(self, 'onReady', arguments);
 					});
 
-					self.showPlaylist();
+					self._showPlaylist();
 			
 					if (self.keys.play) {
 
@@ -361,7 +366,7 @@
 				},
 				videoPlay : function(){
 
-					self.updatePlaylist();
+					self._updatePlaylist();
 
 					self.router.updateHash();
 
@@ -369,9 +374,9 @@
 
 					self.elements.toolbar.updateStates();
 
-					self.updateInfo(320);
+					self._updateInfo(320);
 
-					self.updateTime();
+					self._updateTime();
 
 					self.trigger(this, 'onVideoPlay', arguments);
 				},
@@ -409,18 +414,18 @@
 
 			window.onYouTubePlayerReady = function(){ 
 
-				self.youtubeEventHandler(9); 
+				self._youtubeEventHandler(9); 
 			};
 
 			window._youtubeevents = function(state){ 
 
-				self.youtubeEventHandler(state); 
+				self._youtubeEventHandler(state); 
 			};
 
 			return this;
 		},
 
-		bindPlayerEventHandlers : function(){
+		_bindPlayerEventHandlers : function(){
 
 			var self = this;
 
@@ -428,17 +433,17 @@
 				.unbind('mouseenter.player mouseleave.player')
 				.bind('mouseenter.player', function(){ 
 
-					self.updateInfo(); 
+					self._updateInfo(); 
 				})
 				.bind('mouseleave.player', function(){
 
-					self.hideInfo();
+					self._hideInfo();
 				});
 
 			return this;
 		},
 
-		youtubeEventHandler : function(state){
+		_youtubeEventHandler : function(state){
 
 			if (state != this.state) {
 
@@ -468,7 +473,7 @@
 
 			var self = this;
 
-			this.hideInfo();
+			this._hideInfo();
 
 			function load(videoID){
 				
@@ -484,40 +489,35 @@
 
 			if (video) {
 			
-				var videoID = video.id, title = video.title;
+				video = {
+					id: video.id,
+					title: video.title
+				};
 
+				this.videoIds = cue ? this.videoIds : [];
+
+				// adjust videos list
 				if (cue) {
 
-					this.options.playlist.videos
-						.push({
-							id: videoID,
-							title: title
-						});
-				
-					this.createPlaylist(cue);
-
-					this.showPlaylist();
-
+					this.options.playlist.videos.push(video);
 
 				} else {
-				
-					this.videoIds = [];
 
-					this.options.playlist.videos = title ? 
-						[{
-							id: videoID,
-							title: title
-						}] : [];
-				
-					this.createPlaylist(cue);
-
-					this.showPlaylist();
-
-					load(videoID);
+					this.options.playlist.videos = title ?  [ video ] : [];
 				}
 
+				// add video/s to playlist
+				this._addVideosToPlaylist(cue);
+
+				// update the height of the playlist, but don't explicidly show it
+				this._showPlaylist(false);
+
+				(!cue) && 
+					// load and play the video
+					load(video.id);
 			} else {
 
+				// try load the next video
 				load( this.options.playlist.videos[this.keys.video].id );
 			}
 		},
@@ -607,7 +607,7 @@
 					.animate({
 						height: 'toggle', 
 						opacity: 'toggle'
-					}, 550);
+					}, this.options.playlistSpeed);
 		},
 
 		// TODO
@@ -616,7 +616,7 @@
 			this.youtubePlayer.setSize(900, 900);	
 		},
 
-		updateInfo : function(timeout, text){
+		_updateInfo : function(timeout, text){
 
 			if (!this.options.showTitleOverlay) return;
 				
@@ -633,7 +633,7 @@
 				&& text
 			) {
 
-				clearTimeout(this.timer.hideInfo);
+				clearTimeout(this.timer._hideInfo);
 
 				this.timer.showInfo = setTimeout(function(){
 
@@ -653,8 +653,8 @@
 						})
 						.animate({ opacity: 1 }, 180, function(){
 
-							self.timer.hideInfo = setTimeout(function(){
-								self.hideInfo();
+							self.timer._hideInfo = setTimeout(function(){
+								self._hideInfo();
 							}, 6000);
 						});
 
@@ -662,9 +662,9 @@
 			}
 		},
 
-		hideInfo : function(){
+		_hideInfo : function(){
 
-			clearTimeout(this.timer.hideInfo);
+			clearTimeout(this.timer._hideInfo);
 
 			clearTimeout(this.timer.showInfo);
 
@@ -675,7 +675,7 @@
 				}, 120);
 		},
 
-		updateTime : function(){
+		_updateTime : function(){
 
 			if (!this.options.showTime) return;
 
@@ -711,16 +711,16 @@
 			}, 100);
 		},
 
-		createElements : function(){
+		_createElements : function(){
 
 			return this
-				.createPlayer()
-				.createToolbar()
-				.createInfobar()
-				.createPlaylist();
+				._createPlayer()
+				._createToolbar()
+				._createInfobar()
+				._createPlaylist();
 		},
 
-		createPlayer : function(){
+		_createPlayer : function(){
 
 			this.elements.player.width( parseInt( this.options.width ) );
 
@@ -734,7 +734,7 @@
 			return this;
 		},
 
-		createToolbar : function(){
+		_createToolbar : function(){
 
 			var self = this;
 
@@ -835,26 +835,27 @@
 						}
 					})
 					.appendTo(self.elements.toolbar.container);
-
 			});
 
-			this.elements.toolbar.time = $('<li class="youtube-player-time">').appendTo(this.elements.toolbar.container);
-			this.elements.toolbar.timeCurrent = $('<span>').html('0:00').appendTo(this.elements.toolbar.time);
-			this.elements.toolbar.timeDuration = $('<span>').appendTo(this.elements.toolbar.time);
+			this._createTimeArea();
 
-			if (this.options.toolbarAppendTo) {
-
-			
-				this.elements.toolbar.container.appendTo( this.options.toolbarAppendTo );
-			} else {
-
+			(this.options.toolbarAppendTo) ?
+				this.elements.toolbar.container.appendTo( this.options.toolbarAppendTo ) :
 				this.elements.playerVideo.after( this.elements.toolbar.container );
-			}
 
 			return this;
 		},
 
-		createInfobar : function(){
+		_createTimeArea : function(){
+
+			this.elements.toolbar.time = $('<li class="youtube-player-time">').appendTo(this.elements.toolbar.container);
+
+			this.elements.toolbar.timeCurrent = $('<span>').html('0:00').appendTo(this.elements.toolbar.time);
+
+			this.elements.toolbar.timeDuration = $('<span>').appendTo(this.elements.toolbar.time);
+		},
+
+		_createInfobar : function(){
 
 			this.elements.infobar = $('<div>')
 				.addClass('youtube-player-infobar ui-widget-content')
@@ -869,7 +870,7 @@
 			return this;
 		},
 
-		createPlaylist : function(append){
+		_createPlaylist : function(){
 
 			var self = this;
 
@@ -883,31 +884,30 @@
 
 				self.buttons.play.element.data('state', 0);
 				
-				self.updatePlaylist();
+				self._updatePlaylist();
 
 				self.loadVideo();
 				
 				self.playVideo();
 			}
 
-			function buildPlaylist(){
+			this._buildPlaylist = function(){
 
-				self.elements.playlistContainer = 
-					self.elements.playlistContainer || 
-					$('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
+				self.elements.playlistContainer = $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
 				
-				self.elements.playlist = 
-					self.elements.playlist ||
-					$('<ol>').addClass('youtube-player-playlist ui-helper-reset');
-				
-				if (!append) {
-				
-					self.elements.playlistContainer.empty();
+				self.elements.playlist = $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
+			};
+
+			this._addVideosToPlaylist = function(cue){
+
+				// get this list of vidoes to add to the playlist
+				// if cueing, we only want to add 1 video, so we find the last video added to playlist
+				var videos = cue ? [ self.options.playlist.videos[self.options.playlist.videos.length - 1] ] : self.options.playlist.videos;
+
+				if (!cue) {
 
 					self.elements.playlist.empty();
 				}
-
-				var videos = append ? [ self.options.playlist.videos[self.options.playlist.videos.length - 1] ] : self.options.playlist.videos;
 
 				$.each(videos, function(){
 
@@ -928,10 +928,7 @@
 						})
 						.appendTo(self.elements.playlist);
 				});
-
-				if (!append) self.elements.playlist.show();
-
-			}
+			};
 
 			if (this.options.playlistBuilder && $.isFunction( this.options.playlistBuilder )) {
 
@@ -955,7 +952,9 @@
 
 			} else {
 
-				buildPlaylist();
+				this._buildPlaylist();
+
+				this._addVideosToPlaylist();
 
 				this.elements.playlistContainer.append( this.elements.playlist );
 
