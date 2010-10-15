@@ -160,8 +160,8 @@
 			}
 		},
 		
-		loadPlaylist: function(playlist, success){
-
+		loadPlaylist: function(playlist, play, show, success){
+			
 			if ( playlist ) {
 
 				this.options.playlist = playlist;
@@ -175,10 +175,13 @@
 					// has the flash object been built?
 					if (this.youtubePlayer) {
 
-						// reset the playlist and load the first video
-						this._createPlaylist();
-						this.loadVideo();
-						this._showPlaylist();
+						// reset the playlist
+						this._addVideosToPlaylist();
+
+						// play or cue the video
+						(play) ? this.loadVideo() : this.cueVideo();
+
+						this._showPlaylist(show);
 
 					} else {
 
@@ -308,25 +311,18 @@
 				scrollerHeight = this.elements.playlist.css('height', 'auto').height(),
 				videoHeight = this.elements.playlist.find('li:first').outerHeight(),
 				newHeight = videoHeight * this.options.playlistHeight,
-				height = newHeight < scrollerHeight ? newHeight : scrollerHeight,
-				shown = $.data(this.elements.playlistContainer[0], 'shown');
+				height = newHeight < scrollerHeight ? newHeight : scrollerHeight;
 			
-			if (!shown) {
-			
-				this.elements.playlistContainer.hide();
-			}
-			
+			(show) && this.elements.playlistContainer.hide();
+
 			if (!this.elements.playlist.children().length) {
-	
 				this.elements.playlistContainer.hide();
 
 			} else if (height) {
 
 				this.elements.playlist.height( height );
 
-				if (this.options._showPlaylist) {
-
-					$.data(this.elements.playlistContainer[0], 'shown', 1);
+				if (this.options._showPlaylist || show) {
 
 					this.elements.playlistContainer.animate({
 						height: 'show', 
@@ -496,14 +492,15 @@
 
 				this.videoIds = cue ? this.videoIds : [];
 
-				// adjust videos list
 				if (cue) {
 
+					// append video to playlist
 					this.options.playlist.videos.push(video);
 
 				} else {
 
-					this.options.playlist.videos = title ?  [ video ] : [];
+					// add video to playlist only if a title is present
+					this.options.playlist.videos = video.title ?  [ video ] : [];
 				}
 
 				// add video/s to playlist
@@ -538,7 +535,8 @@
 
 			button.element.data('state') ? this.youtubePlayer.mute() : this.youtubePlayer.unMute();
 		},
-		
+	
+		// FIXME
 		repeat : function(){
 
 			this.options.repeat = 1;
