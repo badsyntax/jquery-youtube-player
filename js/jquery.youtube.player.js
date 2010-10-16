@@ -50,7 +50,7 @@
 			repeat: 0,			// repeat videos (boolean)
 			shuffle: 0,			// shuffle the play list (boolean)
 			updateHash: 0,			// update the location hash on video play (boolean)
-			highDef: 1,			// high definition quality or normal quality (boolean)
+			highDef: 0,			// high definition quality or normal quality (boolean)
 			playlistHeight: 5,		// height of the playlist (integer) (N * playlist item height)
 			playlistBuilder: null,		// custom playlist builder function (null or function) see http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage#fn9
 			playlistBuilderClickHandler: null, // custom playlist video click event handler, useful if you want to prevent default click event (null or function)
@@ -59,7 +59,8 @@
 			playlistAppendTo: false,	// element to append the playlist to (selector or false)
 			videoParams: {			// video <object> params (object literal)
 				allowfullscreen: 'true',
-				allowScriptAccess: 'always'
+				allowScriptAccess: 'always',
+				wmode:	'transparent'
 			},
 			toolbarButtons: {},		// custom toolbar buttons
 			toolbar: 'play,prev,next,shuffle,repeat,mute,fullscreen,playlistToggle' // comma separated list of toolbar buttons
@@ -445,6 +446,18 @@
 			}
 		},
 
+		// option setter/getter
+		option : function(option, value){
+
+			if (!value) {
+
+				return this.options[ option ];
+
+			} else {
+
+				this.options[ option ] = value;
+			}
+		},
 				
 		loadVideo : function(video, cue){
 
@@ -686,6 +699,8 @@
 
 			$(document).one('keypress', function(event){
 
+				console.debug(event.keyCode);
+
 				if (event.keyCode == 27) {
 
 					button.element.trigger('close.player');
@@ -806,7 +821,7 @@
 
 			this.elements.playerVideo.height( parseInt( this.options.height ) );
 
-			var swfpath = 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=1&showinfo=0';
+			var swfpath = 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=' + this.options.highDef + '&showinfo=0';
 
 			this.options.swfobject.embedSWF( swfpath, this.elements.playerObject[0].id, '100%', '100%', '8', null, null, this.options.videoParams);
 
