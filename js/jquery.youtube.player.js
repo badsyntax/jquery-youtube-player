@@ -206,6 +206,10 @@
 
 					self._trigger(this, 'onVideoPlay', arguments);
 				},
+				videoPaused : function(){
+
+					self._trigger(this, 'onVideoPaused', arguments);
+				},
 				videoEnded : function(){
 
 					if (self.options.repeat) {
@@ -279,6 +283,9 @@
 						break;
 					case 1 : 
 						this.youtubePlayerEvents.videoPlay();
+						break;
+					case 2 :
+						this.youtubePlayerEvents.videoPaused();
 						break;
 					case 3 : 
 						this.youtubePlayerEvents.videoBuffer(); 
@@ -422,7 +429,7 @@
 		},
 
 				
-		loadVideo : function(video, cue, addToPlaylist){
+		loadVideo : function(video, cue){
 
 			var self = this;
 
@@ -451,12 +458,12 @@
 
 				if (cue) {
 
-					// append video to playlist
+					// append video to video list
 					this.options.playlist.videos.push(video);
 
 				} else {
 
-					// add video to playlist only if a title is present
+					// add video to video list only if a title is present
 					this.options.playlist.videos = video.title ?  [ video ] : [];
 				}
 
