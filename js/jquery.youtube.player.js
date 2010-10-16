@@ -147,7 +147,7 @@
 			return id;
 		},
 
-		_trigger: function(scope, callback, arg){
+		_trigger : function(scope, callback, arg){
 
 			var type = typeof callback;
 
@@ -161,6 +161,11 @@
 
 				callback.apply( scope, arg );
 			}
+		},
+		
+		_state : function(name){
+
+			return this.buttons[ name ].element.data( 'state' );
 		},
 		
 		_bindYoutubeEventHandlers : function(){
@@ -181,15 +186,20 @@
 
 					} catch(e) {
 
-						self._triger(self, 'onError', [ 'youtube api not found', e ] );
+						self._triger(self, 'onError', [ e ] );
 					}
 
-					self.cueVideo();
+					var startTime = self.buttons.fullscreen.element.data('time');
 
-					self.elements.toolbar.container.animate({opacity: 1}, 400, function(){
+					self.cueVideo(false, startTime);
 
-						self._trigger(self, 'onReady', arguments);
-					});
+					if (startTime && self._state('play')) self.playVideo(false, startTime);
+
+					self.elements.toolbar.container
+						.animate({opacity: 1}, 400, function(){
+
+							self._trigger(self, 'onReady', arguments);
+						});
 
 					self._showPlaylist();
 			
@@ -268,12 +278,11 @@
 			var self = this;
 
 			this.elements.playerVideo
-				.unbind('mouseenter.player mouseleave.player')
-				.bind('mouseenter.player', function(){ 
+				.one('mouseenter.player', function(){ 
 
 					self._updateInfo(); 
 				})
-				.bind('mouseleave.player', function(){
+				.one('mouseleave.player', function(){
 
 					self._hideInfo();
 				});
@@ -567,13 +576,13 @@
 			this.youtubePlayer.playVideo();
 		},
 
-		cueVideo : function(videoID){
+		cueVideo : function(videoID, startTime){
 
 			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
 
 			this._trigger(this, 'onVideoCue', [ videoID ]);
 
-			return this.youtubePlayer.cueVideoById( videoID, 0);
+			return this.youtubePlayer.cueVideoById( videoID, startTime || 0);
 		},
 
 		randomVideo : function(){
@@ -628,11 +637,6 @@
 					}, this.options.playlistSpeed);
 		},
 
-		_state : function(name){
-
-			return this.buttons[ name ].element.data('state');
-		},
-
 		fullscreen: function(button){
 
 			var self = this;
@@ -641,8 +645,9 @@
 
 			button.element
 				.one('open.player', function(){
-
+			
 					$.data(this, 'height', self.elements.playerVideo.height());
+					$.data(this, 'time', self.youtubePlayer.getCurrentTime());
 
 					$('body').css('overflow', 'hidden');
 		
@@ -658,6 +663,8 @@
 						.appendTo( document.body );
 				})
 				.one('close.player', function(){
+					
+					$.data(this, 'time', self.youtubePlayer.getCurrentTime());
 					
 					$('body').css('overflow', 'auto');
 
