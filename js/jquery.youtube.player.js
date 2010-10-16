@@ -50,6 +50,7 @@
 			repeat: 0,			// repeat videos (boolean)
 			shuffle: 0,			// shuffle the play list (boolean)
 			updateHash: 0,			// update the location hash on video play (boolean)
+			highDef: 1,			// high definition quality or normal quality (boolean)
 			playlistHeight: 5,		// height of the playlist (integer) (N * playlist item height)
 			playlistBuilder: null,		// custom playlist builder function (null or function) see http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage#fn9
 			playlistBuilderClickHandler: null, // custom playlist video click event handler, useful if you want to prevent default click event (null or function)
@@ -61,7 +62,7 @@
 				allowScriptAccess: 'always'
 			},
 			toolbarButtons: {},		// custom toolbar buttons
-			toolbar: 'play,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons
+			toolbar: 'play,prev,next,shuffle,repeat,mute,fullscreen,playlistToggle' // comma separated list of toolbar buttons
 		}, options);
 
 		this.element = $( element );
@@ -170,11 +171,18 @@
 
 				ready : function(){
 
-					self.youtubePlayer = self.elements.player.find('object:first').get(0);
+					self.youtubePlayer = self.elements.playerVideo.find('object:first').get(0);
 
-					self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents');
+					try {
 
-					self.youtubePlayer.addEventListener('onError', '_youtubeevents');
+						self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents');
+
+						self.youtubePlayer.addEventListener('onError', '_youtubeevents');
+
+					} catch(e) {
+
+						self._triger(self, 'onError', [ 'youtube api not found', e ] );
+					}
 
 					self.cueVideo();
 
@@ -620,15 +628,67 @@
 					}, this.options.playlistSpeed);
 		},
 
-		// TODO
+		_state : function(name){
+
+			return this.buttons[ name ].element.data('state');
+		},
+
 		fullscreen: function(button){
 
-			this.youtubePlayer.setSize(900, 900);	
+			var self = this;
+
+			this._hideInfo();
+
+			button.element
+				.one('open.player', function(){
+
+					$.data(this, 'height', self.elements.playerVideo.height());
+
+					$('body').css('overflow', 'hidden');
+		
+					self.elements.playerVideo
+						.css({
+							height: '100%',
+							width: '100%',
+							position: 'absolute',
+							top: 0,
+							left: 0,
+							zIndex: 9999
+						})
+						.appendTo( document.body );
+				})
+				.one('close.player', function(){
+					
+					$('body').css('overflow', 'auto');
+
+					self.elements.playerVideo
+						.height( $.data(this, 'height') )
+						.css('position', 'static')
+						.prependTo( self.elements.player );
+					
+					button.element.data('state', 0);
+				})
+				.trigger('open.player');
+
+			// bind close player handlers
+
+			self.elements.playerVideo.one('dblclick', function(){
+
+				button.element.trigger('close.player');
+			});
+
+			$(document).one('keypress', function(event){
+
+				if (event.keyCode == 27) {
+
+					button.element.trigger('close.player');
+				}
+			});
 		},
 
 		_updateInfo : function(timeout, text){
 
-			if (!this.options.showTitleOverlay) return;
+			if (!this.options.showTitleOverlay || this._state('fullscreen')) return;
 				
 			text = text || ( 
 					this.options.playlist.videos[this.keys.video] ? 
@@ -637,11 +697,7 @@
 
 			var self = this;
 
-			if (
-				( this.buttons.play.element.data('state') || this.buttons.pause.element.data('state') ) 
-				&& this.elements.infobar.css('opacity') < 1
-				&& text
-			) {
+			if ( ( this._state('play') || this._state('pause') ) && this.elements.infobar.css('opacity') < 1 && text) {
 
 				clearTimeout(this.timer._hideInfo);
 
@@ -805,10 +861,9 @@
 							.removeClass( button.toggleButton.icon )
 							.addClass( button.icon );
 		
-						button.element.attr('title', button.text)
+						button.element.attr('title', button.text);
 
-						button.toggleButton.action.call(self, button)
-
+						self._trigger(self, button.toggleButton.action, [ button ] );
 					})
 					.bind('on', function(){
 
@@ -823,7 +878,7 @@
 
 						button.element.attr('title', button.toggleButton.text)
 
-						button.action.call(self, button)
+						self._trigger(self, button.action, [ button ] );
 					})
 					.bind('toggle', function(){
 						
@@ -846,7 +901,7 @@
 
 							self.elements.toolbar.updateStates();
 
-							button.action.call(self, button);
+							self._trigger(self, button.action, [ button ] );
 						}
 					})
 					.appendTo(self.elements.toolbar.container);
@@ -1074,10 +1129,9 @@
 		fullscreen: {
 			text: 'Full screen',
 			icon: 'ui-icon-arrow-4-diag',
-			toggle: 1,
-			action: function(){
+			action: function(button){
 
-				this.fullscreen();
+				this.fullscreen(button);
 			}
 		},
 		playlistToggle: { 
