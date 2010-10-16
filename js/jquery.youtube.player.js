@@ -699,8 +699,6 @@
 
 			$(document).one('keypress', function(event){
 
-				console.debug(event.keyCode);
-
 				if (event.keyCode == 27) {
 
 					button.element.trigger('close.player');
