@@ -17,7 +17,6 @@ This jQuery plugin builds a youtube video player with a custom toolbar and playl
  * flash plugin installed on browser
  * swfobject
  * jquery ui CSS framework
- * mousewheel plugin (optional)
 
 **Playlists**
 
@@ -38,4 +37,4 @@ The plugin accepts 3 types of playlists:
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
 
 This plugin is being actively developed. Feel free to use the latest revision.
-Suggestions, feedback, bugs, anything is appreciated. Please use the Issue Tracker to post project related feedback, or send an email to willis.rh@gmail.com
+Suggestions, feedback, bugs, anything is appreciated. Please use the [Issue Tracker](http://github.com/badsyntax/jquery-youtube-player/issues) to post project related feedback, or send an email to willis.rh@gmail.com
