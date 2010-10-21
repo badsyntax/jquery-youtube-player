@@ -51,7 +51,7 @@
 			showTime: 1,			// show current time and duration in toolbar (boolean)
 			showTitleOverlay: 1,		// show video title overlay text (boolean)
 			videoThumbs: 0,			// show videos as thumbnails in the playlist area (boolean) (experimental)
-			randomStart: 1,			// show random video on plugin init (boolean)
+			randomStart: 0,			// show random video on plugin init (boolean)
 			autoStart: 0,			// auto start the video on init (boolean)
 			repeat: 0,			// repeat videos (boolean)
 			shuffle: 0,			// shuffle the play list (boolean)
@@ -213,7 +213,7 @@
 
 					var startTime = self._buttonData('fullscreen', 'time') || 0;
 
-					self.cueVideo(false, startTime);
+					self.loadVideo(false, true);
 
 					if (startTime && self._state('play')) self.playVideo(false, startTime);
 
@@ -533,15 +533,16 @@
 			this._hideInfo();
 
 			function load(videoID){
-				
-				// (videoID, startSeconds, suggestQuality)
-				self.youtubePlayer.loadVideoById(videoID, 0);
+
+				( cue ) 
+				? self.cueVideo(videoID) 
+				: self.youtubePlayer.loadVideoById(videoID, 0);
 
 				// update the location hash
 				self.router.updateHash();
 
 				// TODO: need to determine if video has loaded successfully 
-				self._trigger(self, 'onVideoLoaded', [ videoID ]);
+				self._trigger(self, 'onVideoLoad', [ videoID ]);
 			}
 
 			if (video && video.id) {
@@ -794,6 +795,16 @@
 			});
 
 			return states;
+		},
+
+		videos : function(){
+
+			return this.options.playlist.videos;
+		},
+
+		videoIndex : function(){
+
+			return this.keys.video;
 		},
 
 		_updateInfo : function(timeout, text){
