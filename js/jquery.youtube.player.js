@@ -61,8 +61,9 @@
 			playlistBuilder: null,		// custom playlist builder function (null or function) see http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage#fn9
 			playlistBuilderClickHandler: null, // custom playlist video click event handler, useful if you want to prevent default click event (null or function)
 			playlistSpeed: 550,		// speed of playlist show/hide animate
-			toolbarAppendTo: false,		// element to append the toolbar to (selector or false)
-			playlistAppendTo: false,	// element to append the playlist to (selector or false)
+			toolbarAppendTo: null,		// element to append the toolbar to (selector or null)
+			playlistAppendTo: null,		// element to append the playlist to (selector or null)
+			timeAppendTo: null,		// elemend to append to time to (selector or null)
 			videoParams: {			// video <object> params (object literal)
 				allowfullscreen: 'true',
 				allowScriptAccess: 'always',
@@ -1056,7 +1057,10 @@
 
 		_createTimeArea : function(){
 
-			this.elements.toolbar.time = $('<li class="youtube-player-time">').appendTo(this.elements.toolbar.container);
+			this.elements.toolbar.time = 
+				this.options.timeAppendTo 
+				? $('<span />').appendTo(this.options.timeAppendTo)
+				: $('<li class="youtube-player-time">').appendTo(this.elements.toolbar.container);
 
 			this.elements.toolbar.timeCurrent = $('<span>').html('0:00').appendTo(this.elements.toolbar.time);
 
