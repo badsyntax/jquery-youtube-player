@@ -80,7 +80,7 @@
 						</label>
 						<label>
 							Toolbar
-							<input type="text" name="toolbar" value="play,pause,prev,next,shuffle,repeat,mute,playlistToggle" />
+							<input type="text" name="toolbar" value="play,prev,next,shuffle,repeat,mute,playlistToggle" />
 						</label>
 
 						<button type="button" id="reload-options" class="github">
@@ -103,6 +103,14 @@
 
 					<button type="button" id="create">
 						Create
+					</button>
+					
+					<button type="button" id="next">
+						Next
+					</button>
+					
+					<button type="button" id="prev">
+						Prev
 					</button>
 				</div>
 
@@ -241,6 +249,16 @@
 				player = $('.youtube-player').player( playerConfig );
 			});
 
+			$('#prev').click(function(){
+
+				player.player('prevVideo');
+			});
+
+			$('#next').click(function(){
+
+				player.player('nextVideo');
+			});
+			
 			$('#reload-options').click(function(){
 
 				$('#options input').each(function(){
