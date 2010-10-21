@@ -10,17 +10,20 @@
 
 	$.fn.player = function(method){
 
-		var pluginName = 'jquery-youtube-player', args = arguments;
+		var pluginName = 'jquery-youtube-player', args = arguments, val = undefined;
 
-		return this.each(function(){
+		this.each(function(){
 
 			// get plugin reference
 			var obj = $.data( this, pluginName );
 
-			if ( obj && obj[method] ) {
+			if ( obj && obj[method]) {
 
-				// execute a public method
-				obj[method].apply( obj, Array.prototype.slice.call( args, 1 ) );
+				// execute a public method, store the return value
+				val = obj[method].apply( obj, Array.prototype.slice.call( args, 1 ) );
+
+				// only the 'plugin' public method is allowed to return a value
+				val = (method == 'plugin') ? val : undefined;
 			} 
 			else if ( !obj && ( typeof method === 'object' || ! method ) ) {
 
@@ -28,6 +31,9 @@
 				$.data( this, pluginName, new player(this, method, pluginName) );
 			}
 		});
+
+		// return the value from an API method or the jQuery object
+		return val || this;
 	}
 
 	function player(element, options, pluginName){
@@ -67,13 +73,23 @@
 		}, options);
 
 		this.element = $( element );
+		
+		this._states = {
+			'unstarted': -1,
+			'ended': 0,
+			'play': 1,
+			'paused': 2,
+			'buffering': 3,
+			'cued': 5,
+			'mute': 6
+		};
 
 		this._init();
 	}
 
 	player.prototype = {
 		
-		state: -1, timer: {}, router: {}, videoIds: [],
+		_activeStates: [], timer: {}, router: {}, videoIds: [],
 
 		_init : function(){
 
@@ -164,15 +180,19 @@
 			}
 		},
 		
-		_state : function(name){
+		// button data setter/getter
+		_buttonData : function(name, key, value){
 
-			return this.buttons[ name ].element.data( 'state' );
+			if ( this.buttons[ name ] && this.buttons[ name ].element) {
+
+				return !value ? this.buttons[ name ].element.data( key ) : this.buttons[ name ].element.data( key, value );
+			}
 		},
 		
 		_bindYoutubeEventHandlers : function(){
 
 			var self = this;
-
+				
 			this.youtubePlayerEvents = {
 
 				ready : function(){
@@ -190,7 +210,7 @@
 						self._triger(self, 'onError', [ e ] );
 					}
 
-					var startTime = self.buttons.fullscreen.element.data('time');
+					var startTime = self._buttonData('fullscreen', 'time') || 0;
 
 					self.cueVideo(false, startTime);
 
@@ -215,7 +235,7 @@
 
 					self.router.updateHash();
 
-					self.buttons.play.element.data('state', 1);
+					self._addState('play');
 
 					self.elements.toolbar.updateStates();
 
@@ -293,32 +313,78 @@
 
 		_youtubeEventHandler : function(state){
 
-			if (state != this.state) {
+			// reset the youtube player states every time an event is execute by the youtube player 
+			this._removeStates([ -1, 0, 1, 2, 3, 5, 100, 101, 150, 9 ]);
 
-				switch(this.state = state) {
-					case 0	: 
-						this.youtubePlayerEvents.videoEnded(); 
-						break;
-					case 1 : 
-						this.youtubePlayerEvents.videoPlay();
-						break;
-					case 2 :
-						this.youtubePlayerEvents.videoPaused();
-						break;
-					case 3 : 
-						this.youtubePlayerEvents.videoBuffer(); 
-						break;
-					case 100: 
-					case 101:
-					case 150:
-						this.youtubePlayerEvents.error( state );
-						break;
-					case 9 : 
-						this.youtubePlayerEvents.ready();
-						break;
-				}
+			this._addState(state, true);
+
+			switch(state) {
+				case 0	: 
+					this.youtubePlayerEvents.videoEnded(); 
+					break;
+				case 1 : 
+					this.youtubePlayerEvents.videoPlay();
+					break;
+				case 2 :
+					this.youtubePlayerEvents.videoPaused();
+					break;
+				case 3 : 
+					this.youtubePlayerEvents.videoBuffer(); 
+					break;
+				case 100: 
+				case 101:
+				case 150:
+					this.youtubePlayerEvents.error( state );
+					break;
+				case 9 : 
+					this.youtubePlayerEvents.ready();
+					break;
+			}
+
+			this._trigger(this, 'onYoutubeStateChange', [ state ]);
+		},
+
+		_removeStates : function(states){
+
+			var newArray = [];
+			
+			$.each(this._activeStates, function(key, value){
+
+				($.inArray(value, states) === -1 && $.inArray(value, newArray) === -1) && newArray.push(value);
+			});
+
+			this._activeStates = newArray;
+		},
+		
+		_removeState : function(state){
+
+			this._removeStates([ this._states[ state ]  ]);
+
+			
+		},
+
+		_state : function(state, remove){
+
+			state = this._states[ state ];
+
+			return $.inArray(state, this._activeStates) !== -1 ? true : false;
+		},
+
+		_addState : function(state, stateID){
+
+			if (stateID) {
+			
+				$.inArray(state, this._activeStates) === -1 &&
+				this._activeStates.push( state );
+			
+			} else {
+
+				this._states[ state ] && 
+				$.inArray(this._states[ state ], this._activeStates) === -1 &&
+				this._activeStates.push( this._states[ state ] );
 			}
 		},
+
 		
 		_getPlaylistData : function(success, error){
 
@@ -477,7 +543,7 @@
 				self._trigger(self, 'onVideoLoaded', [ videoID ]);
 			}
 
-			if (video) {
+			if (video && video.id) {
 			
 				video = {
 					id: video.id,
@@ -559,7 +625,6 @@
 				}
 			);
 		},
-
 			
 		pauseVideo : function(){
 
@@ -572,10 +637,10 @@
 
 			this.playVideo();
 		},
-
+		
 		muteVideo : function(button){
 
-			button.element.data('state') ? this.youtubePlayer.mute() : this.youtubePlayer.unMute();
+			this._state('mute') ? this.youtubePlayer.unMute() : this.youtubePlayer.mute();
 		},
 	
 		// FIXME
@@ -611,11 +676,12 @@
 
 				this.keys.video--;
 
-				this.buttons.play.element.data('state', 0);
-
 				this.loadVideo();
 
 				this.playVideo();
+			} else {
+
+				// trigger callback
 			}
 		},
 
@@ -631,11 +697,12 @@
 					this.keys.video++;
 				}
 
-				this.buttons.play.element.data('state', 0);
-				
 				this.loadVideo();
 
 				this.playVideo();
+			} else {
+
+				// trigger callback
 			}
 		},
 		
@@ -686,7 +753,7 @@
 						.css('position', 'static')
 						.prependTo( self.elements.player );
 					
-					button.element.data('state', 0);
+					self._removeState('fullsreen');
 				})
 				.trigger('open.player');
 
@@ -704,6 +771,28 @@
 					button.element.trigger('close.player');
 				}
 			});
+		},
+
+		// return the plugin object
+		plugin : function(){
+
+			return this;
+		},
+
+		// return an array of current player states
+		state : function(){
+
+			var self = this, states = [];
+
+			$.each(this._activeStates, function(key, val){
+
+				$.each(self._states, function(k, v){
+
+					if (val === v) states.push(k);
+				});
+			});
+
+			return states;
 		},
 
 		_updateInfo : function(timeout, text){
@@ -806,8 +895,9 @@
 				this
 				._createPlayer()
 				._createToolbar()
-				._createInfobar()
-				._createPlaylist();
+				._createInfobar();
+
+				this._createPlaylist();
 			}
 
 			return this;
@@ -843,11 +933,11 @@
 
 						button.element.removeClass('ui-state-active');
 
-						(button.element.data('state')) &&
+						(self._state(val)) &&
 						(button.toggle) && 
 						button.element.addClass('ui-state-active');
 
-						if (button.element.data('state') && button.toggleButton){
+						if (self._state(val) && button.toggleButton){
 
 							button.element.trigger('on');
 						}
@@ -855,11 +945,35 @@
 				}
 			};
 
+			function checkStateExists(state){
+
+				var found = false;
+
+				$.each(self._states, function(key){
+
+					if (state == key) {
+
+						found = true;
+
+						return false;
+					}
+				});
+
+				if (!found) {
+
+					self._states[state] = state;
+				}
+
+				return found;
+			}
+
 			$.each(this.options.toolbar.split(','), function(key, val) {
 
 				var button = self.buttons[val];
 
 				if (!button || !button.text) return true;
+
+				checkStateExists(val);
 
 				self.buttons[val].element =
 					$('<li class="ui-state-default ui-corner-all"></span>')
@@ -875,7 +989,8 @@
 						var button = $(this).data('button'), toggle = 1;
 						
 						$(this).data('toggle', toggle);
-						$(this).data('state', 0);
+
+						self._removeState(val);
 
 						button.element.find('.ui-icon')
 							.removeClass( button.toggleButton.icon )
@@ -890,7 +1005,8 @@
 						var button = $(this).data('button'), toggle = 0;
 						
 						$(this).data('toggle', toggle);
-						$(this).data('state', 1);
+
+						self._addState(val);
 
 						button.element.find('.ui-icon')
 							.removeClass( button.icon )
@@ -909,19 +1025,21 @@
 					.click(function(){
 
 						var button = $(this).data('button'), 
-							state = $(this).data('state');
+							state = self._state(val);
 
 						if (button.toggleButton) {
 							
 							$(this).trigger('toggle');
 
 						} else {
-						
-							$(this).data('state', state && button.toggle ? 0 : 1);
-
-							self.elements.toolbar.updateStates();
 
 							self._trigger(self, button.action, [ button ] );
+
+							( !button.toggle || ( button.toggle && state ) ) 
+							? self._removeState(val) 
+							: self._addState(val);
+
+							self.elements.toolbar.updateStates();
 						}
 					})
 					.appendTo(self.elements.toolbar.container);
@@ -972,7 +1090,7 @@
 
 				self.keys.video = $.inArray( videoData.id, self.videoIds );
 
-				self.buttons.play.element.data('state', 0);
+				self._removeState('play');
 				
 				self._updatePlaylist();
 
