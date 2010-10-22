@@ -489,8 +489,6 @@
 				.removeClass('ui-state-active')
 				.each(function(key){
 
-					console.debug(self.options.playlist);
-
 					if (self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
 
 						var height = $(this).addClass('ui-state-active').outerHeight();
