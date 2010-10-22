@@ -439,6 +439,8 @@
 					? 'http://gdata.youtube.com/feeds/base/users/' + playlist.user + '/uploads?v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
 					: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist.playlist;
 
+				url += '?callback=?';
+
 				this._trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
 
 				$.ajax({
@@ -598,6 +600,7 @@
 			if ( playlist ) {
 
 				this.options.playlist = playlist;
+
 			}
 
 			this._getPlaylistData(
