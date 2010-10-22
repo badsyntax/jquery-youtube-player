@@ -1,5 +1,5 @@
 /*
- * jquery.youtube.js v0.1b - a jquery youtube player
+ * jquery.youtube.js v0.1a1 - a jquery youtube player
  * Copyright (c) 2010 Richard Willis
  * MIT license	: http://www.opensource.org/licenses/mit-license.php
  * Project	: http://github.com/badsyntax/jquery-youtube-player
