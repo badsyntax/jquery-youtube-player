@@ -73,7 +73,7 @@
 				wmode:	'transparent'
 			},
 			toolbarButtons: {},		// custom toolbar buttons
-			toolbar: 'play,prev,next,shuffle,repeat,mute,fullscreen,playlistToggle' // comma separated list of toolbar buttons
+			toolbar: 'play,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons
 		}, options);
 
 		// these initial states are the youtube player states
