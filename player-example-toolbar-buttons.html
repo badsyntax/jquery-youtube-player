@@ -46,9 +46,9 @@
 					// if you name a button used by the player, your button will be used,
 					// allowing you to override the default buttons
 
-					play: {
-						text: 'Play',
-						icon: 'ui-icon-play',
+					next: {
+						text: 'Next',
+						icon: 'ui-icon-seek-next',
 						action: function(){
 
 							alert('This is a custom button action');
@@ -56,7 +56,7 @@
 							// 'this' is the player object
 							// console.debug(this) to get list of methods to use
 
-							this.playVideo();
+							this.nextVideo();
 						}
 					},
 					
@@ -73,13 +73,13 @@
                     			}	
 				},
 
-				toolbar: 'play,playlistToggle,customButton',
+				toolbar: 'play,next,playlistToggle,customButton',
 
 				// Custom playlist
 				playlist: {
 					title: 'Random videos',
 					videos: [
-						{ id: '1gD8nV8RlPU', title: 'Dai Mahou Touge - Vegetable Suicide' }
+						{ id: '0F1RVXfiWEE', title: 'cinematic orchestra - all that you give' }
 					]
 				}
 

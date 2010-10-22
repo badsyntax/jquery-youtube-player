@@ -67,6 +67,7 @@
 	height: 90px;
 	width: 124px;
 	list-style: none;
+	overflow: hidden;
 }
 .youtube-player-playlist .youtube-player-thumb img {
 	height: 90px;

@@ -22,7 +22,7 @@
 	<div id="centered">
 		<div class="clearfix">
 
-			<div class="helper-left">
+			<div class="helper-left" style="width:430px">
 
 				<h1>
 					<a href="../">Home</a>
@@ -39,7 +39,7 @@
 
 			</div>
 
-			<div class="helper-right" style="width:324px">
+			<div class="helper-right" style="width:330px">
 
 				<h2>Options:</h2>
 
@@ -64,10 +64,6 @@
 						<label>
 							Update hash
 							<input type="checkbox" name="updateHash" value="1" />
-						</label>
-						<label>
-							OS Scrollbar
-							<input type="checkbox" name="playlistScrollbarOS" />
 						</label>
 						<label>
 							Width
@@ -272,6 +268,17 @@
 				player.player('destroy');
 
 				$('.youtube-player').player( playerConfig );
+			});
+
+			$('input[name=videoThumbs]').click(function(){
+				
+				if (this.checked) {
+
+					$('input[name=playlistHeight]').val('2');
+				} else {
+
+					$('input[name=playlistHeight]').val('5');
+				}
 			});
 
 		})(window.jQuery);
