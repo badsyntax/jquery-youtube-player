@@ -36,11 +36,14 @@
 		return val || this;
 	}
 
+	// player constuctor
 	function player(element, options, pluginName){
 
 		var self = this;
 
 		this._pluginName = pluginName;
+		
+		this.element = $( element ).addClass('ui-widget');
 
 		this.options = $.extend({
 			width: 425,			// player width (integer)
@@ -73,46 +76,51 @@
 			toolbar: 'play,prev,next,shuffle,repeat,mute,fullscreen,playlistToggle' // comma separated list of toolbar buttons
 		}, options);
 
-		this.element = $( element );
-		
+		// these initial states are the youtube player states
+		// button states will be added to this object
 		this._states = {
 			'unstarted': -1,
 			'ended': 0,
 			'play': 1,
 			'paused': 2,
 			'buffering': 3,
-			'cued': 5,
-			'mute': 6
+			'cued': 5
+		};
+		
+		// extend the default toolbar buttons with user specified buttons (specified buttons will override default)
+		this.buttons = $.extend({}, $.youtubePlayerButtons, this.options.toolbarButtons);
+
+		// store common elements
+		this.elements = {
+			player: this.element,
+			playerVideo: this.element.find('.youtube-player-video'),
+			playerObject: this.element.find('.youtube-player-object')
 		};
 
-		this._init();
+		// swfobject will destroy the video object <div>, so we clone it to use it to restore it when destroy()ing the plugin
+		this.elements.playerObjectClone = this.elements.playerObject.clone();
+
+		this.keys = { video: 0 };
+
+		// swfobject requires the video object <div> to have an id set
+		this._uniqueId( this.elements.playerObject[0], 'youtube-player-' );
+
+		// load and check the playlist before building the player
+		this.loadPlaylist(null, null, null, function(){
+
+			// build everything and set event handlers
+			self
+			._createElements()
+			._bindPlayerEventHandlers()
+			._bindYoutubeEventHandlers()
+			._initRouter();
+		});
 	}
 
+	// public members
 	player.prototype = {
 		
 		_activeStates: [], timer: {}, router: {}, videoIds: [],
-
-		_init : function(){
-
-			this.element.addClass('ui-widget');
-
-			// extend the default toolbuttons with user specified buttons
-			this.buttons = $.extend({}, $.youtubePlayerButtons, this.options.toolbarButtons);
-
-			this.elements = {
-				player: this.element,
-				playerVideo: this.element.find('.youtube-player-video'),
-				playerObject: this.element.find('.youtube-player-object')
-			};
-
-			this.elements.playerObjectClone = this.elements.playerObject.clone();
-
-			this.keys = { video: 0 };
-
-			this._uniqueId( this.elements.playerObject[0], 'youtube-player-' );
-
-			this.loadPlaylist();
-		},
 		
 		_initRouter :  function(){
 
@@ -252,6 +260,8 @@
 				},
 				videoEnded : function(){
 
+					self.buttons.play.element.trigger( 'off' );
+
 					if (self.options.repeat) {
 
 						self.nextVideo();
@@ -314,11 +324,13 @@
 
 		_youtubeEventHandler : function(state){
 
-			// reset the youtube player states every time an event is execute by the youtube player 
+			// reset the youtube player states every time an event is executed
 			this._removeStates([ -1, 0, 1, 2, 3, 5, 100, 101, 150, 9 ]);
 
+			// add a new youtube state
 			this._addState(state, true);
 
+			// execute handler based on state
 			switch(state) {
 				case 0	: 
 					this.youtubePlayerEvents.videoEnded(); 
@@ -588,7 +600,6 @@
 				this.options.playlist = playlist;
 			}
 
-
 			this._getPlaylistData(
 				function(){ // success
 
@@ -605,14 +616,6 @@
 
 						this._showPlaylist(show);
 
-					} else {
-
-						// build everything and set event handlers
-						this
-							._createElements()
-							._bindPlayerEventHandlers()
-							._bindYoutubeEventHandlers()
-							._initRouter();
 					}
 
 					this._trigger(this, success);
@@ -1101,6 +1104,7 @@
 
 				var videoData = $(this).data('video');
 
+
 				if (!videoData) return;
 
 				self.keys.video = $.inArray( videoData.id, self.videoIds );
@@ -1131,6 +1135,8 @@
 
 					self.elements.playlist.empty();
 				}
+
+				self.videoIds = [];
 
 				$.each(videos, function(){
 
@@ -1297,4 +1303,4 @@
 		}
 	};
 
-})(window.jQuery, window, document);
+})(this.jQuery, this, document);
