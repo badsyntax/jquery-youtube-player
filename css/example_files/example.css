@@ -1,5 +1,6 @@
 /* This stylesheet is used by the example files, it is not required for the jquery youtube player to work.  */
 body { font: normal 90% Arial; background: #ddd; margin: 1em 1em 3em 1em; text-align: center; }
+a, a:visited { color: #7D000F; }
 #github-ribbon { position: absolute; top: 0; right: 1px; border: 0; }
 #theme-switcher { position: absolute; right: 1em; top: 1em; }
 #centered{ width: 425px; margin: 2em auto 0 auto; text-align: left; }
@@ -7,8 +8,9 @@ body { font: normal 90% Arial; background: #ddd; margin: 1em 1em 3em 1em; text-a
 .index #centered{ width: 700px; }
 #events{ border: 1px solid #aaa; padding: 1em; max-height: 6em; overflow: auto }
 h1 { font-size: 1.5em; font-family: 'Droid Sans', arial, serif; }
+h1 a, h1 a:visited { float: right; font-size: .5em; padding: .8em .2em 0 0; }
 h2 { font-family: 'Droid Sans', arial, serif; }
-h1,h2,h3{-moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF; margin: .8em 0 .5em 0;}
+h1,h2,h3{-moz-text-shadow: 0.1em 0.1em 0 #EEEEEE; -webkit-text-shadow: 0.1em 0.1em 0 #EEEEEE; text-shadow: 0.1em 0.1em 0 #EEEEEE; margin: .8em 0 .5em 0;}
 img { border: 0;}
 label { padding: .2em 0; display: block; position: relative; }
 label input { position: absolute; left: 130px; top: 0; }
