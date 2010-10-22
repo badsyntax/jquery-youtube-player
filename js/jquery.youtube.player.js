@@ -436,17 +436,27 @@
 				}
 				
 				var url = playlist.user 
-					? 'http://gdata.youtube.com/feeds/base/users/' + playlist.user + '/uploads?v=2&orderby=published&client=ytapi-youtube-profile&max-results=50'
+					? 'http://gdata.youtube.com/feeds/api/videos'
 					: 'http://gdata.youtube.com/feeds/api/playlists/' + playlist.playlist;
 
 				url += '?callback=?';
 
 				this._trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
 
+				var data = { 
+					alt: 'json', 
+					format: '5'
+				}
+				
+				if (playlist.user){
+				
+					data.author = playlist.user;
+				}
+
 				$.ajax({
 					type: 'GET',
 					url: url,
-					data: { alt: 'json' },
+					data: data,
 					dataType: 'json',
 					error: function(){ 
 				
@@ -478,6 +488,8 @@
 				.find('li')
 				.removeClass('ui-state-active')
 				.each(function(key){
+
+					console.debug(self.options.playlist);
 
 					if (self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
 
