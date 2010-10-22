@@ -39,4 +39,4 @@ The plugin accepts 3 types of playlists:
 This plugin is being actively developed. Feel free to use the latest revision.
 Suggestions, feedback, bugs, anything is appreciated. Please use the [Issue Tracker](http://github.com/badsyntax/jquery-youtube-player/issues) to post project related feedback, or send an email to willis.rh@gmail.com
 
-[[http://badsyntax.github.com/img/jqy-screenshot.png]]
+![Screenshot](http://badsyntax.github.com/img/jqy-screenshot.png)
