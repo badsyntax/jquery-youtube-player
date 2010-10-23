@@ -56,9 +56,11 @@
 			videoThumbs: 0,			// show videos as thumbnails in the playlist area (boolean) (experimental)
 			randomStart: 0,			// show random video on plugin init (boolean)
 			autoStart: 0,			// auto play the video after the player as been built (boolean)
-			repeat: 0,			// repeat videos (boolean)
+			autoPlay: 1,			// auto play the video when loading it via the playlist (boolean)
+			repeat: 1,			// repeat videos (boolean)
 			repeatPlaylist: 0,		// repeat the playlist (boolean) 
 			shuffle: 0,			// shuffle the play list (boolean)
+			chromeless: 0,			// chromeless player (boolean)
 			updateHash: 0,			// update the location hash on video play (boolean)
 			highDef: 0,			// high definition quality or normal quality (boolean)
 			playlistHeight: 5,		// height of the playlist (integer) (N * playlist item height)
@@ -73,9 +75,12 @@
 				allowScriptAccess: 'always',
 				wmode:	'transparent'
 			},
+			showToolbar: 1,			// show or hide the custom toolbar (boolean)
 			toolbarButtons: {},		// custom toolbar buttons
 			toolbar: 'play,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons
 		}, options);
+
+		if (!this.options.chromeless) this.options.showToolbar = 0;
 
 		// these initial states are the youtube player states
 		// button states will be added to this object
@@ -111,9 +116,9 @@
 
 			// build everything and set event handlers
 			self
-			._createElements()
 			._bindPlayerEventHandlers()
 			._bindYoutubeEventHandlers()
+			._createElements()
 			._initRouter();
 		});
 	}
@@ -287,6 +292,14 @@
 						alert( 'There was an error loading this video. ' + msg );
 					}
 				},
+				videoCued : function(){
+
+					self._updatePlaylist();
+
+					self.elements.toolbar.updateStates();
+			
+					self._trigger(this, 'onVideoCue', arguments);
+				},
 				videoBuffer : function(){
 
 					self._trigger(this, 'onBuffer', arguments); 
@@ -333,26 +346,15 @@
 
 			// execute handler based on state
 			switch(state) {
-				case 0	: 
-					this.youtubePlayerEvents.videoEnded(); 
-					break;
-				case 1 : 
-					this.youtubePlayerEvents.videoPlay();
-					break;
-				case 2 :
-					this.youtubePlayerEvents.videoPaused();
-					break;
-				case 3 : 
-					this.youtubePlayerEvents.videoBuffer(); 
-					break;
+				case 0	: this.youtubePlayerEvents.videoEnded(); break;
+				case 1 : this.youtubePlayerEvents.videoPlay(); break;
+				case 2 : this.youtubePlayerEvents.videoPaused(); break;
+				case 3 : this.youtubePlayerEvents.videoBuffer(); break;
+				case 5 : this.youtubePlayerEvents.videoCued(); break;
 				case 100: 
 				case 101:
-				case 150:
-					this.youtubePlayerEvents.error( state );
-					break;
-				case 9 : 
-					this.youtubePlayerEvents.ready();
-					break;
+				case 150: this.youtubePlayerEvents.error( state ); break;
+				case 9 : this.youtubePlayerEvents.ready(); break;
 			}
 
 			this._trigger(this, 'onYoutubeStateChange', [ state ]);
@@ -680,8 +682,6 @@
 
 			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
 
-			this._trigger(this, 'onVideoCue', [ videoID ]);
-
 			return this.youtubePlayer.cueVideoById( videoID, startTime || 0);
 		},
 
@@ -945,7 +945,12 @@
 
 			this.elements.playerVideo.height( parseInt( this.options.height ) );
 
-			var swfpath = 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=' + this.options.highDef + '&showinfo=0';
+			var id = this.options.playlist.videos[this.keys.video].id;
+
+			var swfpath = 
+				this.options.chromeless 
+				? 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=' + this.options.highDef + '&showinfo=0'
+				: 'http://www.youtube.com/v/' + id + '?enablejsapi=1&playerapiid=youtube&version=3';
 
 			this.options.swfobject.embedSWF( swfpath, this.elements.playerObject[0].id, '100%', '100%', '8', null, null, this.options.videoParams);
 
@@ -980,6 +985,8 @@
 					});
 				}
 			};
+
+			 ( !this.options.showToolbar ) && this.elements.toolbar.container.hide();
 
 			function checkStateExists(state){
 

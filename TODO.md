@@ -1,13 +1,13 @@
 * HD button
 * Fullscreen button
 * Seek bar
-* Time progress
+* <strike>Time progress</strike>
 * Buffer progress
 * <strike>Toggle buttons (for play/pause)</strike>
 * Video thumbnails for playlist
 * <strike>Default browser scrollbar in playlist area</strike>
 * <strike>Add fields for loading playlists in the api example file</strike>
-* Route events to toolbar button states
+* <strike>Route events to toolbar button states</strike>
 * Solid cross browser testing
 * Update documentation
 * Using the player for one video (no playlist)
