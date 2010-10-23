@@ -46,17 +46,18 @@
 		this.element = $( element ).addClass('ui-widget');
 
 		this.options = $.extend({
-			width: 425,			// player width (integer)
-			height: 356,			// player height (integer)
-			swfobject: window.swfobject,	// swfobject object (object)
+			width: 425,			// player width (integer or string)
+			height: 356,			// player height (integer or string)
+			swfobject: window.swfobject,	// swfobject object
 			playlist: {},			// playlist object (object literal)
 			showPlaylist: 1,		// show playlist on plugin init (boolean)
 			showTime: 1,			// show current time and duration in toolbar (boolean)
 			showTitleOverlay: 1,		// show video title overlay text (boolean)
 			videoThumbs: 0,			// show videos as thumbnails in the playlist area (boolean) (experimental)
 			randomStart: 0,			// show random video on plugin init (boolean)
-			autoStart: 0,			// auto start the video on init (boolean)
+			autoStart: 0,			// auto play the video after the player as been built (boolean)
 			repeat: 0,			// repeat videos (boolean)
+			repeatPlaylist: 0,		// repeat the playlist (boolean) 
 			shuffle: 0,			// shuffle the play list (boolean)
 			updateHash: 0,			// update the location hash on video play (boolean)
 			highDef: 0,			// high definition quality or normal quality (boolean)
@@ -88,7 +89,7 @@
 		};
 		
 		// extend the default toolbar buttons with user specified buttons (specified buttons will override default)
-		this.buttons = $.extend({}, $.youtubePlayerButtons, this.options.toolbarButtons);
+		this.buttons = $.extend({}, this.defaultToolbarButtons, this.options.toolbarButtons);
 
 		// store common elements
 		this.elements = {
@@ -441,8 +442,6 @@
 
 				url += '?callback=?';
 
-				this._trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
-
 				var data = { 
 					alt: 'json', 
 					format: '5'
@@ -452,6 +451,8 @@
 				
 					data.author = playlist.user;
 				}
+
+				this._trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
 
 				$.ajax({
 					type: 'GET',
@@ -484,14 +485,16 @@
 
 			var self = this;
 
-			(this.elements.playlist) && this.elements.playlist
+			(this.elements.playlist) && 
+				
+				this.elements.playlist
 				.find('li')
 				.removeClass('ui-state-active')
 				.each(function(key){
 
-					if (self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
+					if ( self.options.playlist.videos[self.keys.video].id == $(this).data('video').id) {
 
-						var height = $(this).addClass('ui-state-active').outerHeight();
+						var height = $( this ).addClass('ui-state-active').outerHeight();
 
 						if ( !self.options.videoThumbs ){
 							
@@ -521,6 +524,7 @@
 			(show) && this.elements.playlistContainer.hide();
 
 			if (!this.elements.playlist.children().length) {
+
 				this.elements.playlistContainer.hide();
 
 			} else if (height) {
@@ -687,46 +691,48 @@
 
 			return this.keys.video;
 		},
+		
+		_setVideoKey : function(val){
+
+			this.keys.video = this.options.shuffle ? this.options.randomVideo() : val || 0;
+		},
 
 		prevVideo : function(){
 
 			if (this.keys.video > 0) {
 
-				this.keys.video--;
+				this._setVideoKey( --this.keys.video );
 
-				this.loadVideo();
+			} else if ( this.options.repeatPlaylist ) {
 
-				this.playVideo();
-			} else {
+				this._setVideoKey( this.videoIds.length - 1 );
 
-				// trigger callback
-			}
+			} else return;
+			
+			this.loadVideo(null, !this._state('play'));
 		},
 
 		nextVideo : function(){
 
 			if (this.keys.video < this.options.playlist.videos.length-1) {
+					
+				this._setVideoKey( ++this.keys.video );
 
-				if (this.options.shuffle) {
+			} else if ( this.options.repeatPlaylist ) {
 
-					this.randomVideo();
-				} else {
+				this._trigger(this, 'onEndPlaylist');
+				
+				this._setVideoKey( 0 );
 
-					this.keys.video++;
-				}
+			} else return;
 
-				this.loadVideo();
-
-				this.playVideo();
-			} else {
-
-				// trigger callback
-			}
+			this.loadVideo(null, !this._state('play'));
 		},
 		
 		playlistToggle : function(button){
 
 			(this.elements.playlistContainer.find('li').length) &&
+
 				this.elements
 					.playlistContainer
 					.animate({
@@ -801,6 +807,8 @@
 		state : function(){
 
 			var self = this, states = [];
+
+			console.debug(this._activeStates);
 
 			$.each(this._activeStates, function(key, val){
 
@@ -1236,9 +1244,8 @@
 			$.removeData( this.element[0], this._pluginName );
 		}
 	};
-		
-	$.youtubePlayerButtons = {
 
+	player.prototype.defaultToolbarButtons = {
 		play: { 
 			text: 'Play',
 			icon: 'ui-icon-play', 
