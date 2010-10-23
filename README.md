@@ -1,16 +1,10 @@
-This jQuery plugin builds a youtube video player with a custom toolbar and playlist area.
+This jQuery plugin builds a youtube video player.
 
 **Player consists of:**
 
- * The chromeless Youtube player (Flash 8)
- * Customizable toolbar 
- * Playlist area with custom scrollbar
-
-**Player features:**
-
- * Hash actions
- * Customizable toolbar
- * API and callback events
+ * The chromeless or embedded Youtube player (Flash 8)
+ * Optional customizable toolbar 
+ * Playlist area
 
 **Dependencies:**
 
