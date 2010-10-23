@@ -212,24 +212,15 @@
 
 				ready : function(){
 
-					self.youtubePlayer = self.elements.playerVideo.find('object:first').get(0);
+					var id = self.elements.playerObject[0].id;
 
-					try {
+				 	self.youtubePlayer = self.elements.playerVideo.find('object:first').get(0);
 
-						self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents');
+					self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents' + id);
 
-						self.youtubePlayer.addEventListener('onError', '_youtubeevents');
-
-					} catch(e) {
-
-						self._triger(self, 'onError', [ e ] );
-					}
-
-					var startTime = self._buttonData('fullscreen', 'time') || 0;
+					self.youtubePlayer.addEventListener('onError', '_youtubeevents' + id);
 
 					self.loadVideo(false, true);
-
-					if (startTime && self._state('play')) self.playVideo(false, startTime);
 
 					self.elements.toolbar.container
 						.animate({opacity: 1}, 400, function(){
@@ -237,12 +228,9 @@
 							self._trigger(self, 'onReady', arguments);
 						});
 
-					self._showPlaylist();
+					self._showPlaylist(self.options.showPlaylist);
 			
-					if (self.keys.play) {
-
-						self.playVideo();
-					}
+					(self.keys.play) && self.playVideo();
 				},
 				videoPlay : function(){
 
@@ -306,13 +294,22 @@
 				}
 			};
 
-			window.onYouTubePlayerReady = function(){ 
+			var readyhandler = '_youtubeEventHandler' + this.elements.playerObject[0].id;
 
-				self._youtubeEventHandler(9); 
+			window[readyhandler] = function(){
+
+				self._youtubeEventHandler(9);
 			};
+			
+			window.onYouTubePlayerReady = function(id){ 
 
-			window._youtubeevents = function(state){ 
+				self._trigger(self, window['_youtubeEventHandler' + id]);
+			};
+					
+			var eventhandler = '_youtubeevents' + this.elements.playerObject[0].id;
 
+			window[eventhandler] = function(state){ 
+				
 				self._youtubeEventHandler(state); 
 			};
 
@@ -741,62 +738,6 @@
 					}, this.options.playlistSpeed);
 		},
 
-		fullscreen: function(button){
-
-			var self = this;
-
-			this._hideInfo();
-
-			button.element
-				.one('open.player', function(){
-			
-					$.data(this, 'height', self.elements.playerVideo.height());
-					$.data(this, 'time', self.youtubePlayer.getCurrentTime());
-
-					$('body').css('overflow', 'hidden');
-		
-					self.elements.playerVideo
-						.css({
-							height: '100%',
-							width: '100%',
-							position: 'absolute',
-							top: 0,
-							left: 0,
-							zIndex: 9999
-						})
-						.appendTo( document.body );
-				})
-				.one('close.player', function(){
-					
-					$.data(this, 'time', self.youtubePlayer.getCurrentTime());
-					
-					$('body').css('overflow', 'auto');
-
-					self.elements.playerVideo
-						.height( $.data(this, 'height') )
-						.css('position', 'static')
-						.prependTo( self.elements.player );
-					
-					self._removeState('fullsreen');
-				})
-				.trigger('open.player');
-
-			// bind close player handlers
-
-			self.elements.playerVideo.one('dblclick', function(){
-
-				button.element.trigger('close.player');
-			});
-
-			$(document).one('keypress', function(event){
-
-				if (event.keyCode == 27) {
-
-					button.element.trigger('close.player');
-				}
-			});
-		},
-
 		// return the plugin object
 		plugin : function(){
 
@@ -831,7 +772,7 @@
 
 		_updateInfo : function(timeout, text){
 
-			if (!this.options.showTitleOverlay || this._state('fullscreen')) return;
+			if (!this.options.showTitleOverlay) return;
 				
 			text = text || ( 
 					this.options.playlist.videos[this.keys.video] ? 
@@ -848,9 +789,7 @@
 
 					self.elements.infobar
 						.stop(true, true)
-						.css({ 
-							opacity: 0 
-						})
+						.css('opacity', 0)
 						.html( text )
 						.unbind('click')
 						.click(function(){ 
@@ -877,11 +816,7 @@
 
 			clearTimeout(this.timer.showInfo);
 
-			this.elements.infobar
-				.stop(true, true)
-				.animate({
-					opacity: 0
-				}, 120);
+			this.elements.infobar.stop(true, true).animate({ opacity: 0 }, 120);
 		},
 
 		_updateTime : function(){
@@ -907,49 +842,40 @@
 
 			this.timeInterval = setInterval(function(){
 
-				if (!self.youtubePlayer.getCurrentTime) {
-
-					clearInterval( self.timeInterval );
-
-				} else {
-
-					var currentTime = self.youtubePlayer.getCurrentTime();
-
-					self.elements.toolbar.timeCurrent.html( timeFormat(currentTime) );
-				}
+				(!self.youtubePlayer.getCurrentTime)
+					? clearInterval( self.timeInterval )
+					: self.elements.toolbar.timeCurrent.html( timeFormat( self.youtubePlayer.getCurrentTime() ) );
 			}, 100);
 		},
 
 		_createElements : function(){
 			
-			var flashVersion = this.options.swfobject.getFlashPlayerVersion();
-
-			if (flashVersion.major >= 8){
+			(this.options.swfobject.getFlashPlayerVersion().major >= 8) && 
 
 				this
 				._createPlayer()
 				._createToolbar()
-				._createInfobar();
-
-				this._createPlaylist();
-			}
+				._createInfobar()
+				._createPlaylist();
 
 			return this;
 		},
 
 		_createPlayer : function(){
 
+			// set the player dimensions
 			this.elements.player.width( parseInt( this.options.width ) );
-
 			this.elements.playerVideo.height( parseInt( this.options.height ) );
 
-			var id = this.options.playlist.videos[this.keys.video].id;
+			var 
+				id = this.options.playlist.videos[this.keys.video].id, 
+				apiid = this.elements.playerObject[0].id,
+				swfpath = 
+					this.options.chromeless 
+					? 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid='+apiid+'&hd=' + this.options.highDef + '&showinfo=0'
+					: 'http://www.youtube.com/v/' + id + '?enablejsapi=1&playerapiid='+apiid+'youtube&version=3';
 
-			var swfpath = 
-				this.options.chromeless 
-				? 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid=youtube&hd=' + this.options.highDef + '&showinfo=0'
-				: 'http://www.youtube.com/v/' + id + '?enablejsapi=1&playerapiid=youtube&version=3';
-
+			// embed the youtube player
 			this.options.swfobject.embedSWF( swfpath, this.elements.playerObject[0].id, '100%', '100%', '8', null, null, this.options.videoParams);
 
 			return this;
@@ -1308,14 +1234,6 @@
 			action: function(button){
 
 				this.muteVideo(button);
-			}
-		},
-		fullscreen: {
-			text: 'Full screen',
-			icon: 'ui-icon-arrow-4-diag',
-			action: function(button){
-
-				this.fullscreen(button);
 			}
 		},
 		playlistToggle: { 
