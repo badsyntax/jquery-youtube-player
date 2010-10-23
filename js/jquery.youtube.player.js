@@ -32,7 +32,7 @@
 			}
 		});
 
-		// return the value from an API method or the jQuery object
+		// return the value from a method, or the jQuery object
 		return val || this;
 	}
 
@@ -56,11 +56,11 @@
 			videoThumbs: 0,			// show videos as thumbnails in the playlist area (boolean) (experimental)
 			randomStart: 0,			// show random video on plugin init (boolean)
 			autoStart: 0,			// auto play the video after the player as been built (boolean)
-			autoPlay: 1,			// auto play the video when loading it via the playlist (boolean)
+			autoPlay: 0,			// auto play the video when loading it via the playlist or toolbar controls (boolean)
 			repeat: 1,			// repeat videos (boolean)
 			repeatPlaylist: 0,		// repeat the playlist (boolean) 
 			shuffle: 0,			// shuffle the play list (boolean)
-			chromeless: 0,			// chromeless player (boolean)
+			chromeless: 1,			// chromeless player (boolean)
 			updateHash: 0,			// update the location hash on video play (boolean)
 			highDef: 0,			// high definition quality or normal quality (boolean)
 			playlistHeight: 5,		// height of the playlist (integer) (N * playlist item height)
@@ -266,7 +266,7 @@
 				},
 				videoEnded : function(){
 
-					self.buttons.play.element.trigger( 'off' );
+					self.buttons.play.element && self.buttons.play.element.trigger( 'off' );
 
 					if (self.options.repeat) {
 
@@ -709,7 +709,7 @@
 
 			} else return;
 			
-			this.loadVideo(null, !this._state('play'));
+			this.loadVideo(null, this._state('play') || this.options.autoPlay ? false : true);
 		},
 
 		nextVideo : function(){
@@ -726,7 +726,7 @@
 
 			} else return;
 
-			this.loadVideo(null, !this._state('play'));
+			this.loadVideo(null, this._state('play') || this.options.autoPlay ? false : true);
 		},
 		
 		playlistToggle : function(button){
@@ -807,8 +807,6 @@
 		state : function(){
 
 			var self = this, states = [];
-
-			console.debug(this._activeStates);
 
 			$.each(this._activeStates, function(key, val){
 
