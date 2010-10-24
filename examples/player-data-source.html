@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player - HTML Playlist Data Source</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+        <link type="text/css" rel="stylesheet" href="../css/example_files/example.css" />
+	<style type="text/css">
+		#centered, .youtube-player { width: 780px !important; }
+		.youtube-player { background: #fff; }
+		.youtube-player-video { float: left; width: 425px; }
+		.youtube-player-playlist .youtube-player-thumb { width: auto; float: none; background-color: #fff; color: #333; border: 1px solid #fff; }
+		.youtube-player-playlist .youtube-player-thumb img { float: left; margin: 0 4px 0 0; }
+		.youtube-player-playlist-container { float: left; width: 350px; margin: 0; border: 0; margin-left: 2px; background: #fff; }
+		.youtube-player-playlist .youtube-player-thumb.ui-state-active, .youtube-player-playlist .youtube-player-thumb.ui-state-hover { background: #eee; }
+		.youtube-player-playlist li { white-space: normal; }
+		.youtube-player-toolbar { border-color: #bbb; float: left; width: 350px; background: #fff; margin: 2px 0 2px 2px; }
+	</style>
+</head>
+<body class="basic">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="../js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+		
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+
+		<p>
+			This example reads the playlist from HTML.
+			All you need to do is specify a list with links to youtube videos, 
+			and the plugin will convert it into the video playlist area.
+		</p>
+				
+		<div class="youtube-player ui-helper-clearfix">
+			<div class="youtube-player-video">
+				<div class="youtube-player-object">
+					You need Flash player 8+ and JavaScript enabled to view this video.
+				</div>
+			</div>
+			<ol class="youtube-player-playlist">
+				<li><a href="http://www.youtube.com/watch?v=5y-7-Mt6uYk">Tron Legacy HD Trailer</a></li>
+				<li><a href="http://www.youtube.com/watch?v=9dc5iiT0f1s">Resident Evil: Afterlife' Trailer HD</a></li>
+				<li><a href="http://www.youtube.com/watch?v=yQ5U8suTUw0">The Dark Knight</a></li>
+			</ol>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+
+			$('.youtube-player').player({
+				chromeless: 0,		
+				videoThumbs: 1,
+				repeatPlaylist: 1,
+				showPlaylist: 1,
+				showToolbar: 1,
+				showTime: 0,
+				showTitleOverlay: 0,
+				toolbar: 'prev,next,shuffle,repeat',
+				onReady: function(){
+
+					this.elements.playlist.find('li').each(function(){
+
+						$(this).append( $(this).find('img').attr('title') );
+					});
+				}
+			});
+
+		})(this.jQuery);
+	//]]>
+	</script>
+</body>
+</html>
