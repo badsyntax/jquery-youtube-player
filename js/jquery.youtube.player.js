@@ -99,6 +99,24 @@
 		// extend the default toolbar buttons with user specified buttons (specified buttons will override default)
 		this.buttons = $.extend({}, this.defaultToolbarButtons, this.options.toolbarButtons);
 
+		// convert inks to vidoes
+		if (this.element.is('a')) {
+
+			var anchor = this.element;
+
+			this.element = $('<div class="youtube-player"></div>');
+			var 
+				playerVideo = $('<div class="youtube-player-video"></div>').appendTo(this.element),
+				playerObject = $('<div class="youtube-player-object"></div>').appendTo(playerVideo),
+				playlist = $('<ol class="youtube-player-playlist"><li></li></ol>')
+					.find('li')
+					.append( anchor.clone() )
+					.end()
+					.appendTo(this.element);
+
+			anchor.after(this.element).hide();
+		}
+		
 		// store common elements
 		this.elements = {
 			player: this.element,
@@ -119,9 +137,8 @@
 
 			// build everything and set event handlers
 			self
-			._createElements()
-			._bindPlayerEventHandlers()
 			._bindYoutubeEventHandlers()
+			._createElements()
 			._initRouter();
 		});
 	}
@@ -195,15 +212,6 @@
 			} else if ( type === 'function' ) {
 
 				callback.apply( scope, arg );
-			}
-		},
-		
-		// button data setter/getter
-		_buttonData : function(name, key, value){
-
-			if ( this.buttons[ name ] && this.buttons[ name ].element) {
-
-				return !value ? this.buttons[ name ].element.data( key ) : this.buttons[ name ].element.data( key, value );
 			}
 		},
 		
@@ -315,7 +323,7 @@
 
 				self._trigger(self, 'onYoutubeStateChange', [ state ]);
 			};
-			
+
 			if ( !window.onYouTubePlayerReady ){
 			
 				window.onYouTubePlayerReady = function(id){ 
@@ -329,23 +337,6 @@
 					window['onytplayerStateChange' + id](9, id);
 				};
 			}
-
-			return this;
-		},
-
-		_bindPlayerEventHandlers : function(){
-
-			var self = this;
-
-			this.elements.playerVideo
-				.one('mouseenter.player', function(){ 
-
-					self._updateInfo(); 
-				})
-				.one('mouseleave.player', function(){
-
-					self._hideInfo();
-				});
 
 			return this;
 		},
@@ -466,7 +457,6 @@
 							title: $(this).html()
 						});
 					});
-				
 				}
 			}
 					
@@ -535,19 +525,6 @@
 			}
 		},
 
-		// option setter/getter
-		option : function(option, value){
-
-			if (!value) {
-
-				return this.options[ option ];
-
-			} else {
-
-				this.options[ option ] = value;
-			}
-		},
-				
 		loadVideo : function(video, cue){
 
 			var self = this;
@@ -608,7 +585,6 @@
 			if ( playlist ) {
 
 				this.options.playlist = playlist;
-
 			}
 
 			this._getPlaylistData(
@@ -742,7 +718,7 @@
 
 				$.each(self._states, function(k, v){
 
-					if (val === v) states.push(k);
+					(val === v) && states.push(k);
 				});
 			});
 
@@ -844,6 +820,7 @@
 				this
 				._createPlayer()
 				._createToolbar()
+				._createTimeArea()
 				._createInfobar()
 				._createPlaylist();
 
@@ -862,13 +839,14 @@
 				swfpath = 
 					this.options.chromeless 
 					? 'http://www.youtube.com/apiplayer?enablejsapi=1&version=3&playerapiid='+apiid+'&hd=' + this.options.highDef + '&showinfo=0'
-					: 'http://www.youtube.com/v/' + id + '?enablejsapi=1&playerapiid='+apiid+'youtube&version=3';
+					: 'http://www.youtube.com/v/' + id + '?enablejsapi=1&playerapiid='+apiid+'&version=3';
 
 			// embed the youtube player
 			this.options.swfobject.embedSWF( swfpath, this.elements.playerObject[0].id, '100%', '100%', '8', null, null, this.options.videoParams);
 
 			return this;
 		},
+
 		_createToolbar : function(){
 
 			var self = this;
@@ -895,41 +873,20 @@
 				}
 			};
 
-			( !this.options.showToolbar ) && this.elements.toolbar.container.hide();
-
-			function checkStateExists(state){
-
-				var found = false;
-
-				$.each(self._states, function(key){
-
-					if (state == key) {
-
-						found = true;
-
-						return false;
-					}
-				});
-
-				if (!found) {
-
-					self._states[state] = state;
-				}
-
-				return found;
-			}
+			( this.options.showToolbar != null && !this.options.showToolbar ) && this.elements.toolbar.container.hide();
 
 			$.each(this.options.toolbar.split(','), function(key, val) {
 
 				var button = self.buttons[val];
 
+				if (!button || !button.text) return true;
+				
 				button.val = val;
 
-				if (!button || !button.text) return true;
+				self._states[val] = self._states[val] || val;
 
-				checkStateExists(val);
-
-				$('<li class="ui-state-default ui-corner-all"></span>')
+				$('<li></li>')
+				.addClass('ui-state-default ui-corner-all')
 				.append('<span class="ui-icon ' + button.icon + '"></span>')
 				.attr('title', button.text)
 				.data('button', button)
@@ -939,33 +896,33 @@
 				})
 				.bind('off', function(){
 
-					var button = $(this).data('button'), toggle = 1;
+					var elem = $(this), button = elem.data('button'), toggle = 1;
 					
-					$(this).data('toggle', toggle);
+					elem.data('toggle', toggle);
 
 					self._removeState(val);
 
-					$(this).find('.ui-icon')
+					elem.find('.ui-icon')
 						.removeClass( button.toggleButton.icon )
-						.addClass( button.icon );
-	
-					$(this).attr('title', button.text);
+						.addClass( button.icon )
+						.end()
+						.attr('title', button.text);
 
 					self._trigger(self, button.toggleButton.action, [ button ] );
 				})
 				.bind('on', function(){
 
-					var button = $(this).data('button'), toggle = 0;
+					var elem = $(this), button = elem.data('button'), toggle = 0;
 					
-					$(this).data('toggle', toggle);
+					elem.data('toggle', toggle);
 
 					self._addState(val);
 
-					$(this).find('.ui-icon')
+					elem.find('.ui-icon')
 						.removeClass( button.icon )
-						.addClass( button.toggleButton.icon );
-
-					$(this).attr('title', button.toggleButton.text)
+						.addClass( button.toggleButton.icon )
+						.end()
+						.attr('title', button.toggleButton.text)
 
 					self._trigger(self, button.action, [ button ] );
 				})
@@ -983,7 +940,6 @@
 					if (button.toggleButton) {
 						
 						$(this).trigger('toggle');
-
 					} else {
 
 						self._trigger(self, button.action, [ button ] );
@@ -997,8 +953,6 @@
 				})
 				.appendTo(self.elements.toolbar.container);
 			});
-
-			this._createTimeArea();
 
 			(this.options.toolbarAppendTo) ?
 				this.elements.toolbar.container.appendTo( this.options.toolbarAppendTo ) :
@@ -1017,6 +971,8 @@
 			this.elements.toolbar.timeCurrent = $('<span>').html('0:00').appendTo(this.elements.toolbar.time);
 
 			this.elements.toolbar.timeDuration = $('<span>').appendTo(this.elements.toolbar.time);
+
+			return this;
 		},
 
 		_createInfobar : function(){
