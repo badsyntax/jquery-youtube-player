@@ -9,7 +9,7 @@ a:hover { text-decoration: none; }
 .index #centered{ width: 700px; }
 #events{ border: 1px solid #aaa; padding: 1em; max-height: 6em; overflow: auto }
 h1 { font-size: 1.5em; font-family: 'Droid Sans', arial, serif; }
-h1 a, h1 a:visited { float: right; font-size: 60%; padding: .8em .2em 0 0; -moz-text-shadow: none; -webkit-text-shadow: none; text-shadow: none;}
+h1 a, h1 a:visited { padding: .8em .2em 0 0; text-decoration: none; -moz-text-shadow: none; -webkit-text-shadow: none; text-shadow: none;}
 h2 { font-family: 'Droid Sans', arial, serif; }
 h1,h2,h3{-moz-text-shadow: 0.1em 0.1em 0 #EEEEEE; -webkit-text-shadow: 0.1em 0.1em 0 #EEEEEE; text-shadow: 0.1em 0.1em 0 #EEEEEE; margin: .8em 0 .5em 0;}
 img { border: 0;}
@@ -34,3 +34,15 @@ button.mouseenter, button.focus, button:hover { color: #000; border-color: #888;
 .clearfix { display: inline-block; }
  html .clearfix { height:1%; }
 * .clearfix { display:block; }
+#nav { display: block; margin: 0 0 2em 0; background: transparent url(img/nav_bg.jpg) repeat-x center bottom; border: 1px solid #ccc; -moz-border-radius: 6px; -webkit-border-radius: 6px; border-radius: 6px; -moz-box-shadow: 2px 2px 2px #999; -webkit-box-shadow: 2px 2px 2px #999; box-shadow: 2px 2px 2px #999; text-align: center; }
+#nav ul { margin: 0; padding: 0; width: auto; border-right: 1px solid #ddd; }
+#nav ul li { list-style: none; margin: 0; padding: 0; width: 116px; float: left; }
+#nav ul li a { display: block; padding: .5em 1.5em; text-decoration: none; text-align: center; font-size: 80%; text-transform: uppercase; border-left: 1px solid #ddd; border-right: 1px solid #fff; outline: none; }
+#nav ul li a.first { border-left: 0; }
+#nav ul li a.selected { text-decoration: underline; }
+#nav ul li a:hover { border: 1px solid #aaa; border-width: 0 1px; -moz-box-shadow: 0 0 3px #888; -webkit-box-shadow: 0 0 3px #888; box-shadow: 0 0 3px #888; text-shadow: 1px 1px 1px #ccc; }
+#nav ul li a:active { -moz-box-shadow: 0 0 4px #333; -webkit-box-shadow: 0 0 4px #333; box-shadow: 0 0 4px #333; }
+.gist .gist-file .gist-data { font-size: 85% !important; }
+.gist { border: 1px solid #aaa; }
+.gist .gist-file { margin-bottom: 0 !important; }
+.gist .gist-file .gist-data { height: 350px !important; }
