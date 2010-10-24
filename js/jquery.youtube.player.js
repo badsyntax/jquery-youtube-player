@@ -92,6 +92,9 @@
 			'buffering': 3,
 			'cued': 5
 		};
+
+		// munge youtube video id from any url
+		this._youtubeIdExp = /^[^v]+v.(.{11}).*/;
 		
 		// extend the default toolbar buttons with user specified buttons (specified buttons will override default)
 		this.buttons = $.extend({}, this.defaultToolbarButtons, this.options.toolbarButtons);
@@ -208,107 +211,119 @@
 
 			var self = this;
 				
-			this.youtubePlayerEvents = {
+			function ready(){
 
-				ready : function(){
-
-					var id = self.elements.playerObject[0].id;
-
-					self.loadVideo(false, true);
-
-					self.elements.toolbar.container
-						.animate({opacity: 1}, 400, function(){
-
-							self._trigger(self, 'onReady', [ id ]);
-						});
-
-					self._showPlaylist(self.options.showPlaylist);
-			
-					(self.keys.play) && self.playVideo();
-				},
-				videoPlay : function(){
-
-					self._updatePlaylist();
-
-					self.router.updateHash();
-
-					self._addState('play');
-
-					self.elements.toolbar.updateStates();
-
-					self._updateInfo(320);
-
-					self._updateTime();
-
-					self._trigger(this, 'onVideoPlay', arguments);
-				},
-				videoPaused : function(){
-
-					self._trigger(this, 'onVideoPaused', arguments);
-				},
-				videoEnded : function(){
-
-					self.buttons.play.element && self.buttons.play.element.trigger( 'off' );
-
-					if (self.options.repeat) {
-
-						self.nextVideo();
-					}
-				},
-				error: function(state){
-
-					switch(state){
-						case 100:
-							msg = 'This video has been removed from Youtube.';
-							break;
-						case 101:
-						case 150:
-							msg = 'This video does not allow playback outside of Youtube.';
-							break;
-						default:
-							msg = 'Unknown error';
-					}
-
-					if (self._trigger(this, 'onError', [msg]) === undefined){
-
-						alert( 'There was an error loading this video. ' + msg );
-					}
-				},
-				videoCued : function(){
-
-					self._updatePlaylist();
-
-					self.elements.toolbar.updateStates();
-			
-					self._trigger(this, 'onVideoCue', arguments);
-				},
-				videoBuffer : function(){
-
-					self._trigger(this, 'onBuffer', arguments); 
-				}
-			};
-
-			var id = this.elements.playerObject[0].id;
-
-			window['_youtubeEventHandler'] = function(state, test){
-
-				self._youtubeEventHandler(state);
-			};
-
-			window['_youtubeReadyEventHandler'+id] = function(state, id){ 
-
-				self._youtubeEventHandler( state ); 
-			};
-			
-			window.onYouTubePlayerReady = function(id){ 
-				
-				self.youtubePlayer = $('#' + id)[0];
+				self.youtubePlayer = self.elements.player.find('object:first')[0];
 
 				self.youtubePlayer.addEventListener('onStateChange', '_youtubeEventHandler');
 
 				self.youtubePlayer.addEventListener('onError', '_youtubeEventHandler');
 
-				self._trigger(self, window['_youtubeReadyEventHandler'+id], [ 9, id ]);
+				self.loadVideo(false, true);
+
+				self.elements.toolbar.container
+					.animate({opacity: 1}, 400, function(){
+
+						self._trigger(self, 'onReady', [ id ]);
+					});
+
+				self._showPlaylist(self.options.showPlaylist);
+			
+				(self.keys.play) && self.playVideo();
+			}
+			function videoPlay(){
+
+				self._updatePlaylist();
+
+				self.router.updateHash();
+
+				self._addState('play');
+
+				self.elements.toolbar.updateStates();
+
+				self._updateInfo(320);
+
+				self._updateTime();
+
+				self._trigger(this, 'onVideoPlay', arguments);
+			}
+			function videoPaused(){
+
+				self._trigger(this, 'onVideoPaused', arguments);
+			}
+			function videoEnded(){
+
+				self.buttons.play.element && self.buttons.play.element.trigger( 'off' );
+
+				if (self.options.repeat) {
+
+					self.nextVideo();
+				}
+			}
+			function error(state){
+
+				switch(state){
+					case 100:
+						msg = 'This video has been removed from Youtube.';
+						break;
+					case 101:
+					case 150:
+						msg = 'This video does not allow playback outside of Youtube.';
+						break;
+					default:
+						msg = 'Unknown error';
+				}
+				if (self._trigger(this, 'onError', [msg]) === undefined){
+
+					alert( 'There was an error loading this video. ' + msg );
+				}
+			}
+			function videoCued(){
+
+				self._updatePlaylist();
+
+				self.elements.toolbar.updateStates();
+			
+				self._trigger(this, 'onVideoCue', arguments);
+			}
+			function videoBuffer(){
+
+				self._trigger(this, 'onBuffer', arguments); 
+			}
+		
+			function youtubeEventHandler(state){
+
+				// reset the youtube player states every time an event is executed
+				self._removeStates([ -1, 0, 1, 2, 3, 5, 100, 101, 150, 9 ]);
+
+				// add a new youtube state
+				self._addState(state, true);
+
+				// execute handler based on state
+				switch(state) {
+					case 0 : videoEnded(); break;
+					case 1 : videoPlay(); break;
+					case 2 : videoPaused(); break;
+					case 3 : videoBuffer(); break;
+					case 9 : ready(); break;
+					case 5 : videoCued(); break;
+					case 100: 
+					case 101:
+					case 150: error( state ); break;
+				}
+
+				self._trigger(self, 'onYoutubeStateChange', [ state ]);
+			}
+
+			var id = this.elements.playerObject[0].id;
+
+			window['_youtubeEventHandler'] = function(state, id){
+
+				youtubeEventHandler(state);
+			};
+			window.onYouTubePlayerReady = function(id){ 
+
+				self._trigger(self, window['_youtubeEventHandler'], [ 9, id ]);
 			};
 
 			return this;
@@ -331,30 +346,6 @@
 			return this;
 		},
 
-		_youtubeEventHandler : function(state){
-
-			// reset the youtube player states every time an event is executed
-			this._removeStates([ -1, 0, 1, 2, 3, 5, 100, 101, 150, 9 ]);
-
-			// add a new youtube state
-			this._addState(state, true);
-
-			// execute handler based on state
-			switch(state) {
-				case 0	: this.youtubePlayerEvents.videoEnded(); break;
-				case 1 : this.youtubePlayerEvents.videoPlay(); break;
-				case 2 : this.youtubePlayerEvents.videoPaused(); break;
-				case 3 : this.youtubePlayerEvents.videoBuffer(); break;
-				case 5 : this.youtubePlayerEvents.videoCued(); break;
-				case 100: 
-				case 101:
-				case 150: this.youtubePlayerEvents.error( state ); break;
-				case 9 : this.youtubePlayerEvents.ready(); break;
-			}
-
-			this._trigger(this, 'onYoutubeStateChange', [ state ]);
-		},
-
 		_removeStates : function(states){
 
 			var newArray = [];
@@ -370,8 +361,6 @@
 		_removeState : function(state){
 
 			this._removeStates([ this._states[ state ]  ]);
-
-			
 		},
 
 		_state : function(state, remove){
@@ -385,17 +374,16 @@
 
 			if (stateID) {
 			
-				$.inArray(state, this._activeStates) === -1 &&
-				this._activeStates.push( state );
+				$.inArray(state, this._activeStates) === -1 
+				&& this._activeStates.push( state );
 			
 			} else {
 
-				this._states[ state ] && 
-				$.inArray(this._states[ state ], this._activeStates) === -1 &&
-				this._activeStates.push( this._states[ state ] );
+				this._states[ state ] 
+				&& $.inArray(this._states[ state ], this._activeStates) === -1 
+				&& this._activeStates.push( this._states[ state ] );
 			}
 		},
-
 		
 		_getPlaylistData : function(success, error){
 
@@ -406,9 +394,7 @@
 				function ajaxSuccess(json){
 
 					if (!json) { 
-
 						error.call( self ); 
-
 						return; 
 					}
 
@@ -420,17 +406,13 @@
 					};
 
 					$.each(json.feed.entry, function(key, vid){
-
 						self.options.playlist.videos.push({
-							id: vid.link[0].href.replace(/^[^v]+v.(.{11}).*/, '$1'), // munge video id from href
+							id: vid.link[0].href.replace(self._youtubeIdExp, '$1'), // munge video id from href
 							title: vid.title.$t
 						});
 					});
 
-					self.elements.playerObject.fadeOut(180, function(){
-
-						success.call( self );
-					});
+					self.elements.playerObject.fadeOut(180, function(){ success.call( self ); });
 				}
 				
 				var url = playlist.user 
@@ -439,15 +421,9 @@
 
 				url += '?callback=?';
 
-				var data = { 
-					alt: 'json', 
-					format: '5'
-				}
+				var data = { alt: 'json', format: '5' };
 				
-				if (playlist.user){
-				
-					data.author = playlist.user;
-				}
+				if (playlist.user){ data.author = playlist.user; }
 
 				this._trigger(this, 'onBeforePlaylistLoaded', [ playlist ]);
 
@@ -470,12 +446,29 @@
 					}
 				});
 
-			} else {
-						
-				self._trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
+				return;
 
-				self._trigger(self, success);
+			} else if (!playlist.videos){
+
+				var videos = this.elements.player.find('.youtube-player-playlist li a');
+
+				if (videos.length) {
+					
+					self.options.playlist.videos = [];
+
+					videos.each(function(){
+						self.options.playlist.videos.push({
+							id: this.href.replace(self._youtubeIdExp, '$1'),
+							title: $(this).html()
+						});
+					});
+				
+				}
 			}
+					
+			self._trigger(self, 'onAfterPlaylistLoaded', [ playlist ]);
+
+			self._trigger(self, success);
 		},
 
 		_updatePlaylist : function(){
@@ -629,7 +622,6 @@
 						(play) ? this.loadVideo() : this.cueVideo();
 
 						this._showPlaylist(show);
-
 					}
 
 					this._trigger(this, success);
@@ -675,9 +667,7 @@
 
 		cueVideo : function(videoID, startTime){
 
-			videoID = videoID || this.options.playlist.videos[this.keys.video].id;
-
-			return this.youtubePlayer.cueVideoById( videoID, startTime || 0);
+			return this.youtubePlayer.cueVideoById( videoID || this.options.playlist.videos[this.keys.video].id, startTime || 0);
 		},
 
 		randomVideo : function(){
@@ -737,10 +727,7 @@
 		},
 
 		// return the plugin object
-		plugin : function(){
-
-			return this;
-		},
+		plugin : function(){ return this; },
 
 		// return an array of current player states
 		state : function(){
@@ -1072,7 +1059,9 @@
 
 				self.elements.playlistContainer = $('<div>').addClass('youtube-player-playlist-container ui-widget-content ui-corner-all');
 				
-				self.elements.playlist = $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
+				self.elements.playlist = self.elements.player.find('.youtube-player-playlist').length
+					? self.elements.player.find('.youtube-player-playlist')
+					: $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
 			};
 
 			this._addVideosToPlaylist = function(cue){
