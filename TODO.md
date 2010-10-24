@@ -19,3 +19,4 @@
 * <strike>Custom playlistBuilder click handler option</strike>
 * Add option to use chromed youtube video player and no custom toolbar
 * Show examples how to add to blog posts / cms etc
+* Make it accessible
