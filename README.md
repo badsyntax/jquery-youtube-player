@@ -8,26 +8,29 @@ This jQuery plugin builds a youtube video player.
 
 **Dependencies:**
 
- * flash plugin installed on browser
+ * Flash plugin installed on browser
  * swfobject
- * jquery ui CSS framework
+ * jQuery UI CSS theme
 
 **Playlists**
 
-The plugin accepts 3 types of playlists:
+The plugin accepts 4 types of playlists:
 
  * Custom playlist (define the vidoes by youtube video id's)
  * Youtube playlist (Youtube playlist id)
  * Youtube latest videos by user (Youtube username)
+ * Collection of youtube links
 
-**Installation and usage**
+**Wiki**
 
- * View the [installation and usage](http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage) wiki page for instructions on how to use the plugin.
+ * [Installation and usage](http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage)
+ * [Screenshots](http://github.com/badsyntax/jquery-youtube-player/wiki/Screenshots)
 
-**Demos:**
+**Examples:**
 
- * [Basic demo](http://badsyntax.github.com/youtube-player/player-example.html)
- * [Advanced demo](http://badsyntax.github.com/youtube-player/player-example-api-events.html) - Examples of the different options, API methods and callback events.
+ * [Basic example](http://badsyntax.github.com/youtube-player/examples/player.html)
+ * [Advanced example](http://badsyntax.github.com/youtube-player/examples/player-advanced.html)
+ * [All examples](http://badsyntax.github.com/youtube-player/)
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
 
 This plugin is being actively developed. Feel free to use the latest revision.
