@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player - Multiple Players Example</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" media="all" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+	<link type="text/css" rel="stylesheet" media="all" href="css/youtube-player.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="css/example_files/example.css" />
+        <link type="text/css" rel="stylesheet" media="all" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<style type="text/css">
+		#centered, .youtube-player {
+			width: 780px !important;
+		}
+		.youtube-player-video {
+			float: left;
+			width: 425px;
+		}
+		.youtube-player-playlist .youtube-player-thumb {
+			width: auto;
+			float: none;
+			background-color: #fff;
+			color: #333;
+		}
+		.youtube-player-playlist .youtube-player-thumb img {
+			float: left;
+			margin: 0 4px 0 0;
+		}
+		.youtube-player-playlist-container {
+			float: left;
+			width: 350px;
+		}
+		.youtube-player-playlist .youtube-player-thumb.ui-state-active,
+		.youtube-player-playlist .youtube-player-thumb.ui-state-hover
+		{
+			background: #eee;
+		}
+		.youtube-player-playlist li {
+			white-space: normal;
+		}
+	</style>
+</head>
+<body class="basic">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+		
+		<h1>
+			<a href="http://badsyntax.github.com/youtube-player/">Home</a>
+			jQuery Youtube Player
+		</h1>
+
+		<div class="youtube-player">
+			<div class="youtube-player-video">
+				<div class="youtube-player-object">
+					You need Flash player 8+ and JavaScript enabled to view this video.
+				</div>
+			</div>
+			<ol class="youtube-player-playlist">
+				<li><a href="http://www.youtube.com/watch?v=wDowSzVgjXI&amp;feature=player_embedded">The All Seeing I - Beat Goes On HQ</a></li>
+				<li><a href="http://www.youtube.com/watch?v=hPzNl6NKAG0&amp;feature=player_embedded">Maru the cat</a></li>
+				<li><a href="http://www.youtube.com/watch?v=lvpuT3aoypE&amp;feature=player_embedded">All Online Data Lost After Internet Crash</a></li>
+			</ol>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+
+			$('.youtube-player').player({
+				chromeless: 0,		
+				videoThumbs: 1,
+				repeatPlaylist: 1,
+				showPlaylist: 1,
+				onReady: function(){
+
+					this.elements.playlist.find('li').each(function(){
+
+						$(this).append( $(this).find('img').attr('title') );
+					});
+				}
+			});
+
+		})(this.jQuery);
+	//]]>
+	</script>
+</body>
+</html>
