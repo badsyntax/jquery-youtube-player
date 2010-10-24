@@ -13,6 +13,7 @@
 * Using the player for one video (no playlist)
 * <strike>Add screenshots page</strike>
 * Option setter and getter
+* Multiple players on same page
 * Repeat all videos in playlist
 * Get track info by id (so user doesn't have to supply title in custom playlist)
 * <strike>Custom playlistBuilder click handler option</strike>
