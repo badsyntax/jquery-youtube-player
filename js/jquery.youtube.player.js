@@ -214,18 +214,12 @@
 
 					var id = self.elements.playerObject[0].id;
 
-				 	self.youtubePlayer = self.elements.playerVideo.find('object:first').get(0);
-
-					self.youtubePlayer.addEventListener('onStateChange', '_youtubeevents' + id);
-
-					self.youtubePlayer.addEventListener('onError', '_youtubeevents' + id);
-
 					self.loadVideo(false, true);
 
 					self.elements.toolbar.container
 						.animate({opacity: 1}, 400, function(){
 
-							self._trigger(self, 'onReady', arguments);
+							self._trigger(self, 'onReady', [ id ]);
 						});
 
 					self._showPlaylist(self.options.showPlaylist);
@@ -294,23 +288,27 @@
 				}
 			};
 
-			var readyhandler = '_youtubeEventHandler' + this.elements.playerObject[0].id;
+			var id = this.elements.playerObject[0].id;
 
-			window[readyhandler] = function(){
+			window['_youtubeEventHandler'] = function(state, test){
 
-				self._youtubeEventHandler(9);
+				self._youtubeEventHandler(state);
+			};
+
+			window['_youtubeReadyEventHandler'+id] = function(state, id){ 
+
+				self._youtubeEventHandler( state ); 
 			};
 			
 			window.onYouTubePlayerReady = function(id){ 
-
-				self._trigger(self, window['_youtubeEventHandler' + id]);
-			};
-					
-			var eventhandler = '_youtubeevents' + this.elements.playerObject[0].id;
-
-			window[eventhandler] = function(state){ 
 				
-				self._youtubeEventHandler(state); 
+				self.youtubePlayer = $('#' + id)[0];
+
+				self.youtubePlayer.addEventListener('onStateChange', '_youtubeEventHandler');
+
+				self.youtubePlayer.addEventListener('onError', '_youtubeEventHandler');
+
+				self._trigger(self, window['_youtubeReadyEventHandler'+id], [ 9, id ]);
 			};
 
 			return this;
