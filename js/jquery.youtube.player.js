@@ -75,12 +75,12 @@
 				allowScriptAccess: 'always',
 				wmode:	'transparent'
 			},
-			showToolbar: 1,			// show or hide the custom toolbar (boolean)
+			showToolbar: null,		// show or hide the custom toolbar (null, true or false)
 			toolbarButtons: {},		// custom toolbar buttons
 			toolbar: 'play,prev,next,shuffle,repeat,mute,playlistToggle' // comma separated list of toolbar buttons
 		}, options);
 
-		if (!this.options.chromeless) this.options.showToolbar = 0;
+		if (!this.options.chromeless && this.options.showToolbar != true) this.options.showToolbar = 0;
 
 		// these initial states are the youtube player states
 		// button states will be added to this object
@@ -112,16 +112,16 @@
 		this.keys = { video: 0 };
 
 		// swfobject requires the video object <div> to have an id set
-		this._uniqueId( this.elements.playerObject[0], 'youtube-player-' );
+		this._uniqueId( this.elements.playerObject[0], 'youtubeplayer' );
 
 		// load and check the playlist before building the player
 		this.loadPlaylist(null, null, null, function(){
 
 			// build everything and set event handlers
 			self
+			._createElements()
 			._bindPlayerEventHandlers()
 			._bindYoutubeEventHandlers()
-			._createElements()
 			._initRouter();
 		});
 	}
@@ -210,14 +210,10 @@
 		_bindYoutubeEventHandlers : function(){
 
 			var self = this;
-				
-			function ready(){
+			
+			function ready(id){
 
-				self.youtubePlayer = self.elements.player.find('object:first')[0];
-
-				self.youtubePlayer.addEventListener('onStateChange', '_youtubeEventHandler');
-
-				self.youtubePlayer.addEventListener('onError', '_youtubeEventHandler');
+				self.youtubePlayer = document.getElementById(id);
 
 				self.loadVideo(false, true);
 
@@ -231,26 +227,12 @@
 			
 				(self.keys.play) && self.playVideo();
 			}
-			function videoPlay(){
 
-				self._updatePlaylist();
-
-				self.router.updateHash();
-
-				self._addState('play');
-
-				self.elements.toolbar.updateStates();
-
-				self._updateInfo(320);
-
-				self._updateTime();
-
-				self._trigger(this, 'onVideoPlay', arguments);
-			}
 			function videoPaused(){
 
 				self._trigger(this, 'onVideoPaused', arguments);
 			}
+
 			function videoEnded(){
 
 				self.buttons.play.element && self.buttons.play.element.trigger( 'off' );
@@ -260,6 +242,7 @@
 					self.nextVideo();
 				}
 			}
+
 			function error(state){
 
 				switch(state){
@@ -278,6 +261,7 @@
 					alert( 'There was an error loading this video. ' + msg );
 				}
 			}
+			
 			function videoCued(){
 
 				self._updatePlaylist();
@@ -286,12 +270,32 @@
 			
 				self._trigger(this, 'onVideoCue', arguments);
 			}
+
 			function videoBuffer(){
 
 				self._trigger(this, 'onBuffer', arguments); 
 			}
-		
-			function youtubeEventHandler(state){
+			
+			function videoPlay(){
+
+				self._updatePlaylist();
+
+				self.router.updateHash();
+
+				self._addState('play');
+
+				self.elements.toolbar.updateStates();
+
+				self._updateInfo(320);
+
+				self._updateTime();
+
+				self._trigger(this, 'onVideoPlay', arguments);
+			}
+			
+			var id = this.elements.playerObject[0].id;
+			
+			window['onytplayerStateChange' + id] = function(state){
 
 				// reset the youtube player states every time an event is executed
 				self._removeStates([ -1, 0, 1, 2, 3, 5, 100, 101, 150, 9 ]);
@@ -299,32 +303,32 @@
 				// add a new youtube state
 				self._addState(state, true);
 
-				// execute handler based on state
 				switch(state) {
 					case 0 : videoEnded(); break;
 					case 1 : videoPlay(); break;
 					case 2 : videoPaused(); break;
 					case 3 : videoBuffer(); break;
-					case 9 : ready(); break;
+					case 9 : ready(id); break;
 					case 5 : videoCued(); break;
-					case 100: 
-					case 101:
-					case 150: error( state ); break;
+					case 100: case 101: case 150: error( state ); break;
 				}
 
 				self._trigger(self, 'onYoutubeStateChange', [ state ]);
+			};
+			
+			if ( !window.onYouTubePlayerReady ){
+			
+				window.onYouTubePlayerReady = function(id){ 
+			
+					var player = document.getElementById(id);
+
+					player.addEventListener("onStateChange", 'onytplayerStateChange' + id);
+
+					player.addEventListener('onError', 'onytplayerStateChange' + id);
+
+					window['onytplayerStateChange' + id](9, id);
+				};
 			}
-
-			var id = this.elements.playerObject[0].id;
-
-			window['_youtubeEventHandler'] = function(state, id){
-
-				youtubeEventHandler(state);
-			};
-			window.onYouTubePlayerReady = function(id){ 
-
-				self._trigger(self, window['_youtubeEventHandler'], [ 9, id ]);
-			};
 
 			return this;
 		},
@@ -871,31 +875,27 @@
 
 			this.elements.toolbar = {
 				container: 
-					$('<ul class="youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">')
+					$('<ul></ul>')
+					.addClass('youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all')
 					.css('opacity', 0),
 				updateStates : function(){
 
-					$.each(self.options.toolbar.split(','), function(key, val) {
+					self.elements.toolbar.container.find('li').each(function(){
 
-						var button = self.buttons[val];
+						var button = $(this).removeClass('ui-state-active').data('button');
 
 						if (!button) return true;
 
-						button.element.removeClass('ui-state-active');
-
-						(self._state(val)) &&
+						(self._state(button.val)) &&
 						(button.toggle) && 
-						button.element.addClass('ui-state-active');
+						$(this).addClass('ui-state-active');
 
-						if (self._state(val) && button.toggleButton){
-
-							button.element.trigger('on');
-						}
+						(self._state(button.val) && button.toggleButton) && $(this).trigger('on');
 					});
 				}
 			};
 
-			 ( !this.options.showToolbar ) && this.elements.toolbar.container.hide();
+			( !this.options.showToolbar ) && this.elements.toolbar.container.hide();
 
 			function checkStateExists(state){
 
@@ -923,78 +923,79 @@
 
 				var button = self.buttons[val];
 
+				button.val = val;
+
 				if (!button || !button.text) return true;
 
 				checkStateExists(val);
 
-				self.buttons[val].element =
-					$('<li class="ui-state-default ui-corner-all"></span>')
-					.append('<span class="ui-icon ' + button.icon + '"></span>')
-					.attr('title', button.text)
-					.data('button', button)
-					.bind('mouseenter mouseleave', function(){
+				$('<li class="ui-state-default ui-corner-all"></span>')
+				.append('<span class="ui-icon ' + button.icon + '"></span>')
+				.attr('title', button.text)
+				.data('button', button)
+				.bind('mouseenter mouseleave', function(){
 
-						$(this).toggleClass('ui-state-hover'); 
-					})
-					.bind('off', function(){
+					$(this).toggleClass('ui-state-hover'); 
+				})
+				.bind('off', function(){
 
-						var button = $(this).data('button'), toggle = 1;
+					var button = $(this).data('button'), toggle = 1;
+					
+					$(this).data('toggle', toggle);
+
+					self._removeState(val);
+
+					$(this).find('.ui-icon')
+						.removeClass( button.toggleButton.icon )
+						.addClass( button.icon );
+	
+					$(this).attr('title', button.text);
+
+					self._trigger(self, button.toggleButton.action, [ button ] );
+				})
+				.bind('on', function(){
+
+					var button = $(this).data('button'), toggle = 0;
+					
+					$(this).data('toggle', toggle);
+
+					self._addState(val);
+
+					$(this).find('.ui-icon')
+						.removeClass( button.icon )
+						.addClass( button.toggleButton.icon );
+
+					$(this).attr('title', button.toggleButton.text)
+
+					self._trigger(self, button.action, [ button ] );
+				})
+				.bind('toggle', function(){
+					
+					var toggle = $(this).data('toggle');
+
+					( toggle || toggle == undefined) ? $(this).trigger('on') : $(this).trigger('off');
+				})
+				.click(function(){
+
+					var button = $(this).data('button'), 
+						state = self._state(val);
+
+					if (button.toggleButton) {
 						
-						$(this).data('toggle', toggle);
+						$(this).trigger('toggle');
 
-						self._removeState(val);
-
-						button.element.find('.ui-icon')
-							.removeClass( button.toggleButton.icon )
-							.addClass( button.icon );
-		
-						button.element.attr('title', button.text);
-
-						self._trigger(self, button.toggleButton.action, [ button ] );
-					})
-					.bind('on', function(){
-
-						var button = $(this).data('button'), toggle = 0;
-						
-						$(this).data('toggle', toggle);
-
-						self._addState(val);
-
-						button.element.find('.ui-icon')
-							.removeClass( button.icon )
-							.addClass( button.toggleButton.icon );
-
-						button.element.attr('title', button.toggleButton.text)
+					} else {
 
 						self._trigger(self, button.action, [ button ] );
-					})
-					.bind('toggle', function(){
-						
-						var toggle = $(this).data('toggle');
 
-						( toggle || toggle == undefined) ? $(this).trigger('on') : $(this).trigger('off');
-					})
-					.click(function(){
+						( !button.toggle || ( button.toggle && state ) ) 
+						? self._removeState(val) 
+						: self._addState(val);
 
-						var button = $(this).data('button'), 
-							state = self._state(val);
-
-						if (button.toggleButton) {
-							
-							$(this).trigger('toggle');
-
-						} else {
-
-							self._trigger(self, button.action, [ button ] );
-
-							( !button.toggle || ( button.toggle && state ) ) 
-							? self._removeState(val) 
-							: self._addState(val);
-
-							self.elements.toolbar.updateStates();
-						}
-					})
-					.appendTo(self.elements.toolbar.container);
+						self.elements.toolbar.updateStates();
+					}
+				})
+				.appendTo(self.elements.toolbar.container);
 			});
 
 			this._createTimeArea();
