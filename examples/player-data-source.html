@@ -4,19 +4,25 @@
 	<title>jQuery Youtube Player - HTML Playlist Data Source</title>
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
-        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
 	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
-        <link type="text/css" rel="stylesheet" href="../css/example_files/example.css" />
+	<link type="text/css" rel="stylesheet" href="css/example.css" />
 	<style type="text/css">
 		#centered, .youtube-player { width: 780px !important; }
 		.youtube-player { background: #fff; }
 		.youtube-player-video { float: left; width: 425px; }
-		.youtube-player-playlist .youtube-player-thumb { width: auto; float: none; background-color: #fff; color: #333; border: 1px solid #fff; }
-		.youtube-player-playlist .youtube-player-thumb img { float: left; margin: 0 4px 0 0; }
-		.youtube-player-playlist-container { float: left; width: 350px; margin: 0; border: 0; margin-left: 2px; background: #fff; }
+		.youtube-player-playlist { margin: 0; display: none; height: 325px; font:12px Arial,Helvetica,sans-serif; color:#000;}
+		.youtube-player-playlist .youtube-player-thumb { width: auto; display: block; height: auto; width: auto; float: none; background-color: #fff; color: #333; border: 1px solid #fff; padding: 0; margin: 3px 0;}
+		.youtube-player-playlist .youtube-player-thumb img {width:96px; left:0; top:-6px;cursor:pointer; display:block; outline:medium none; position:absolute;}
+		.youtube-player-thumb .img { display:block; overflow:hidden; position:relative; height:54px; width:96px; color: #000; }
+		.youtube-player-thumb .img-wrapper { float:left; margin:0 8px 0 0; background-color:white; position:relative; height:54px; width:96px;-moz-border-radius:3px 3px 3px 3px; background:#FFFFFF; border:1px solid #D3D3D3; display:block; overflow:hidden; padding:4px;}
+		.youtube-player-thumb .time {-moz-border-radius:3px 3px 3px 3px; background-color:#000000; color:#FFFFFF !important; display:inline-block; font-size:11px; font-weight:bold; height:14px; line-height:14px; opacity:0.75; padding:0 4px; vertical-align:top;bottom:4px; margin-right:0; margin-top:0; opacity:1; position:absolute; right:4px;}
+		.youtube-player-playlist-container { float: left; width: 352px; margin: 0; border: 0; margin-left: 2px; background: #fff; }
 		.youtube-player-playlist .youtube-player-thumb.ui-state-active, .youtube-player-playlist .youtube-player-thumb.ui-state-hover { background: #eee; }
 		.youtube-player-playlist li { white-space: normal; }
-		.youtube-player-toolbar { border-color: #bbb; float: left; width: 350px; background: #fff; margin: 2px 0 2px 2px; }
+		.youtube-player-toolbar { border-color: #ddd; float: left; width: 350px; background: #fff; z-index: 999; position: absolute; bottom: 0; right: 0;}
+		#hideme { display: none; }
+		#loading { background: url(img/ajax-loader.gif) no-repeat; padding-left: 40px; height: 32px; line-height: 32px; left: 50%; margin-left: -16px; margin-top:-16px; padding-left: 40px; position: absolute; top: 50%;}
 	</style>
 </head>
 <body class="basic">
@@ -40,8 +46,8 @@
 
 		<p>
 			This example reads the playlist from HTML.
-			All you need to do is specify a list with links to youtube videos, 
-			and the plugin will convert it into the video playlist area.
+			All you need to do is specify a list with links to youtube videos, and the plugin will convert it into the video playlist area.
+			The player is embedded and uses a custom toolbar and custom playlist area.
 		</p>
 				
 		<div class="youtube-player ui-helper-clearfix">
@@ -51,9 +57,12 @@
 				</div>
 			</div>
 			<ol class="youtube-player-playlist">
-				<li><a href="http://www.youtube.com/watch?v=5y-7-Mt6uYk">Tron Legacy HD Trailer</a></li>
-				<li><a href="http://www.youtube.com/watch?v=9dc5iiT0f1s">Resident Evil: Afterlife' Trailer HD</a></li>
-				<li><a href="http://www.youtube.com/watch?v=yQ5U8suTUw0">The Dark Knight</a></li>
+				<li><a href="http://www.youtube.com/watch?v=vHjVV7AWaGM&feature=channel">MIT Leg Lab Robots </a></li>
+				<li><a href="http://www.youtube.com/watch?v=b2bExqhhWRI">Boston Dynamics BIGDOG Robot </a></li>
+				<li><a href="http://www.youtube.com/watch?v=67CUudkjEG4&feature=channel">PETMAN Prototype</a></li>
+				<li><a href="http://www.youtube.com/watch?v=dilEgVu-6fw&feature=player_embedded">RHEX - KodLab (long)</a></li>
+				<li><a href="http://www.youtube.com/watch?v=XEMlkonimvQ&feature=related">Boston Dynamics RiSE V2 and V3</a></li>
+				<li><a href="http://www.youtube.com/watch?v=kL_mwmsRKwo&feature=channel">Rotundus GroundBot</a></li>
 			</ol>
 		</div>
 	</div>
@@ -63,23 +72,112 @@
 
 		(function($){
 
-			$('.youtube-player').player({
-				chromeless: 0,		
-				videoThumbs: 1,
-				repeatPlaylist: 1,
-				showPlaylist: 1,
-				showToolbar: 1,
-				showTime: 0,
-				showTitleOverlay: 0,
-				toolbar: 'prev,next,shuffle,repeat',
-				onReady: function(){
+			var c = 0, ids = [], hidediv = $('<div id="hideme"></div>'), 
+					player = $('.youtube-player').height(356).wrapInner( hidediv );
+	
+			function buildPlayer(){
+					
+				player
+					.html( $('#hideme').html() )
+					.player({
+						chromeless: 0,		
+						videoThumbs: 1,
+						repeatPlaylist: 1,
+						showPlaylist: 1,
+						showToolbar: 1,
+						showTime: 0,
+						showTitleOverlay: 0,
+						toolbar: 'prev,next,shuffle,repeat',
+						playlistAnimation: { opacity: 'show' },
+						playlistSpeed: 0,
+						toolbarSpeed: 0,
+						onReady: function(){
+							$('.youtube-player-playlist').fadeIn();
+						},
+						playlistBuilder: function(videos){
 
-					this.elements.playlist.find('li').each(function(){
+							var container = $('<div></div>').addClass('youtube-player-playlist-container').show(), 
+								list = $('.youtube-player-playlist').empty()
 
-						$(this).append( $(this).find('img').attr('title') );
+							list.wrap(container);
+
+							$.each(videos, function(key, video){
+											
+								this.duration = this.title.replace(/^(\w+:\w+) .*/, '$1');
+								
+								this.title = this.title.replace(/^\w+:\w+ (.*)/, '$1');
+
+								var item = $('<li></li>')
+									.data('video', this) // this is required
+									.attr('title', this.title)
+									.html('<span class="img-wrapper"><span class="img"><img src="http://img.youtube.com/vi/' + this.id + '/default.jpg" alt="' + this.title + '" /></span><span class="time">' + this.duration + '</span></span>' + this.title)
+									.addClass('youtube-player-thumb ui-state-default')
+									.bind('mouseenter mouseleave', function(){
+
+										$(this).toggleClass('ui-state-hover');
+									})
+									.appendTo( list );
+							});
+
+							return {
+								container: container,
+								items: list.find('li')
+							};
+						}
 					});
-				}
-			});
+			}
+
+			function playlistSuccessHandler(data, anchor){
+
+				var video = data.feed.entry[0], 
+					title = video.title.$t,
+					seconds = parseInt( video.media$group.yt$duration.seconds ),
+					min = Math.floor( seconds / 60),
+					seconds = (seconds % 60).toFixed(0),
+					duration = min + ':' + ( seconds < 10 ? '0' + seconds : seconds);
+				c++;
+
+				anchor.html(duration + ' ' + title);
+
+				( c == ids.length ) && buildPlayer();
+			}
+
+			function imageLoadHandler(){
+
+				$('<div id="loading"></div>').appendTo( player );
+	
+				player.find('a').each(function(){
+
+					var anchor = $(this), 
+						id = this.href.replace(/^[^v]+v.(.{11}).*/, '$1'), 
+						url = 'http://gdata.youtube.com/feeds/api/videos?alt=json&q=' + id;
+	
+					ids.push( id );
+
+					$.ajax({
+						type: 'GET',
+						url: url,
+						dataType: 'json',
+						error: function(){
+
+							alert('error loading youtube videos information');
+						},
+						success: function(data){
+
+							playlistSuccessHandler.call(this, data, anchor);
+						}
+					});
+
+				});
+
+			}
+
+			$('<img />')
+				.error(function(){
+					alert('test');
+				})
+				.load( imageLoadHandler )
+				.attr('src', 'img/ajax-loader.gif');
 
 		})(this.jQuery);
 	//]]>

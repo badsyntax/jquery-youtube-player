@@ -6,7 +6,7 @@
 	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
 	<link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
 	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
-	<link type="text/css" rel="stylesheet" href="../css/example_files/example.css" />
+	<link type="text/css" rel="stylesheet" href="css/example.css" />
 </head>
 <body class="advanced">
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
@@ -27,7 +27,11 @@
 			</a>
 		</h1>
 
-		<p>The plugin has many options and events you can use to customize your player.</p>
+		<p>
+			The plugin has many options and events you can use to customize your player. View the 
+			<a href="http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage">usage guide</a> for a full list of the 
+			available plugin options and events.
+		</p>
 
 		<div class="clearfix">
 
@@ -47,58 +51,61 @@
 
 				<form id="options" action="#">
 					<fieldset>
-						<label>
-							Show playlist
-							<input type="checkbox" name="showPlaylist" value="1" checked="checked" />
-						</label>
-						<label>
-							Chromeless
-							<input type="checkbox" name="chromeless" value="1" checked="checked" />
-						</label>
-						<label>
-							Show time
-							<input type="checkbox" name="showTime" value="1" checked="checked" />
-						</label>
-						<label>
-							Show title overlay
-							<input type="checkbox" name="showTitleOverlay" value="1" checked="checked" />
-						</label>
-						<label>
-							Video thumbs
-							<input type="checkbox" name="videoThumbs" value="1" />
-						</label>
-						<label>
-							Update hash
-							<input type="checkbox" name="updateHash" value="1" />
-						</label>
-						<label>
-							Repeat
-							<input type="checkbox" name="repeat" value="1" />
-						</label>
-						<label>
-							Auto Start
-							<input type="checkbox" name="autoStart" value="1" />
-						</label>
-						<label>
-							Auto Play
-							<input type="checkbox" name="autoPlay" value="1" />
-						</label>
-						<label>
-							Width
-							<input type="text" name="width" value="425" />
-						</label>
-						<label>
-							Height
-							<input type="text" name="height" value="356" />
-						</label>
-						<label>
-							Playlist height
-							<input type="text" name="playlistHeight" value="5" />
-						</label>
-						<label>
-							Toolbar
-							<input type="text" name="toolbar" value="play,prev,next,shuffle,repeat,mute,playlistToggle" />
-						</label>
+
+						<div class="clearfix">
+							<label>
+								Show playlist
+								<input type="checkbox" name="showPlaylist" value="1" checked="checked" />
+							</label>
+							<label>
+								Chromeless
+								<input type="checkbox" name="chromeless" value="1" checked="checked" />
+							</label>
+							<label>
+								Show time
+								<input type="checkbox" name="showTime" value="1" checked="checked" />
+							</label>
+							<label>
+								Show title overlay
+								<input type="checkbox" name="showTitleOverlay" value="1" checked="checked" />
+							</label>
+							<label>
+								Video thumbs
+								<input type="checkbox" name="videoThumbs" value="1" />
+							</label>
+							<label>
+								Update hash
+								<input type="checkbox" name="updateHash" value="1" />
+							</label>
+							<label>
+								Repeat
+								<input type="checkbox" name="repeat" value="1" />
+							</label>
+							<label>
+								Auto Start
+								<input type="checkbox" name="autoStart" value="1" />
+							</label>
+							<label>
+								Auto Play
+								<input type="checkbox" name="autoPlay" value="1" />
+							</label>
+							<label>
+								Width
+								<input type="text" name="width" value="425" />
+							</label>
+							<label>
+								Height
+								<input type="text" name="height" value="356" />
+							</label>
+							<label>
+								Playlist height
+								<input type="text" name="playlistHeight" value="5" />
+							</label>
+							<label>
+								Toolbar
+								<input type="text" name="toolbar" value="play,prev,next,shuffle,repeat,mute,playlistToggle" />
+							</label>
+						</div>
 
 						<button type="button" id="reload-options" class="github">
 							Reload

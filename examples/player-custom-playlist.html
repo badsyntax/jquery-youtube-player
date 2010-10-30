@@ -6,8 +6,8 @@
 	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
         <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
 	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
-        <link type="text/css" rel="stylesheet" href="../css/example_files/example.css" />
-	<link type="text/css" rel="stylesheet" href="../css/example_files/jcarousel-youtube-player/skin.css" />
+        <link type="text/css" rel="stylesheet" href="css/example.css" />
+	<link type="text/css" rel="stylesheet" href="css/jcarousel-youtube-player/skin.css" />
 </head>
 <body class="basic">
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
@@ -63,7 +63,7 @@
 						$('<li></li>')
 							.data('video', this) // this is required
 							.attr('title', this.title)
-							.html('<img src="http://img.youtube.com/vi/' + this.id + '/2.jpg" alt="' + this.title + '" />')
+							.html('<img src="http://img.youtube.com/vi/' + this.id + '/default.jpg" alt="' + this.title + '" />')
 							.appendTo( list );
 					});
 

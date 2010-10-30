@@ -1,0 +1,48 @@
+/* this stylesheet is used by the example files, it is not required by the jquery youtube player  */
+body { font: normal 90% Arial; background: #ddd; margin: 1em 1em 3em 1em; text-align: center; }
+a, a:visited { color: #7D000F; text-decoration: underline; }
+a:hover { text-decoration: none; }
+#github-ribbon { position: absolute; top: 0; right: 1px; border: 0; }
+#theme-switcher { position: absolute; right: 1em; top: 1em; }
+#centered{ width: 425px; margin: 2em auto 0 auto; text-align: left; }
+.advanced #centered{ width: 780px;}
+.index #centered{ width: 700px; }
+#events{ border: 1px solid #aaa; padding: 1em; max-height: 6em; overflow: auto }
+h1 { font-size: 1.5em; font-family: 'Droid Sans', arial, serif; }
+h1 a, h1 a:visited { padding: .8em .2em 0 0; text-decoration: none; -moz-text-shadow: none; -webkit-text-shadow: none; text-shadow: none;}
+h2 { font-family: 'Droid Sans', arial, serif; }
+h1,h2,h3{-moz-text-shadow: 0.1em 0.1em 0 #EEEEEE; -webkit-text-shadow: 0.1em 0.1em 0 #EEEEEE; text-shadow: 0.1em 0.1em 0 #EEEEEE; margin: .8em 0 .5em 0;}
+img { border: 0;}
+label { padding: .2em 0; display: block; position: relative; cursor: pointer; float: left; clear: left; }
+label input { position: absolute; left: 130px; top: 0; cursor: pointer; }
+button { clear: left; overflow: visible; white-space: nowrap; padding: .5em; cursor: pointer; border: 1px solid #bbb; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; -moz-box-shadow: #bbb 0 1px 4px; -webkit-box-shadow: #bbb 0 1px 4px; box-shadow: #bbb 0 1px 4px; color: #333; -moz-text-shadow: 1px 1px 0 #FFFFFF; -webkit-text-shadow: 1px 1px 0 #FFFFFF; text-shadow: 1px 1px 0 #FFFFFF; font: bold 12px helvetica,arial,freesans,clean,sans-serif; background: #f4f4f4; background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#ddd)); background: -moz-linear-gradient(top,  #fff,  #ddd); }
+button.mousedown, button:active { background: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#eee)); background: -moz-linear-gradient(top,  #ddd,  #eee); }
+button.mouseenter, button.focus, button:hover { color: #000; border-color: #888; outline: none; }
+.multiple-playlists #centered {width:660px;}
+.playlists { width:200px; margin-left: 30px;}
+.playlists ol { border: 1px solid #111; margin: 0; padding-left: 2.4em; }
+.playlists li { }
+.playlists a { color: #000; padding: .3em 0; display: block; }
+.playlists a:hover { color: #990000; }
+.field-row { padding: .3em 0; }
+#footer { border-top: 1px solid #aaa; margin-top: 3em; padding-top: .5em; font-size: .9em; color: #888; clear: both; }
+#footer a { color: #888; text-decoration: none;}
+#footer a:hover { text-decoration: underline; }
+.helper-left { float: left; }
+.helper-right { float: right; }
+.clearfix:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+.clearfix { display: inline-block; }
+ html .clearfix { height:1%; }
+* .clearfix { display:block; }
+#nav { display: block; margin: 0 0 2em 0; background: transparent url(img/nav_bg.jpg) repeat-x center bottom; border: 1px solid #ccc; -moz-border-radius: 6px; -webkit-border-radius: 6px; border-radius: 6px; -moz-box-shadow: 2px 2px 2px #999; -webkit-box-shadow: 2px 2px 2px #999; box-shadow: 2px 2px 2px #999; text-align: center; }
+#nav ul { margin: 0; padding: 0; width: auto; border-right: 1px solid #ddd; }
+#nav ul li { list-style: none; margin: 0; padding: 0; width: 116px; float: left; }
+#nav ul li a { display: block; padding: .5em 1.5em; text-decoration: none; text-align: center; font-size: 80%; text-transform: uppercase; border-left: 1px solid #ddd; border-right: 1px solid #fff; outline: none; }
+#nav ul li a.first { border-left: 0; }
+#nav ul li a.selected { text-decoration: underline; }
+#nav ul li a:hover { border: 1px solid #aaa; border-width: 0 1px; -moz-box-shadow: 0 0 3px #888; -webkit-box-shadow: 0 0 3px #888; box-shadow: 0 0 3px #888; text-shadow: 1px 1px 1px #ccc; }
+#nav ul li a:active { -moz-box-shadow: 0 0 4px #333; -webkit-box-shadow: 0 0 4px #333; box-shadow: 0 0 4px #333; }
+.gist .gist-file .gist-data { font-size: 85% !important; }
+.gist { border: 1px solid #aaa; }
+.gist .gist-file { margin-bottom: 0 !important; }
+.gist .gist-file .gist-data { height: 350px !important; }
