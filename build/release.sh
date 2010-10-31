@@ -25,8 +25,9 @@ echo "Building.."
 name=jquery-youtube-player
 in=../js/jquery.youtube.player.js
 out=../js/jquery.youtube.player.min.js
+thedate=$(date)
 
-cat copywrite | sed "s/\${ver}/$ver/g" > $out
+cat copywrite | sed "s/\${ver}/$ver/g;s/\${time}/$thedate/g" > $out
 
 curl -s \
 	-d compilation_level=SIMPLE_OPTIMIZATIONS \
@@ -37,8 +38,6 @@ curl -s \
 	>> $out
 
 git add $out && git commit -m "added ${ver} min version"
-
-exit
 
 rm -rf "${name}-${ver}" && mkdir "${name}-${ver}" && cd "${name}-${ver}"
 

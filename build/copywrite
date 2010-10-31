@@ -4,4 +4,5 @@
  * MIT license  : http://www.opensource.org/licenses/mit-license.php
  * Project      : http://github.com/badsyntax/jquery-youtube-player
  * Contact      : willis.rh@gmail.com | badsyntax.co.uk
+ * Build time 	: ${time}
  */
