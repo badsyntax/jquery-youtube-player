@@ -10,7 +10,6 @@
 * <strike>Route events to toolbar button states</strike>
 * Solid cross browser testing
 * Update documentation
-* Using the player for one video (no playlist)
 * <strike>Add screenshots page</strike>
 * <strike>Option setter and getter</strike>
 * <strike>Multiple players on same page</strike>
@@ -18,5 +17,8 @@
 * Get track info by id (so user doesn't have to supply title in custom playlist)
 * <strike>Custom playlistBuilder click handler option</strike>
 * <strike>Add option to use chromed youtube video player and no custom toolbar</strike>
+* Hash history
+* Create build script
+* Reduce file size
 * Show examples how to add to blog posts / cms etc
 * Make it accessible
