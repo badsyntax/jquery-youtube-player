@@ -50,7 +50,7 @@ zip -r "${name}-${ver}.zip" "${name}-${ver}"
 
 rm -rf "${name}-${ver}"
 
-git add "${name}-{$ver}.zip" && git commit -m "added v${ver} release archive" && git push
+git add "${name}-${ver}.zip" && git commit -m "added v${ver} release archive" && git push
 
 cd ../
 
