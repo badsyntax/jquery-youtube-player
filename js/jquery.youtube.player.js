@@ -138,7 +138,7 @@
 		// swfobject requires the video object <div> to have an id set
 		var id;
 		do {
-			id = pluginName + Math.floor( Math.random() * 101 ).toString();
+			id = 'jqueryyoutubeplayer' + Math.floor( Math.random() * 101 ).toString();
 
 		} while( document.getElementById(id) );
 
@@ -264,7 +264,7 @@
 			}
 			
 			var id = this.elements.playerObject[0].id;
-			
+
 			window['onytplayerStateChange' + id] = function(state){
 
 				// reset the youtube player states every time an event is executed
@@ -296,7 +296,7 @@
 
 					player.addEventListener('onError', 'onytplayerStateChange' + id);
 
-					window['onytplayerStateChange' + id](9, id);
+					window['onytplayerStateChange' + id](9);
 				};
 			}
 
