@@ -36,6 +36,8 @@ curl -s \
 	http://closure-compiler.appspot.com/compile \
 	>> $out
 
+git add $out && git commit -m "added ${ver} min version"
+
 rm -rf "${name}-${ver}" && mkdir "${name}-${ver}" && cd "${name}-${ver}"
 
 cp -r ../../js/ .
