@@ -30,16 +30,6 @@
 	float: left;
 	margin: 0 4px;
 }
-.youtube-player-infobar {
-	cursor: pointer;
-	float: left;
-	margin: 12px 12px 0px 12px;
-	position: absolute;
-	padding: 3px 6px;
-	top: 0px;
-	z-index: 99;
-	border: 0;
-}
 .youtube-player-playlist-container {
 	border: 1px solid #282828;
 	margin-top: .2em;
