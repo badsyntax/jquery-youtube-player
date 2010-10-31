@@ -38,6 +38,8 @@ curl -s \
 
 git add $out && git commit -m "added ${ver} min version"
 
+exit
+
 rm -rf "${name}-${ver}" && mkdir "${name}-${ver}" && cd "${name}-${ver}"
 
 cp -r ../../js/ .
