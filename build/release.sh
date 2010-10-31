@@ -3,7 +3,7 @@
 # @description : this BASH script is used to build the jquery youtube player plugin
 # @author : Richard Willis
 # @project : http://github.com/badsyntax/jquery-youtube-player
-# @requirements : curl, zip
+# @requirements : curl, zip, git, rhino
 
 echo -n "Enter the version for this release: "
 
@@ -15,6 +15,10 @@ if [ ! $ver ]; then
 
 	exit
 fi
+
+#echo "Checking.."
+
+#lint=$(js jslint.js ../js/jquery.youtube.player.js)
 
 echo "Building.."
 
@@ -45,5 +49,11 @@ cd ../
 zip -r "${name}-${ver}.zip" "${name}-${ver}"
 
 rm -rf "${name}-${ver}"
+
+git add "${name}-{$ver}.zip" && git commit -m "added v${ver} release archive" && git push
+
+cd ../
+
+git tag -a $ver -m "tagged version ${ver}" && git push --tags
 
 echo "done."
