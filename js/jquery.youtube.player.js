@@ -332,8 +332,7 @@
 			var self = this;
 
 			this.elements.toolbar = {
-				container: 
-					$('<ul></ul>')
+				container: $('<ul />')
 					.addClass('youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all')
 					.css('opacity', 0),
 				updateStates : function(){
@@ -353,7 +352,8 @@
 				}
 			};
 
-			( this.options.showToolbar != null && !this.options.showToolbar ) && this.elements.toolbar.container.hide();
+			( this.options.showToolbar != null && !this.options.showToolbar ) 
+				&& this.elements.toolbar.container.hide();
 
 			$.each(this.options.toolbar.split(','), function(key, val) {
 
@@ -398,11 +398,12 @@
 
 					self._addState(val);
 
-					elem.find('.ui-icon')
+					elem
+					.find('.ui-icon')
 						.removeClass( button.icon )
 						.addClass( button.toggleButton.icon )
-						.end()
-						.attr('title', button.toggleButton.text)
+					.end()
+					.attr('title', button.toggleButton.text)
 
 					self._trigger(self, button.action, [ button ] );
 				})
@@ -425,8 +426,8 @@
 						self._trigger(self, button.action, [ button ] );
 
 						( !button.toggle || ( button.toggle && state ) ) 
-						? self._removeState(val) 
-						: self._addState(val);
+							? self._removeState(val) 
+							: self._addState(val);
 
 						self.elements.toolbar.updateStates();
 					}
@@ -445,8 +446,8 @@
 
 			this.elements.toolbar.time = 
 				this.options.timeAppendTo 
-				? $('<span />').appendTo(this.options.timeAppendTo)
-				: $('<li class="youtube-player-time">').appendTo(this.elements.toolbar.container);
+				? $('<span />').appendTo( this.options.timeAppendTo )
+				: $('<li />').addClass('youtube-player-time').appendTo( this.elements.toolbar.container );
 
 			this.elements.toolbar.timeCurrent = $('<span />').html('0:00').appendTo(this.elements.toolbar.time);
 
@@ -480,10 +481,10 @@
 
 				self.elements.playlist = self.elements.player.find('.youtube-player-playlist').length
 					? self.elements.player.find('.youtube-player-playlist')
-					: $('<ol>').addClass('youtube-player-playlist ui-helper-reset');
+					: $('<ol />').addClass('youtube-player-playlist ui-helper-reset');
 				
 				self.elements.playlistContainer = 
-					$('<div>')
+					$('<div />')
 					.addClass('youtube-player-playlist-container ui-widget-content ui-corner-all')
 					.append( self.elements.playlist );
 			};
@@ -504,7 +505,7 @@
 
 					self.videoIds.push(this.id);
 
-					$('<li>')
+					$('<li />')
 						.data('video', this)
 						.append( self.options.videoThumbs ? '<img alt="' + this.title + '" title="' + this.title + '" src="http://img.youtube.com/vi/' + this.id + '/2.jpg" />' : this.title)
 						.addClass('ui-state-default')
@@ -564,17 +565,13 @@
 
 			if (!this.options.showTime) return;
 
-			var self = this, duration = this.youtubePlayer.getDuration();
+			var self = this, duration = Number( this.youtubePlayer.getDuration() );
 
 			function timeFormat(seconds) {
 
-				seconds = Number(seconds);
+				var m = Math.floor( seconds / 60), s = (seconds % 60).toFixed(0);
 
-				var h = Math.floor(seconds / 3600),
-					m = Math.floor(seconds % 3600 / 60),
-					s = Math.floor(seconds % 3600 % 60);
-
-				return ((h > 0 ? h + ':' : '') + (m > 0 ? (h > 0 && m < 10 ? '0' : '') + m + ':' : '0:') + (s < 10 ? '0' : '') + s);
+				return m + ':' + ( s < 10 ? '0' + s : s);
 			}
 
 			this.elements.toolbar.timeDuration.html( ' / ' + timeFormat( duration ));
@@ -583,12 +580,11 @@
 
 			this.timeInterval = setInterval(function(){
 
-				(!self.youtubePlayer.getCurrentTime)
+				( !self.youtubePlayer.getCurrentTime )
 					? clearInterval( self.timeInterval )
 					: self.elements.toolbar.timeCurrent.html( timeFormat( self.youtubePlayer.getCurrentTime() ) );
 			}, 100);
 		},
-
 
 		_removeStates : function(states){
 
@@ -606,7 +602,9 @@
 		
 		_removeState : function(state){
 
-			this._removeStates([ this._states[ state ]  ]);
+			state = typeof state === 'string' ? this._states[ state ] : state;
+
+			this._removeStates([ state  ]);
 		},
 
 		_state : function(state, remove){
