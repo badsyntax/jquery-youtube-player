@@ -186,6 +186,8 @@
 			function ready(id){
 
 				self.youtubePlayer = document.getElementById(id);
+						
+				self._trigger(self, 'onPlayerReady', [ id ]);
 
 				self.loadVideo(false, true);
 
@@ -202,7 +204,7 @@
 
 			function videoPaused(){
 
-				self._trigger(this, 'onVideoPaused', arguments);
+				self._trigger(this, 'onVideoPaused', [ self._getVideo() ]);
 			}
 
 			function videoEnded(){
@@ -245,7 +247,7 @@
 
 			function videoBuffer(){
 
-				self._trigger(this, 'onBuffer', arguments); 
+				self._trigger(this, 'onBuffer', [ self._getVideo() ]); 
 			}
 			
 			function videoPlay(){
@@ -257,10 +259,10 @@
 				self.elements.toolbar.updateStates();
 
 				self._updateTime();
-				
+
 				// update the location hash
 
-				self._trigger(this, 'onVideoPlay', arguments);
+				self._trigger(this, 'onVideoPlay', [ self._getVideo() ]);
 			}
 			
 			var id = this.elements.playerObject[0].id;
@@ -633,6 +635,28 @@
 
 			this.keys.video = this.options.shuffle ? this.options.randomVideo() : val || 0;
 		},
+
+		_getVideo : function(){
+
+			return this.options.playlist.videos[ this.keys.video ];
+		},
+
+		_findVideo : function(id){
+
+			var index = -1;
+
+			$.each(this.options.playlist.videos, function(key, val){
+
+				if (id == val.id) {
+				
+					index = key;
+
+					return false; // break
+				}
+			});
+
+			return index;
+		},
 		
 		_getPlaylistData : function(success, error){
 
@@ -782,13 +806,10 @@
 			function load(videoID){
 
 				( cue ) 
-				? self.cueVideo(videoID) 
+				? self.cueVideo(videoID)
 				: self.youtubePlayer.loadVideoById(videoID, 0);
 
-				// update the location hash
-
-				// TODO: need to determine if video has loaded successfully 
-				self._trigger(self, 'onVideoLoad', [ videoID ]);
+				self._trigger(self, 'onVideoLoad', [ self._getVideo() ]);
 			}
 
 			if (video && video.id) {
@@ -804,7 +825,6 @@
 
 					// append video to video list
 					this.options.playlist.videos.push(video);
-
 				} else {
 
 					// add video to video list only if a title is present
@@ -820,6 +840,20 @@
 				(!cue) && 
 					// load and play the video
 					load(video.id);
+
+			} else if (video) {
+
+				// you can't load videos that aren't in the current playlist
+
+				var index = this._findVideo( video );
+
+				if (index !== -1) {
+
+					this.keys.video = index;
+					
+					load( video );
+				}
+
 			} else {
 
 				// try load the next video
