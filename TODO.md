@@ -17,7 +17,7 @@
 * Get track info by id (so user doesn't have to supply title in custom playlist)
 * <strike>Custom playlistBuilder click handler option</strike>
 * <strike>Add option to use chromed youtube video player and no custom toolbar</strike>
-* Hash history
+* <strike>Hash history</strike>
 * Create build script
 * Reduce file size
 * Show examples how to add to blog posts / cms etc
