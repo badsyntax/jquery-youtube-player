@@ -308,8 +308,8 @@
 		_createPlayer : function(){
 
 			// set the player dimensions
-			this.elements.player.width( parseInt( this.options.width ) );
-			this.elements.playerVideo.height( parseInt( this.options.height ) );
+			this.elements.player.width( this.options.width );
+			this.elements.playerVideo.height( this.options.height );
 
 			var 
 				id = this.options.playlist.videos[this.keys.video].id, 
@@ -730,7 +730,8 @@
 					videos.each(function(){
 						self.options.playlist.videos.push({
 							id: this.href.replace(self._youtubeIdExp, '$1'),
-							title: $(this).html()
+							title: $(this).html(),
+							element: this
 						});
 					});
 				}
