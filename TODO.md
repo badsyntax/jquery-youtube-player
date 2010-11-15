@@ -18,7 +18,7 @@
 * <strike>Custom playlistBuilder click handler option</strike>
 * <strike>Add option to use chromed youtube video player and no custom toolbar</strike>
 * <strike>Hash history</strike>
-* Create build script
+* <strike>Create build script</strike>
 * Reduce file size
-* Show examples how to add to blog posts / cms etc
-* Make it accessible
+* <strike>Show examples how to add to blog posts / cms etc</strike>
+* Make it accessible (also keyboard events)
