@@ -28,9 +28,9 @@ The plugin accepts 4 types of playlists:
 
 **Examples:**
 
- * [Basic example](http://badsyntax.github.com/youtube-player/player-example.html)
- * [Advanced example](http://badsyntax.github.com/youtube-player/player-example-api-events.html)
- * [All examples](http://badsyntax.github.com/youtube-player/)
+ * [Basic example](http://badsyntax.github.com/jquery-youtube-player/examples/player.html)
+ * [Advanced example](http://badsyntax.github.com/jquery-youtube-player/examples/player-advanced.html)
+ * [All examples](http://badsyntax.github.com/jquery-youtube-player/)
  * Original concept: [http://dubstep.uk.net](http://dubstep.uk.net)
 
 This plugin is being actively developed. Feel free to use the latest revision.
