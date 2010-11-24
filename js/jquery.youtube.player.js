@@ -153,7 +153,6 @@
 				._bindYoutubeEventHandlers()
 				._createToolbar()
 				._createTimeArea()
-				._createPlaylist()
 				._createPlayer();
 			});
 	}
@@ -197,9 +196,10 @@
 						self._trigger(self, 'onReady', [ id ]);
 					});
 
-				self._showPlaylist( self.options.showPlaylist );
-			
-				( self.keys.play ) && self.playVideo();
+				self._showPlaylist(function(){
+
+					( self.keys.play ) && self.playVideo();
+				});
 			}
 
 			function videoPaused(){
@@ -462,31 +462,35 @@
 
 			function videoClickHandler(){
 
-				var videoData = $(this).data('video');
-
+				// try get the video object from element data
+				var videoData = $( this ).data( 'video' );
 				if (!videoData) return;
 
+				// set the video key
 				self.keys.video = $.inArray( videoData.id, self.videoIds );
 
+				// reset state
 				self._removeState('play');
 				
+				// update the playlist now that the new video has been selected
 				self._updatePlaylist();
 
+				// load the video into the flash player
 				self.loadVideo();
 				
+				// play it
 				self.playVideo();
 			}
 
 			function buildPlaylist(){
 
-				self.elements.playlist = self.elements.player.find('.youtube-player-playlist').length
-					? self.elements.player.find('.youtube-player-playlist')
-					: $('<ol />').addClass('youtube-player-playlist ui-helper-reset');
+				self.elements.playlist = self.elements.playlist 
+					|| $('<ol />').addClass('youtube-player-playlist ui-helper-reset');
 				
-				self.elements.playlistContainer = 
-					$('<div />')
+				self.elements.playlistContainer = self.elements.playlistContainer 
+					|| $('<div />')
 					.addClass('youtube-player-playlist-container ui-widget-content ui-corner-all')
-					.append( self.elements.playlist );
+					.html( self.elements.playlist );
 			};
 
 			this._addVideosToPlaylist = function(cue){
@@ -497,9 +501,14 @@
 						? [ self.options.playlist.videos[self.options.playlist.videos.length - 1] ] 
 						: self.options.playlist.videos;
 
-				(!cue) && self.elements.playlist.empty();
 
-				self.videoIds = [];
+				// if we're not cueing the videos then we empty the playlist and reset the video id list
+				if (!cue) {
+					
+					self.elements.playlist.empty();
+
+					self.videoIds = [];
+				}
 
 				$.each(videos, function(){
 
@@ -520,7 +529,21 @@
 				self._trigger(self, 'onAfterVideosAddedToPlaylist');
 			};
 
-			if (!$.isFunction( this.options.playlistBuilder )) {
+			this._bindPlaylistClickHandler = function(playlist){
+
+				playlist
+				.items
+				.click(function(){
+
+					self._trigger(this, videoClickHandler, arguments);
+
+					self._trigger(self, 'playlistBuilderClickHandler', arguments);
+				});
+			};
+
+			var playlistBuilder;
+
+			if ( !$.isFunction( this.options.playlistBuilder )){
 
 				buildPlaylist();
 
@@ -531,32 +554,33 @@
 					? this.elements.playlistContainer.appendTo( this.options.playlistAppendTo )
 					// insert playlist after the toolbar
 					: this.elements.toolbar.container.after( this.elements.playlistContainer );
-
-				this.options.playlistBuilder = function(){
+				
+				playlistBuilder = function(){
 					return {
 						items: self.elements.playlist.find('li'),
 						container: self.elements.playlistContainer
 					}
 				};
-			} 
 
+			} else {
+
+				playlistBuilder = this.options.playlistBuilder;
+			}
+
+			// reset the list of video ids
 			$.each(this.options.playlist.videos, function(){
 
 				self.videoIds.push( this.id );
 			});
-
-			var playlist = this.options.playlistBuilder.call(this, this.options.playlist.videos);
-
-			playlist
-			.items
-			.click(function(){
-
-				self._trigger(this, videoClickHandler, arguments);
-
-				self._trigger(self, 'playlistBuilderClickHandler', arguments);
-			});
-
+		
+			// build the playlist
+			var playlist = playlistBuilder.call(this, this.options.playlist.videos);
+			
+			// add the playlist to the DOM
 			this.elements.playlistContainer = playlist.container;
+
+			// bind video click handler
+			this._bindPlaylistClickHandler(playlist);
 
 			return this;
 		},
@@ -769,9 +793,9 @@
 				});
 		},
 
-		_showPlaylist : function(show) {
+		_showPlaylist : function(callback) {
 
-			show = show === undefined ? true : show;
+			var show = this.options.showPlaylist;
 
 			( show ) && this.elements.playlistContainer.show();
 
@@ -794,7 +818,7 @@
 
 				(this.options.showPlaylist || show)
 
-					&& this.elements.playlistContainer.animate(this.options.playlistAnimation, this.options.playlistSpeed);
+					&& this.elements.playlistContainer.animate(this.options.playlistAnimation, this.options.playlistSpeed, callback);
 			}
 		},
 
@@ -834,7 +858,7 @@
 				this._addVideosToPlaylist(cue);
 
 				// update the height of the playlist, but don't explicidly show it
-				this._showPlaylist(false);
+				//this._showPlaylist(false);
 
 				(!cue) && 
 					// load and play the video
@@ -861,6 +885,8 @@
 		},
 		
 		loadPlaylist: function(playlist, play, show, success){
+
+			show = show === undefined ? true : show;
 			
 			if ( playlist ) {
 
@@ -872,19 +898,11 @@
 
 					this.keys.video = this.options.randomStart ? this.randomVideo() : 0;
 
-					// has the flash object been built?
-					if (this.youtubePlayer) {
-
-						// reset the playlist
-						this._addVideosToPlaylist();
-
-						// play or cue the video
-						(play) ? this.loadVideo() : this.cueVideo();
-
-						this._showPlaylist(show);
-					}
-
 					this._trigger(this, success);
+
+					this._createPlaylist();
+
+					(show) && this._showPlaylist();
 				}, 
 				function(){ // error
 
