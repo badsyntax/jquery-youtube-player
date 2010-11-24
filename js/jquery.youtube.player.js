@@ -811,14 +811,21 @@
 			if ( !this.elements.playlist.children().length ) {
 
 				this.elements.playlistContainer.hide();
+					
+				this._trigger(this, callback);
 
 			} else if ( height ) {
 
 				this.elements.playlist.height( height );
 
-				(this.options.showPlaylist || show)
+				if (this.options.showPlaylist || show) {
 
-					&& this.elements.playlistContainer.animate(this.options.playlistAnimation, this.options.playlistSpeed, callback);
+					this.elements.playlistContainer.animate(this.options.playlistAnimation, this.options.playlistSpeed, callback);
+
+				} else {
+
+					this._trigger(this, callback);
+				}
 			}
 		},
 
