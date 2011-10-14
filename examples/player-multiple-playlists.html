@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player - Multiple Playlists</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+	<link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+	<link type="text/css" rel="stylesheet" href="css/example.css" />
+</head>
+<body class="multiple-playlists">
+
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="../js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+				
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+		
+		<p>
+			The plugin API allows you to easily hook into the base functions.
+			The example demonstrates how to load different playlists, and use
+			the callback events.
+		</p>
+
+		<div class="clearfix">
+			<div class="helper-left" style="width:430px;">
+
+
+				<div class="youtube-player">
+					<div class="youtube-player-video">
+						<div class="youtube-player-object">
+							You need Flash player 8+ and JavaScript enabled to view this video.
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="helper-left playlists">
+
+				<h2 style="margin-top:0">Playlists:</h2>
+
+				<ol>
+					<li><a href="#playlist-1">Playlist 1</a></li>
+					<li><a href="#playlist-2">Playlist 2</a></li>
+					<li><a href="#playlist-3">Playlist 3</a></li>
+					<li><a href="#playlist-4">Playlist 4</a></li>
+				</ol>
+				
+				<div id="loading" style="margin: 4px 0;display:none;">loading...</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+
+			var playlists = {
+				'playlist-1': {
+					title: 'Random videos',
+					videos: [
+						{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
+						{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' }
+					]
+				},
+				'playlist-2': {
+					playlist: '71B8152559FA2805'
+				},
+				'playlist-3': {
+					user: 'DUBSnBREAKS'
+				},
+				'playlist-4': {
+					user: 'theillestbro'
+				}
+			};
+
+			var playerConfig =  {
+				playlist: playlists['playlist-1'], // initial playlist
+                                onError: function(msg){
+
+					alert(msg);
+                                },
+				onBeforePlaylistLoaded: function(playlist){
+
+					$('#loading').show();
+				},
+				onAfterPlaylistLoaded: function(playlist){
+
+					$('#loading').hide();
+				}
+			};
+
+			var player = $('.youtube-player').player( playerConfig );
+
+			$('.playlists a[href*=#]').click(function(){
+
+				var playlist = playlists[ this.hash.replace(/^.*?#/, '') ];
+
+				player.player('loadPlaylist', playlist);
+
+				return false;
+			});
+			
+		})(this.jQuery);
+
+	//]]>
+	</script>
+</body>
+</html>

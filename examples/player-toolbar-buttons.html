@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player - Customm Toolbar Buttons</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+        <link type="text/css" rel="stylesheet" href="css/example.css" />
+</head>
+<body class="basic">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="../js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+		
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+
+		<p>
+			Use the options to pass in custom buttons and toolbar definitions.
+		<p>
+
+		<div class="youtube-player">
+			<div class="youtube-player-video">
+				<div class="youtube-player-object">
+					You need Flash player 8+ and JavaScript enabled to view this video.
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+			var config =  {
+
+				toolbarButtons: { 
+				
+					// if you name a button used by the player, your button will be used,
+					// allowing you to override the default buttons
+
+					next: {
+						text: 'Next',
+						icon: 'ui-icon-seek-next',
+						action: function(){
+
+							alert('This is a custom button action');
+
+							// 'this' is the player object
+							// console.debug(this) to get list of methods to use
+
+							this.nextVideo();
+						}
+					},
+					
+					// custom buttons need to have a unique name, and remember to 
+					// add this name to the toolbar button list
+
+					customButton: {
+						text: 'Power',
+						icon: 'ui-icon-power',
+       	                 			action: function(){
+					
+							alert('Power off!');
+						}
+                    			}	
+				},
+
+				toolbar: 'play,next,playlistToggle,customButton',
+
+				// Custom playlist
+				playlist: {
+					title: 'Random videos',
+					videos: [
+						{ id: '0F1RVXfiWEE', title: 'cinematic orchestra - all that you give' }
+					]
+				}
+
+			};
+
+			$('.youtube-player').player(config);
+
+		})(this.jQuery);
+	//]]>
+	</script>
+</body>
+</html>

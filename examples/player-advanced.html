@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player API Example</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+	<link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+	<link type="text/css" rel="stylesheet" href="css/example.css" />
+</head>
+<body class="advanced">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="../js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+
+		<p>
+			The plugin has many options and events you can use to customize your player. View the 
+			<a href="http://github.com/badsyntax/jquery-youtube-player/wiki/Installation-and-usage">usage guide</a> for a full list of the 
+			available plugin options and events.
+		</p>
+
+		<div class="clearfix">
+
+			<div class="helper-left" style="width:430px">
+
+				<div class="youtube-player">
+					<div class="youtube-player-video">
+						<div class="youtube-player-object">
+							You need Flash player 8+ and JavaScript enabled to view this video.
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="helper-right" style="width:330px">
+
+				<form id="options" action="#">
+					<fieldset>
+
+						<div class="clearfix">
+							<label>
+								Show playlist
+								<input type="checkbox" name="showPlaylist" value="1" checked="checked" />
+							</label>
+							<label>
+								Chromeless
+								<input type="checkbox" name="chromeless" value="1" checked="checked" />
+							</label>
+							<label>
+								Show time
+								<input type="checkbox" name="showTime" value="1" checked="checked" />
+							</label>
+							<label>
+								Video thumbs
+								<input type="checkbox" name="videoThumbs" value="1" />
+							</label>
+							<label>
+								Repeat
+								<input type="checkbox" name="repeat" value="1" />
+							</label>
+							<label>
+								Auto Start
+								<input type="checkbox" name="autoStart" value="1" />
+							</label>
+							<label>
+								Auto Play
+								<input type="checkbox" name="autoPlay" value="1" />
+							</label>
+							<label>
+								Width
+								<input type="text" name="width" value="425" />
+							</label>
+							<label>
+								Height
+								<input type="text" name="height" value="356" />
+							</label>
+							<label>
+								Playlist height
+								<input type="text" name="playlistHeight" value="5" />
+							</label>
+							<label>
+								Toolbar
+								<input type="text" name="toolbar" value="play,prev,next,shuffle,repeat,mute,playlistToggle" />
+							</label>
+						</div>
+
+						<button type="button" id="reload-options" class="github">
+							Reload
+						</button>
+
+						<button type="reset">
+							Reset
+						</button>
+					</fieldset>
+				</form>
+				
+				<h2>Methods:</h2>
+
+				<div class="field-row">
+
+					<button type="button" id="destroy">
+						Destroy
+					</button>
+
+					<button type="button" id="create">
+						Create
+					</button>
+					
+					<button type="button" id="prev">
+						Prev
+					</button>
+					
+					<button type="button" id="next">
+						Next
+					</button>
+				</div>
+
+				<div class="field-row">
+					<input type="text" name="load-video-field" value="dilEgVu-6fw" />
+					<button type="button" id="load-video">
+						Load video
+					</button>
+				</div>
+				
+				<div class="field-row">
+					<input type="text" name="load-playlist-field" value="71B8152559FA2805" />
+					<button type="button" id="load-playlist">
+						Load playlist
+					</button>
+				</div>
+
+				<h2>Events:</h2>
+				<div id="events"></div>
+
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+
+			function updateEvents(title){
+
+				$('<div>' + title + '</div>').hide().appendTo('#events').fadeIn('fast');
+
+				var objDiv = document.getElementById("events");
+				objDiv.scrollTop = objDiv.scrollHeight;
+			}
+
+			var playerConfig =  {
+				showPlaylist: 1,
+				randomStart: 0,
+				playlist: {
+					title: 'Random videos',
+					videos: [
+						{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
+						{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' }
+					]
+				},
+
+				// callback events
+
+				onReady: function(){
+
+					// 'this' is this playerobject
+					// console.debug(this);
+
+					updateEvents('player ready');
+				},
+
+				onVideoPlay: function(){
+
+					updateEvents('video play');
+				},
+				
+				onVideoPaused: function(){
+
+					updateEvents('video paused');
+				},
+
+				onError: function(msg){
+
+					alert(msg);
+
+					updateEvents(msg);
+				},
+
+				onBuffer: function(){
+
+					updateEvents('buffer');
+				},
+				
+				onBeforePlaylistLoaded: function(){
+
+					updateEvents('playlist loading');
+				},
+
+				onAfterPlaylistLoaded: function(){
+
+					updateEvents('playlist loaded');
+				},
+
+				onVideoLoaded: function(videoID){
+
+					updateEvents('video loaded: ' + videoID);
+				},
+
+				onVideoCue: function(videoID){
+
+					updateEvents('video cued: ' + videoID);
+				}
+			};
+
+			var player = $('.youtube-player').player( playerConfig );
+			
+			$('#load-video').click(function(){
+
+				var videoID = $('input[name=load-video-field]').val();
+
+				player.player('loadVideo', { id: videoID });
+
+			});
+
+			$('#load-playlist').click(function(){
+
+				var playlistID = $('input[name=load-playlist-field]').val();
+				
+				player.player('loadPlaylist', { playlist: playlistID });
+			});
+			
+			$('#open-playlist').click(function(){
+				
+				player.player('openPlaylist');
+			});
+			
+			$('#close-playlist').click(function(){
+				
+				player.player('closePlaylist');
+			});
+			
+			$('#destroy').click(function(){
+				
+				player.player('destroy');
+			});
+			
+			$('#create').click(function(){
+				
+				player = $('.youtube-player').player( playerConfig );
+			});
+
+			$('#prev').click(function(){
+
+				player.player('prevVideo');
+			});
+
+			$('#next').click(function(){
+
+				player.player('nextVideo');
+			});
+			
+			$('#reload-options').click(function(){
+
+				$('#options input').each(function(){
+
+					playerConfig[ this.name ] = ( this.type == 'checkbox' && this.checked ) ? this.value : this.type =='text' ? this.value : 0;
+				});
+
+				player.player('destroy');
+
+				$('.youtube-player').player( playerConfig );
+			});
+
+			$('input[name=videoThumbs]').click(function(){
+				
+				if (this.checked) {
+
+					$('input[name=playlistHeight]').val('2');
+				} else {
+
+					$('input[name=playlistHeight]').val('5');
+				}
+			});
+
+		})(this.jQuery);
+
+	//]]>
+	</script>
+</body>
+</html>

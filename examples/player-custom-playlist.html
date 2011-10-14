@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player - Custom Playlist</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+        <link type="text/css" rel="stylesheet" href="css/example.css" />
+	<link type="text/css" rel="stylesheet" href="css/jcarousel-youtube-player/skin.css" />
+</head>
+<body class="basic">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="js/jquery.jcarousel.min.js"></script>
+	<script type="text/javascript" src="../js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+		
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+
+		<p>
+			This example file demonstrates how to create a custom playlist using the playlistBuilder option.
+		</p>
+
+		<div class="youtube-player">
+			<div class="youtube-player-video">
+				<div class="youtube-player-object">
+					You need Flash player 8+ and JavaScript enabled to view this video.
+				</div>
+			</div>
+		</div>
+
+		<div class="custom-playlist">
+
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+			var config =  {
+
+				chromeless: 0,
+
+				playlistBuilder: function(videos){
+
+					var list = $('<ul></ul>');
+					
+					$.each(videos, function(key, video){
+
+						$('<li></li>')
+							.data('video', this) // this is required
+							.attr('title', this.title)
+							.html('<img src="http://img.youtube.com/vi/' + this.id + '/default.jpg" alt="' + this.title + '" />')
+							.appendTo( list );
+					});
+
+					return {
+						container: $('.custom-playlist'),
+						items: list
+							.appendTo('.custom-playlist')
+							.addClass('jcarousel-skin-youtube-player')
+							.jcarousel()
+							.find('li')
+					};
+				},
+
+				playlistBuilderClickHandler: function(event){
+
+					event.preventDefault();
+				},
+
+				playlist: {
+					title: 'Random videos',
+					videos: [
+						{ id: 'wDowSzVgjXI', title: 'The All Seeing I - Beat Goes On HQ' },
+						{ id: '1gD8nV8RlPU', title: 'Dai Mahou Touge - Vegetable Suicide' },
+						{ id: 'hPzNl6NKAG0', title: 'Maru the cat' },
+						{ id: 'lvpuT3aoypE', title: 'All Online Data Lost After Internet Crash' },
+						{ id: 'Kv6Ewqx3PMs', title: 'Mr. Oizo Flat Beat' },
+						{ id: 'IAxj2ob_JoU', title: 'Most incredible volcano footage ever' },
+						{ id: '3ycBGkLkEkg', title: 'Wingsuit BASE jumping in Baffin Island' }
+					]
+				}
+			};
+
+			$('.youtube-player').player(config)
+
+		})(this.jQuery);
+	//]]>
+	</script>
+</body>
+</html>

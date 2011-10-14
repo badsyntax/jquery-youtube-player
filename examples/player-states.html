@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player Example</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+        <link type="text/css" rel="stylesheet" href="css/example.css" />
+</head>
+<body class="basic">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="./js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+		
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+
+		<div class="youtube-player">
+			<div class="youtube-player-video">
+				<div class="youtube-player-object">
+					You need Flash player 8+ and JavaScript enabled to view this video.
+				</div>
+			</div>
+		</div>
+
+		<br />
+		<button type="button" id="get-state">
+			Get state
+		</button>
+
+		<div id="states"></div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+
+			var config =  {
+
+				playlist: {
+					title: 'Random videos',
+					videos: [ { id: 'Kv6Ewqx3PMs', title: 'Mr. Oizo Flat Beat' } ]
+				}
+			};
+
+			var player = $('.youtube-player').player(config).player('plugin');
+			
+			
+			$('#get-state').click(function(){
+
+				var state = player.state();
+
+				$('<div />').html( state.join(',') ).hide().appendTo('#states').fadeIn();
+			});
+
+		})(this.jQuery);
+	//]]>
+	</script>
+</body>
+</html>

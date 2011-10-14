@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player Example</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+	<link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+	<link type="text/css" rel="stylesheet" href="css/example.css" />
+</head>
+<body>
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+		
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+
+		<p>
+			This file shows the final markup of the player, toolbar and playlist.
+		</p>
+
+		<div class="youtube-player ui-widget" style="width: 425px;">
+			<div class="youtube-player-video" style="height: 356px;">
+				<div class="youtube-player-infobar ui-widget-content ui-corner-all" style="opacity: 0;"></div>
+				<object 
+					width="100%" 
+					height="100%" 
+					type="application/x-shockwave-flash" 
+					data="http://www.youtube.com/apiplayer?enablejsapi=1&amp;version=3&amp;playerapiid=youtube&amp;hd=1&amp;showinfo=0" 
+					id="youtube-player-60" style="visibility: visible;">
+					<param name="allowfullscreen" value="true" />
+					<param name="allowScriptAccess" value="always" />
+				</object>
+			</div>
+			<ul class="youtube-player-toolbar ui-widget ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all" style="opacity: 1;">
+				<li class="ui-state-default ui-corner-all" title="Play"><span class="ui-icon ui-icon-play"></span></li>
+				<li class="ui-state-default ui-corner-all" title="Prev"><span class="ui-icon ui-icon-seek-prev"></span></li>
+				<li class="ui-state-default ui-corner-all" title="Next"><span class="ui-icon ui-icon-seek-next"></span></li>
+				<li class="ui-state-default ui-corner-all" title="Shuffle/Random"><span class="ui-icon ui-icon-shuffle"></span></li>
+				<li class="ui-state-default ui-corner-all" title="Repeat playlist"><span class="ui-icon ui-icon-refresh"></span></li>
+				<li class="ui-state-default ui-corner-all" title="Mute"><span class="ui-icon ui-icon-volume-on"></span></li>
+				<li class="ui-state-default ui-corner-all" title="Toggle playlist"><span class="ui-icon ui-icon-script"></span></li>
+				<li class="youtube-player-time" style="display:block;"><span>0:00</span> / <span>3:02</span></li>
+			</ul>
+			<div class="youtube-player-playlist-container ui-widget-content ui-corner-all" style="display:block">
+				<ol class="youtube-player-playlist ui-helper-reset" style="height:115px;">
+					<li class="ui-state-default">The All Seeing I - Beat Goes On HQ</li>
+					<li class="ui-state-default">Dai Mahou Touge - Vegetable Suicide</li>
+					<li class="ui-state-default">Maru the cat</li>
+					<li class="ui-state-default">All Online Data Lost After Internet Crash</li>
+					<li class="ui-state-default">Mr. Oizo Flat Beat</li>
+					<li class="ui-state-default">Most incredible volcano footage ever</li>
+					<li class="ui-state-default">Wingsuit BASE jumping in Baffin Island</li>
+				</ol>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

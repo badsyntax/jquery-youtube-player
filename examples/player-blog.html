@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title>jQuery Youtube Player - Blog integration example</title>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+	<link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/black-tie/jquery-ui.css" />
+        <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Sans&amp;subset=latin" />
+	<link type="text/css" rel="stylesheet" href="../css/youtube-player.css" />
+        <link type="text/css" rel="stylesheet" href="css/example.css" />
+	<style type="text/css">
+		.entry {
+			padding: 1em;
+			border: 1px solid #aaa;
+			margin-bottom: 1em;
+		}
+	</style>
+</head>
+<body class="basic">
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js"></script>
+	<script type="text/javascript" src="../js/jquery.youtube.player.js"></script>
+
+	<div id="github-ribbon">
+		<a href="http://github.com/badsyntax/jquery-youtube-player">
+			<img src="http://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub" />
+		</a>
+	</div>
+
+	<div id="centered">
+		
+		<h1>
+			<a href="../index.html">
+				jQuery Youtube Player
+			</a>
+		</h1>
+
+		<p>
+			This example will convert all the specified youtube links to 
+			youtube players. 
+		</p>
+
+		<div class="entry">
+			<p>
+				This is my first blog entry.
+			</p>
+			<a class="video" href="http://www.youtube.com/watch?v=wDowSzVgjXI">The All Seeing I - Beat Goes On HQ</a>
+		</div>
+		
+		<div class="entry">
+			<p>
+				This is my second blog entry.
+			</p>
+			<a class="video" href="http://www.youtube.com/watch?v=lvpuT3aoypE&feature=player_embedded">All Online Data Lost After Internet Crash</a>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+
+		(function($){
+
+			$('a.video').player({
+				width: 380,
+				chromeless: 0,		
+				showTime: 0,
+				showPlaylist: 0,
+				showTitleOverlay: 0
+			});
+
+		})(this.jQuery);
+	//]]>
+	</script>
+</body>
+</html>
