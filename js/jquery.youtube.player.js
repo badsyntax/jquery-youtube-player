@@ -187,13 +187,17 @@
 				self.youtubePlayer = document.getElementById(id);
 						
 				self._trigger(self, 'onPlayerReady', [ id ]);
+			    
 
 				self.loadVideo(false, true);
 
 				self.elements.toolbar.container
 					.animate(self.options.toolbarAnimation, self.options.toolbarSpeed, function(){
 
-						self._trigger(self, 'onReady', [ id ]);
+					    if (self.options.autoStart)
+						self.playVideo();
+
+					    self._trigger(self, 'onReady', [ id ]);
 					});
 
 				self._showPlaylist(function(){
